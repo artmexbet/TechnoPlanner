@@ -1,0 +1,32 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' Диаграмма контейнеров
+LAYOUT_TOP_DOWN()
+title Система менеджмента техники - Контейнеры
+
+Person(user, "Рядовой пользователь", "Пользователь системы для получения информации о технике и задачах")
+Person(admin, "Администратор", "Управляет техникой, задачами и пользователями")
+Person(carrier, "Исполнитель (носящий)", "Получает задачи на перемещение техники")
+
+Container(webApp, "Веб-приложение", "React/TypeScript", "Интерфейс для пользователей и администраторов")
+Container(mobileApp, "Мобильное приложение", "React Native", "Интерфейс для исполнителей")
+Container(apiGateway, "API Gateway", "Go", "Обрабатывает запросы от клиентов")
+Container(serviceTechManagement, "Сервис управления техникой", "Go", "Управляет информацией о технике и задачах")
+Container(serviceTaskManagement, "Сервис управления задачами", "Go", "Управляет задачами и исполнителями")
+Container(database, "База данных", "PostgreSQL", "Хранит информацию о технике, задачах и пользователях")
+Container(messageBroker, "Брокер сообщений", "NATS JetStream", "Обеспечивает асинхронное взаимодействие между сервисами")
+
+Rel(user, webApp, "Использует")
+Rel(admin, webApp, "Использует")
+Rel(carrier, mobileApp, "Использует")
+Rel(webApp, apiGateway, "Отправляет запросы")
+Rel(mobileApp, apiGateway, "Отправляет запросы")
+Rel(apiGateway, serviceTechManagement, "Запросы о технике")
+Rel(apiGateway, serviceTaskManagement, "Запросы о задачах")
+Rel(serviceTechManagement, database, "Читает и записывает данные")
+Rel(serviceTaskManagement, database, "Читает и записывает данные")
+Rel(serviceTechManagement, messageBroker, "Публикует события")
+Rel(serviceTaskManagement, messageBroker, "Публикует события")
+
+@enduml

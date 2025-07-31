@@ -1,0 +1,22 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' Диаграмма компонентов для сервиса управления техникой
+LAYOUT_TOP_DOWN()
+title Сервис управления техникой - Компоненты
+
+Container(serviceTechManagement, "Сервис управления техникой", "Go", "Управляет информацией о технике и задачах")
+
+Component(techCatalog, "Каталог техники", "Go", "Управляет данными о технике")
+Component(softwareManager, "Менеджер ПО", "Go", "Управляет данными о программном обеспечении на технике")
+Component(locationTracker, "Трекер местоположения", "Go", "Отслеживает местоположение техники")
+Component(techRepository, "Репозиторий техники", "Go", "Работа с данными о технике в базе данных")
+Component(messagePublisherTech, "Публикация сообщений", "Go", "Публикует события в NATS JetStream")
+
+Rel(techCatalog, techRepository, "Читает и записывает данные")
+Rel(softwareManager, techRepository, "Читает и записывает данные")
+Rel(locationTracker, techRepository, "Читает и записывает данные")
+Rel(techCatalog, messagePublisherTech, "Публикует события")
+Rel(messagePublisherTech, messageBroker, "Публикует события")
+
+@enduml

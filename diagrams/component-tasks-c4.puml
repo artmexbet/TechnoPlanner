@@ -1,0 +1,20 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' Диаграмма компонентов для сервиса управления задачами
+LAYOUT_TOP_DOWN()
+title Сервис управления задачами - Компоненты
+
+Container(serviceTaskManagement, "Сервис управления задачами", "Go", "Управляет задачами и исполнителями")
+
+Component(taskScheduler, "Планировщик задач", "Go", "Определяет расписание задач")
+Component(taskNotifier, "Уведомления о задачах", "Go", "Отправляет уведомления исполнителям")
+Component(taskRepository, "Репозиторий задач", "Go", "Работа с данными о задачах в базе данных")
+Component(messagePublisher, "Публикация сообщений", "Go", "Публикует события в NATS JetStream")
+
+Rel(taskScheduler, taskRepository, "Читает и записывает данные")
+Rel(taskNotifier, taskRepository, "Читает данные")
+Rel(taskNotifier, messagePublisher, "Публикует уведомления")
+Rel(messagePublisher, messageBroker, "Публикует события")
+
+@enduml
