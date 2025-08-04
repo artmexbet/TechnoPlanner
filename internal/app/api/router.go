@@ -1,4 +1,4 @@
-package router
+package api
 
 import (
 	"fmt"
@@ -9,20 +9,30 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 )
 
+type techManagerSvc interface {
+}
+
+type taskManagerSvc interface {
+}
+
 type Config struct {
 	Address string `yaml:"address" env:"ADDRESS"`
 	Port    string `yaml:"port" env:"PORT"`
 }
 
 type Router struct {
-	r   *fiber.App
-	cfg Config
+	r        *fiber.App
+	cfg      Config
+	techMngr techManagerSvc
+	taskMngr taskManagerSvc
 }
 
-func NewRouter(cfg Config) *Router {
+func NewRouter(cfg Config, techMngr techManagerSvc, taskMngr taskManagerSvc) *Router {
 	return &Router{
-		r:   fiber.New(),
-		cfg: cfg,
+		r:        fiber.New(),
+		cfg:      cfg,
+		techMngr: techMngr,
+		taskMngr: taskMngr,
 	}
 }
 
@@ -33,11 +43,10 @@ func (r *Router) InitMiddlewares() {
 		},
 	))
 	r.r.Use(recover.New())
-	r.r.Use(requestid.New())
+	r.r.Use(requestid.New()) // Trace
 }
 
 func (r *Router) Run() {
-	// extract the config from the environment or a config file
 	if err := r.r.Listen(fmt.Sprintf("%s:%s", r.cfg.Address, r.cfg.Port)); err != nil {
 		panic(err)
 	}
