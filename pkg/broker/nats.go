@@ -8,6 +8,7 @@ import (
 	"technoBro/pkg/domain"
 
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 )
 
 type Config struct {
@@ -19,6 +20,7 @@ type Consumers map[string]Handler
 
 type NATSBroker struct {
 	conn *nats.Conn
+	js   jetstream.JetStream
 }
 
 func NewNATSBroker(cfg Config, consumers Consumers) (*NATSBroker, error) {
@@ -26,7 +28,11 @@ func NewNATSBroker(cfg Config, consumers Consumers) (*NATSBroker, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to NATS: %w", err)
 	}
-	n := &NATSBroker{conn: conn}
+	js, err := jetstream.New(conn)
+	n := &NATSBroker{
+		conn: conn,
+		js:   js,
+	}
 	for topic, handler := range consumers {
 		err = n.RegisterConsumer(topic, handler)
 		if err != nil {
