@@ -1,0 +1,26 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' Диаграмма компонентов для Телеграм-бота
+LAYOUT_TOP_DOWN()
+title Телеграм-бот - Компоненты
+
+Container(telegramBot, "Телеграм-бот", "Go", "Интерфейс для рядовых пользователей через Telegram")
+System_Ext(telegramPlatform, "Платформа Telegram", "Telegram Bot API", "Доставляет обновления и принимает ответы")
+Container_Ext(messageBroker, "Брокер сообщений", "NATS JetStream", "Транспорт событий и команд")
+
+Component(updateHandler, "Обработчик обновлений", "Go", "Прием и первичная обработка обновлений")
+Component(commandParser, "Парсер команд", "Go", "Парсит команды и формирует сообщения")
+Component(natsClient, "Клиент NATS", "Go", "Публикация/подписка на темы NATS")
+Component(sessionStore, "Хранилище сессий", "Go", "Хранение контекста/сессий (in-memory/Redis)")
+
+Rel(telegramPlatform, telegramBot, "Доставляет обновления (webhook/polling)")
+Rel(telegramBot, telegramPlatform, "Отправляет сообщения", "HTTPS")
+
+Rel(updateHandler, commandParser, "Передает команды")
+Rel(commandParser, natsClient, "Публикует команды пользователя")
+Rel(natsClient, messageBroker, "Pub/Sub команды и уведомления")
+Rel(natsClient, updateHandler, "Передает уведомления для отправки пользователю")
+Rel(updateHandler, sessionStore, "Читает/обновляет контекст")
+
+@enduml

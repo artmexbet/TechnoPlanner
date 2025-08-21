@@ -5,12 +5,16 @@
 LAYOUT_TOP_DOWN()
 title API Gateway - Компоненты
 
-Container(apiGateway, "API Gateway", "Go", "Обрабатывает запросы от клиентов")
+Container(apiGateway, "API Gateway", "Go", "Обрабатывает запросы от веб-приложения")
 
 Component(authenticator, "Аутентификатор", "Go", "Управляет аутентификацией пользователей")
 Component(requestRouter, "Маршрутизатор запросов", "Go", "Маршрутизирует запросы к соответствующим сервисам")
 Component(rateLimiter, "Ограничитель скорости", "Go", "Ограничивает количество запросов от клиентов")
 Component(apiLogger, "Логгер API", "Go", "Логирует все входящие и исходящие запросы")
+
+' Внешние сервисы как контейнеры для понятных связей
+Container_Ext(serviceTechManagement, "Сервис управления техникой", "Go", "Управляет информацией о технике")
+Container_Ext(serviceTaskManagement, "Сервис управления задачами", "Go", "Управляет задачами и исполнителями")
 
 Rel(authenticator, requestRouter, "Проверяет аутентификацию")
 Rel(requestRouter, serviceTechManagement, "Маршрутизирует запросы о технике")

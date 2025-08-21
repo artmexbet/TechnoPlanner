@@ -6,6 +6,8 @@ LAYOUT_TOP_DOWN()
 title Сервис управления техникой - Компоненты
 
 Container(serviceTechManagement, "Сервис управления техникой", "Go", "Управляет информацией о технике и задачах")
+Container_Ext(messageBroker, "Брокер сообщений", "NATS JetStream", "Транспорт событий и команд")
+Container_Ext(database, "База данных", "PostgreSQL", "Хранение данных о технике и связанном ПО")
 
 Component(techCatalog, "Каталог техники", "Go", "Управляет данными о технике")
 Component(softwareManager, "Менеджер ПО", "Go", "Управляет данными о программном обеспечении на технике")
@@ -16,6 +18,7 @@ Component(messagePublisherTech, "Публикация сообщений", "Go",
 Rel(techCatalog, techRepository, "Читает и записывает данные")
 Rel(softwareManager, techRepository, "Читает и записывает данные")
 Rel(locationTracker, techRepository, "Читает и записывает данные")
+Rel(techRepository, database, "CRUD")
 Rel(techCatalog, messagePublisherTech, "Публикует события")
 Rel(messagePublisherTech, messageBroker, "Публикует события")
 

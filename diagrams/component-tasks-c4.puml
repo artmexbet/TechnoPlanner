@@ -6,15 +6,23 @@ LAYOUT_TOP_DOWN()
 title Сервис управления задачами - Компоненты
 
 Container(serviceTaskManagement, "Сервис управления задачами", "Go", "Управляет задачами и исполнителями")
+Container_Ext(messageBroker, "Брокер сообщений", "NATS JetStream", "Транспорт событий и команд")
+Container_Ext(database, "База данных", "PostgreSQL", "Хранение данных о задачах и исполнителях")
 
 Component(taskScheduler, "Планировщик задач", "Go", "Определяет расписание задач")
 Component(taskNotifier, "Уведомления о задачах", "Go", "Отправляет уведомления исполнителям")
 Component(taskRepository, "Репозиторий задач", "Go", "Работа с данными о задачах в базе данных")
 Component(messagePublisher, "Публикация сообщений", "Go", "Публикует события в NATS JetStream")
+' Новый компонент для приема команд от бота
+Component(commandConsumer, "Потребитель команд", "Go", "Подписывается на команды от бота через NATS JetStream")
 
 Rel(taskScheduler, taskRepository, "Читает и записывает данные")
 Rel(taskNotifier, taskRepository, "Читает данные")
+Rel(taskRepository, database, "CRUD")
 Rel(taskNotifier, messagePublisher, "Публикует уведомления")
 Rel(messagePublisher, messageBroker, "Публикует события")
+' Команды от бота -> сервис задач
+Rel(commandConsumer, messageBroker, "Подписывается на команды")
+Rel(commandConsumer, taskScheduler, "Создает/обновляет задачи")
 
 @enduml
