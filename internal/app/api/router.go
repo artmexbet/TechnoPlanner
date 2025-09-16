@@ -10,9 +10,11 @@ import (
 )
 
 type techManagerSvc interface {
+	// TODO: определить методы сервиса техники (List, Get, Create, ...)
 }
 
 type taskManagerSvc interface {
+	// TODO: определить методы сервиса задач (List, Get, Create, ...)
 }
 
 type Config struct {
@@ -44,6 +46,44 @@ func (r *Router) InitMiddlewares() {
 	))
 	r.r.Use(recover.New())
 	r.r.Use(requestid.New()) // Trace
+}
+
+// InitRoutes регистрирует HTTP-маршруты
+func (r *Router) InitRoutes() {
+	// Healthcheck
+	r.r.Get("/healthz", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"status": "ok"})
+	})
+
+	api := r.r.Group("/api")
+	v1 := api.Group("/v1")
+
+	// Простая проверка доступности API
+	v1.Get("/ping", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"message": "pong"})
+	})
+
+	// Техника
+	tech := v1.Group("/technic")
+	tech.Get("/", func(c *fiber.Ctx) error {
+		// TODO: использовать r.techMngr для получения списка техники
+		return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	})
+	tech.Get("/:id", func(c *fiber.Ctx) error {
+		// TODO: использовать r.techMngr для получения техники по id
+		return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	})
+
+	// Задачи
+	tasks := v1.Group("/tasks")
+	tasks.Get("/", func(c *fiber.Ctx) error {
+		// TODO: использовать r.taskMngr для получения списка задач
+		return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	})
+	tasks.Get("/:id", func(c *fiber.Ctx) error {
+		// TODO: использовать r.taskMngr для получения задачи по id
+		return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	})
 }
 
 func (r *Router) Run() {

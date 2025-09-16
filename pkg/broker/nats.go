@@ -29,6 +29,9 @@ func NewNATSBroker(cfg Config, consumers Consumers) (*NATSBroker, error) {
 		return nil, fmt.Errorf("failed to connect to NATS: %w", err)
 	}
 	js, err := jetstream.New(conn)
+	if err != nil {
+		return nil, fmt.Errorf("failed to init JetStream: %w", err)
+	}
 	n := &NATSBroker{
 		conn: conn,
 		js:   js,

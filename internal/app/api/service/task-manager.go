@@ -1,6 +1,8 @@
 package service
 
-import "technoBro/pkg/broker"
+import (
+	"technoBro/pkg/broker"
+)
 
 type TaskManager struct {
 	broker *broker.NATSBroker

@@ -26,5 +26,6 @@ func main() {
 
 	r := api.NewRouter(cfg.Router, techSvc, taskSvc)
 	r.InitMiddlewares()
+	r.InitRoutes()
 	r.Run()
 }
