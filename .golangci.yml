@@ -1,0 +1,59 @@
+version: "2"
+run:
+  go: "1.23"
+  modules-download-mode: mod
+  issues-exit-code: 1
+  tests: false
+linters:
+  enable:
+    - gocyclo
+    - misspell
+    - revive
+  disable:
+    - depguard
+    - dupl
+  settings:
+    gocyclo:
+      min-complexity: 15
+    misspell:
+      locale: US
+    revive:
+      severity: warning
+      rules:
+        - name: blank-imports
+        - name: indent-error-flow
+        - name: unnecessary-stmt
+        - name: unreachable-code
+        - name: var-naming
+        - name: unused-parameter
+        - name: redefines-builtin-id
+        - name: exported
+          disabled: true
+        - name: package-comments
+          disabled: true
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - errcheck
+        path: _test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    gofmt:
+      simplify: true
+    goimports:
+      local-prefixes:
+        - technoBro
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
