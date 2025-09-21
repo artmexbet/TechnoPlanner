@@ -27,7 +27,7 @@ func main() {
 
 	nats.WithSmthConsumer(ctx, "SMTHING",
 		broker.NewConsumer(
-			func(d domain.Something) error {
+			func(_ domain.Something) error {
 				return nil // Base example, don't use
 			}),
 	)

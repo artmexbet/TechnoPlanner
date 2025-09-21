@@ -24,7 +24,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
-          version: v2.2
+          version: v2.4.0
           args: --timeout=3m
 
   codegen:

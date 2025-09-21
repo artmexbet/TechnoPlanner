@@ -45,6 +45,7 @@ formatters:
   enable:
     - gofmt
     - goimports
+    - swaggo
   settings:
     gofmt:
       simplify: true
@@ -52,7 +53,7 @@ formatters:
       local-prefixes:
         - technoBro
   exclusions:
-    generated: lax
+    generated: strict
     paths:
       - third_party$
       - builtin$
