@@ -1,29 +1,33 @@
 package broker
 
 import (
-	"encoding/json"
-	"errors"
+	"context"
 	"fmt"
-
-	"technoBro/pkg/domain"
+	"technoBro/internal/domain"
+	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 )
 
-type Config struct {
-	URL string `yaml:"url" env:"URL"`
+type StreamConfig struct {
+	Name     string        `yaml:"name"`
+	Subjects []string      `yaml:"subjects"`
+	MaxAge   time.Duration `yaml:"max_age"`
 }
 
-type Handler func(msg domain.Msg)
-type Consumers map[string]Handler
+type Config struct {
+	URL     string         `yaml:"url" env:"URL"`
+	Streams []StreamConfig `yaml:"streams" env:"STREAMS"`
+}
 
 type NATSBroker struct {
-	conn *nats.Conn
-	js   jetstream.JetStream
+	js              jetstream.JetStream
+	cfg             Config
+	consumeContexts map[string]jetstream.ConsumeContext
 }
 
-func NewNATSBroker(cfg Config, consumers Consumers) (*NATSBroker, error) {
+func NewNATSBroker(cfg Config) (*NATSBroker, error) {
 	conn, err := nats.Connect(cfg.URL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to NATS: %w", err)
@@ -33,32 +37,56 @@ func NewNATSBroker(cfg Config, consumers Consumers) (*NATSBroker, error) {
 		return nil, fmt.Errorf("failed to init JetStream: %w", err)
 	}
 	n := &NATSBroker{
-		conn: conn,
-		js:   js,
-	}
-	for topic, handler := range consumers {
-		err = n.RegisterConsumer(topic, handler)
-		if err != nil {
-			return nil, fmt.Errorf("failed to register consumer for topic %s: %w", topic, err)
-		}
+		js:  js,
+		cfg: cfg,
 	}
 	return n, nil
 }
 
-func (n *NATSBroker) RegisterConsumer(topic string, handler Handler) error {
-	_, err := n.conn.Subscribe(topic, func(msg *nats.Msg) {
-		handler(domain.Msg{Msg: msg})
-	})
-	if err != nil {
-		return fmt.Errorf("failed to subscribe to topic %s: %w", topic, err)
+func (n *NATSBroker) Start(ctx context.Context) error {
+	for _, stream := range n.cfg.Streams {
+		_, err := n.js.CreateOrUpdateStream(ctx, jetstream.StreamConfig{
+			Name:     stream.Name,
+			Subjects: stream.Subjects,
+			MaxAge:   stream.MaxAge,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to create stream %s: %w", stream.Name, err)
+		}
 	}
 	return nil
 }
 
-func (n *NATSBroker) Publish(topic string, msg any) error {
-	data, err := json.Marshal(msg) // Верим, что везде будем использовать json
-	if err != nil {
-		return errors.Join(err, errors.New("failed to marshal message"))
+func (n *NATSBroker) Stop(_ context.Context) error {
+	for _, consumeContext := range n.consumeContexts {
+		consumeContext.Stop()
 	}
-	return n.conn.Publish(topic, data)
+	return nil
+}
+
+func (n *NATSBroker) BuildConsumer(ctx context.Context, stream, name string) (jetstream.Consumer, error) {
+	cons, err := n.js.CreateOrUpdateConsumer(ctx, stream, jetstream.ConsumerConfig{
+		Durable: name,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create consumer %s.%s: %w", stream, name, err)
+	}
+	return cons, nil
+}
+
+func (n *NATSBroker) WithSmthConsumer(ctx context.Context, stream string, consumer *Consumer[domain.Something]) *NATSBroker {
+	cons, err := n.BuildConsumer(ctx, stream, "smth")
+	if err != nil {
+		panic(err)
+	}
+	consumeCtx, _ := cons.Consume(func(msg jetstream.Msg) {
+		err = consumer.Handle(msg)
+		if err != nil {
+			fmt.Println(err)
+			// TODO: log
+		}
+	})
+
+	n.consumeContexts["smth"] = consumeCtx
+	return n
 }
