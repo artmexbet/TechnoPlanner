@@ -84,10 +84,10 @@ func (n *NATSBroker) WithSmthConsumer(ctx context.Context, stream string, consum
 		err = consumer.Handle(msg)
 		if err != nil {
 			fmt.Println(err)
-			msg.Nack()
+			_ = msg.Nak()
 			// TODO: log
 		}
-		msg.Ack()
+		_ = msg.Ack()
 	})
 
 	n.consumeContexts["smth"] = consumeCtx
