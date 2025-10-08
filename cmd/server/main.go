@@ -5,9 +5,8 @@ import (
 
 	"technoBro/internal/app/api"
 	"technoBro/internal/app/api/service"
-	"technoBro/internal/domain"
-	"technoBro/pkg/broker"
-	"technoBro/pkg/config"
+	"technoBro/internal/broker"
+	"technoBro/internal/config"
 )
 
 type Config struct {
@@ -18,19 +17,10 @@ type Config struct {
 func main() {
 	cfg := config.MustParseConfig[Config]("config/cfg.yaml")
 
-	nats, err := broker.NewNATSBroker(cfg.Broker)
-	if err != nil {
-		panic(err)
-	}
-
 	ctx := context.Background()
 
-	nats.WithSmthConsumer(ctx, "SMTHING",
-		broker.NewConsumer(
-			func(_ domain.Something) error {
-				return nil // Base example, don't use
-			}),
-	)
+	nats := broker.NewNATSBroker(cfg.Broker).
+		WithSomething(ctx)
 
 	techSvc := service.NewTechManager(nats)
 	taskSvc := service.NewTaskManager(nats)
