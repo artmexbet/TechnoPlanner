@@ -1,11 +1,12 @@
 package main
 
 import (
+	"context"
+
 	"technoBro/internal/app/api"
 	"technoBro/internal/app/api/service"
-
-	"technoBro/pkg/broker"
-	"technoBro/pkg/config"
+	"technoBro/internal/broker"
+	"technoBro/internal/config"
 )
 
 type Config struct {
@@ -14,12 +15,12 @@ type Config struct {
 }
 
 func main() {
-	cfg := config.MustParseConfig[Config]("config.yaml")
+	cfg := config.MustParseConfig[Config]("config/cfg.yaml")
 
-	nats, err := broker.NewNATSBroker(cfg.Broker, nil)
-	if err != nil {
-		panic(err)
-	}
+	ctx := context.Background()
+
+	nats := broker.NewNATSBroker(cfg.Broker).
+		WithSomething(ctx)
 
 	techSvc := service.NewTechManager(nats)
 	taskSvc := service.NewTaskManager(nats)
