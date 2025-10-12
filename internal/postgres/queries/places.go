@@ -12,7 +12,7 @@ func (p *Place) ToDomain() domain.Place {
 	var v uuid.UUID
 	err := p.ID.Scan(&v)
 	if err != nil {
-		slog.Error("cannot convert id to domain", "err", err)
+		slog.Error("failed to scan Place ID to uuid.UUID in ToDomain", "place_id", p.ID, "place_name", p.Name, "err", err)
 		return domain.Place{}
 	}
 	return domain.Place{
