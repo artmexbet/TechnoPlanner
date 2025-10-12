@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS requests (
     usage_interval INTERVAL NOT NULL,
     place_id UUID NOT NULL REFERENCES places(id) ON DELETE CASCADE,
     responsible_user_id UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
-    days TIMESTAMPTZ[] NOT NULL,
+    days TIMESTAMPTZ[] NOT NULL
 )

@@ -5,7 +5,7 @@ migrate-create:
 	docker run --rm -v $(ROOT_DIR)migrations:/migrations migrate/migrate create -ext sql -dir /migrations -seq $(filter-out $@,$(MAKECMDGOALS))
 
 migrate-up:
-	docker run --rm -v $(ROOT_DIR)migrations:/migrations migrate/migrate -path /migrations -database "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
+	docker run --rm -v $(ROOT_DIR)migrations:/migrations migrate/migrate -path /migrations -database "postgres://postgres:postgres@localhost:5432/techno?sslmode=disable" up
 
 # Линтеры и проверки
 GOLANGCI_IMAGE=golangci/golangci-lint

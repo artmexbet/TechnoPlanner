@@ -1,19 +1,21 @@
 package storage
 
-type Config struct {
-	User string `yaml:"user" env:"USER"`
-	Pass string `yaml:"password" env:"PASSWORD"`
-	Host string `yaml:"host" env:"HOST"`
-	Port string `yaml:"port" env:"PORT"`
-	Db   string `yaml:"db" env:"DB"`
+import (
+	"context"
+
+	"technoBro/internal/domain"
+)
+
+type postgres interface {
+	AddPlace(context.Context, domain.Place) (domain.Place, error)
 }
 
 type Storage struct {
-	cfg Config
+	p postgres
 }
 
-func NewStorage(cfg Config) *Storage {
+func NewStorage(p postgres) *Storage {
 	return &Storage{
-		cfg: cfg,
+		p: p,
 	}
 }
