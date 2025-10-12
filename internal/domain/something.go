@@ -1,4 +1,3 @@
 package domain
 
-type Something struct {
-}
+type Something struct{}
