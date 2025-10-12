@@ -7,7 +7,6 @@ import (
 	"technoBro/internal/domain"
 	"technoBro/internal/postgres/queries"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
