@@ -18,7 +18,7 @@ func (d *DB) AddPlace(ctx context.Context, place domain.Place) (domain.Place, er
 	if err != nil {
 		return domain.Place{}, err
 	}
-	defer tx.Rollback(ctx)
+	defer tx.Rollback(ctx) //nolint:errcheck
 
 	res, err := d.q.WithTx(tx).AddPlace(ctx, queries.AddPlaceParams{
 		Name:        place.Name,
