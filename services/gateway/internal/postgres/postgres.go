@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"technoBro/internal/postgres/queries"
+	"gateway/internal/postgres/queries"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )

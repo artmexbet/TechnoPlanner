@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"technoBro/internal/domain"
-	"technoBro/internal/postgres/queries"
+	"gateway/internal/domain"
+	"gateway/internal/postgres/queries"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
