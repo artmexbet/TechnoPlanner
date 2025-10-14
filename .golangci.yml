@@ -1,7 +1,6 @@
 version: "2"
 run:
-  go: "1.24"
-  modules-download-mode: vendor
+  go: "1.25"
   tests: false
 linters:
   enable:
@@ -37,6 +36,9 @@ linters:
           - errcheck
         path: _test\.go
     paths:
+      - vendor$
+      - diagrams$
+      - migrations$
       - third_party$
       - builtin$
       - examples$
@@ -50,10 +52,16 @@ formatters:
       simplify: true
     goimports:
       local-prefixes:
+        - gateway
+        - broker
+        - config
         - technoBro
   exclusions:
     generated: strict
     paths:
+      - vendor$
+      - diagrams$
+      - migrations$
       - third_party$
       - builtin$
       - examples$
