@@ -1,12 +1,13 @@
 package main
 
 import (
+	"context"
+
 	"broker"
 	"config"
-	"context"
-	"gateway/internal/app"
-	service2 "gateway/internal/app/service"
 
+	"gateway/internal/app"
+	"gateway/internal/app/service"
 	"gateway/internal/postgres"
 	"gateway/internal/storage"
 )
@@ -33,8 +34,8 @@ func main() {
 	store := storage.NewStorage(_postgres) // инициализация хранилища
 	_ = store                              // заглушка, чтобы не было ошибки о неиспользуемой переменной
 
-	techSvc := service2.NewTechManager(nats)
-	taskSvc := service2.NewTaskManager(nats)
+	techSvc := service.NewTechManager(nats)
+	taskSvc := service.NewTaskManager(nats)
 
 	r := app.NewRouter(cfg.Router, techSvc, taskSvc)
 	r.InitMiddlewares()
