@@ -1,18 +1,18 @@
-router:
-  address: 0.0.0.0
-  port: 8080
-broker:
-  url: ""
-  streams:
-    something:
-      name: SMTHING
-      subjects:
-        - "smthing.created"
-      max_age: 1d
 postgres:
-  host: localhost
-  port: 5432
-  user: user
-  password: password
-  db: dbname
-  timeout: 5s
+    user: user
+    password: password
+    host: localhost
+    port: "5432"
+    db: dbname
+    timeout: 5s
+broker:
+    url: ""
+    streams:
+        something:
+            name: SMTHING
+            subjects:
+                - smthing.created
+            max_age: 24h0m0s
+api:
+    port: 8080
+    host: 0.0.0.0
