@@ -1,7 +1,7 @@
 package service
 
 import (
-	"technoBro/internal/broker"
+	"broker"
 )
 
 type TaskManager struct {

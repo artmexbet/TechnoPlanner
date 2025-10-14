@@ -1,9 +1,9 @@
 package queries
 
 import (
-	"log/slog"
+	"gateway/internal/domain"
 
-	"technoBro/internal/domain"
+	"log/slog"
 
 	"github.com/google/uuid"
 )

@@ -18,11 +18,11 @@ lint-fix:
 
 # Локальный запуск без Docker (требуется установленный golangci-lint)
 lint-local:
-	go mod download
+	go work sync || true
 	golangci-lint run
 
 lint-local-fix:
-	go mod download
+	go work sync || true
 	golangci-lint run --fix
 
 # Вендоризация зависимостей (альтернатива загрузке модулей)

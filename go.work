@@ -1,0 +1,7 @@
+go 1.25.1
+
+use (
+	./libs/broker
+	./libs/config
+	./services/gateway
+)

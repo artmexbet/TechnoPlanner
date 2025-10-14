@@ -5,9 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
-
-	"technoBro/internal/domain"
 )
 
 type StreamConfig struct {
@@ -38,8 +37,6 @@ func (e *Envelope[T]) Unmarshal() T {
 type NATSBroker struct {
 	js  jetstream.JetStream
 	cfg Config
-
-	Somethings <-chan Envelope[domain.Something]
 }
 
 func NewNATSBroker(cfg Config) *NATSBroker {
@@ -49,9 +46,8 @@ func NewNATSBroker(cfg Config) *NATSBroker {
 	return b
 }
 
-func (b *NATSBroker) WithSomething(ctx context.Context) *NATSBroker {
-	b.Somethings = GenEnvelope[domain.Something](ctx, b.js, b.cfg.Streams.Something.Name)
-	return b
+func (n *NATSBroker) Conn() *nats.Conn {
+	return n.js.Conn()
 }
 
 func GenEnvelope[T any](ctx context.Context, js jetstream.JetStream, stream string) <-chan Envelope[T] {

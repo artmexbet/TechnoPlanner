@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 
-	"technoBro/internal/domain"
+	"gateway/internal/domain"
 )
 
 type postgres interface {
