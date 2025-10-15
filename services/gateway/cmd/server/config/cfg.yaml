@@ -11,8 +11,8 @@ broker:
       max_age: 1d
 postgres:
   host: localhost
-  port: 5432
-  user: user
-  password: password
-  db: dbname
+  port: 5433
+  user: postgres
+  password: postgres
+  db: gateway
   timeout: 5s

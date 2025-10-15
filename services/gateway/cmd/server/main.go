@@ -7,8 +7,8 @@ import (
 	"config"
 
 	"gateway/internal/app"
-	"gateway/internal/app/service"
 	"gateway/internal/postgres"
+	"gateway/internal/service"
 	"gateway/internal/storage"
 )
 
@@ -23,7 +23,7 @@ func main() {
 
 	ctx := context.Background()
 
-	nats := broker.NewNATSBroker(cfg.Broker)
+	//nats := broker.NewNATSBroker(cfg.Broker) // понадобится позже
 
 	_postgres, err := postgres.New(ctx, cfg.Postgres)
 	if err != nil {
@@ -32,13 +32,12 @@ func main() {
 	defer _postgres.Close()
 
 	store := storage.NewStorage(_postgres) // инициализация хранилища
-	_ = store                              // заглушка, чтобы не было ошибки о неиспользуемой переменной
 
-	techSvc := service.NewTechManager(nats)
-	taskSvc := service.NewTaskManager(nats)
+	userSvc := service.NewUserService(store)
+	authSvc := service.NewAuthService(userSvc)
 
-	r := app.NewRouter(cfg.Router, techSvc, taskSvc)
-	r.InitMiddlewares()
-	r.InitRoutes()
+	r := app.NewRouter(cfg.Router, userSvc, authSvc).
+		InitMiddlewares().
+		InitBaseRoutes()
 	r.Run()
 }
