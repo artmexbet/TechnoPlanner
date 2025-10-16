@@ -21,6 +21,9 @@ type iRedis interface {
 		sessionData []byte,
 		tokenTTL time.Duration) error
 	GetSession(ctx context.Context, refreshToken string) ([]byte, error)
+	DeleteSession(ctx context.Context, sessionID, userID string) error
+	DeleteAllUserSessions(ctx context.Context, userID string) error
+	GetUserSessions(ctx context.Context, userID string) ([][]byte, error)
 }
 
 type iPostgres interface {
@@ -72,4 +75,29 @@ func (r *Repository) GetUserByUsername(ctx context.Context, username string) (mo
 
 func (r *Repository) CreateUser(ctx context.Context, username, email, passwordHash string) (models.User, error) {
 	return r.p.CreateUser(ctx, username, email, passwordHash)
+}
+
+func (r *Repository) DeleteSession(ctx context.Context, sessionID, userID string) error {
+	return r.r.DeleteSession(ctx, sessionID, userID)
+}
+
+func (r *Repository) DeleteAllUserSessions(ctx context.Context, userID string) error {
+	return r.r.DeleteAllUserSessions(ctx, userID)
+}
+
+func (r *Repository) GetUserSessions(ctx context.Context, userID string) ([]*models.Session, error) {
+	dataList, err := r.r.GetUserSessions(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("get user sessions: %w", err)
+	}
+
+	sessions := make([]*models.Session, 0, len(dataList))
+	for _, data := range dataList {
+		var session models.Session
+		if err = json.Unmarshal(data, &session); err != nil {
+			return nil, fmt.Errorf("unmarshal session: %w", err)
+		}
+		sessions = append(sessions, &session)
+	}
+	return sessions, nil
 }

@@ -1,7 +1,14 @@
 package models
 
 import (
+	"fmt"
 	"time"
+)
+
+var (
+	ErrInvalidDevice    = fmt.Errorf("invalid device")
+	ErrInvalidUserAgent = fmt.Errorf("invalid user agent")
+	ErrInvalidIP        = fmt.Errorf("invalid IP address")
 )
 
 type Session struct {
@@ -12,4 +19,17 @@ type Session struct {
 	IP        string    `json:"ip"`
 	CreatedAt time.Time `json:"created_at"`
 	ExpiresAt time.Time `json:"expires_at"`
+}
+
+func (s *Session) Validate(deviceID, userAgent, ip string) error {
+	if s.DeviceID != deviceID {
+		return ErrInvalidDevice
+	}
+	if s.UserAgent != userAgent {
+		return ErrInvalidUserAgent
+	}
+	if s.IP != ip {
+		return ErrInvalidIP
+	}
+	return nil
 }

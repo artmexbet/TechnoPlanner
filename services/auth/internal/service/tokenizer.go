@@ -2,6 +2,7 @@ package service
 
 import (
 	"auth/internal/models"
+
 	"fmt"
 	"time"
 
@@ -9,21 +10,25 @@ import (
 	"github.com/google/uuid"
 )
 
-type TokenGenerator struct {
+var (
+	ErrTokenExpired = fmt.Errorf("token expired")
+)
+
+type Tokenizer struct {
 	accessTTL  time.Duration
 	refreshTTL time.Duration
 	jwtSecret  []byte
 }
 
-func NewTokenGenerator(accessTTL, refreshTTL time.Duration, jwtSecret string) *TokenGenerator {
-	return &TokenGenerator{
+func NewTokenizer(accessTTL, refreshTTL time.Duration, jwtSecret string) *Tokenizer {
+	return &Tokenizer{
 		accessTTL:  accessTTL,
 		refreshTTL: refreshTTL,
 		jwtSecret:  []byte(jwtSecret),
 	}
 }
 
-func (t *TokenGenerator) GenerateTokenPair(userid string) (models.TokenPair, error) {
+func (t *Tokenizer) GenerateTokenPair(userid string) (models.TokenPair, error) {
 	sessionId, _ := uuid.NewUUID()
 	claims := models.Claims{
 		UserID:    userid,
@@ -59,7 +64,7 @@ func (t *TokenGenerator) GenerateTokenPair(userid string) (models.TokenPair, err
 	}, nil
 }
 
-func (t *TokenGenerator) GenerateSession(u models.User, deviceID, userAgent, ip string) *models.Session {
+func (t *Tokenizer) GenerateSession(u models.User, deviceID, userAgent, ip string) *models.Session {
 	sessionId := uuid.NewString()
 	session := &models.Session{
 		UserID:    u.ID.String(),
@@ -71,4 +76,24 @@ func (t *TokenGenerator) GenerateSession(u models.User, deviceID, userAgent, ip 
 		ExpiresAt: time.Now().Add(t.refreshTTL),
 	}
 	return session
+}
+
+func (t *Tokenizer) DecodeToken(tokenStr string) (*models.Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &models.Claims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return t.jwtSecret, nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse token: %w", err)
+	}
+	claims, ok := token.Claims.(*models.Claims)
+	if !ok || !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+	if claims.ExpiresAt.Time.Before(time.Now()) {
+		return claims, ErrTokenExpired
+	}
+	return claims, nil
 }

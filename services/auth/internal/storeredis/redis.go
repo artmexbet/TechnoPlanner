@@ -2,6 +2,7 @@ package storeredis
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -73,4 +74,58 @@ func (r *Redis) GetSession(ctx context.Context, refreshToken string) ([]byte, er
 		return nil, fmt.Errorf("could not get session data: %w", err)
 	}
 	return data, nil
+}
+
+func (r *Redis) DeleteSession(ctx context.Context, sessionID, userID string) error {
+	pipe := r.client.Pipeline()
+	pipe.Del(ctx, fmt.Sprintf("session:%s", sessionID))
+	pipe.SRem(ctx, fmt.Sprintf("user_sessions:%s", userID), sessionID)
+	_, err := pipe.Exec(ctx)
+	return err
+}
+
+func (r *Redis) GetUserSessions(ctx context.Context, userID string) ([][]byte, error) {
+	sessionIDs, err := r.client.SMembers(ctx, fmt.Sprintf("user_sessions:%s", userID)).Result()
+	if err != nil {
+		return nil, fmt.Errorf("could not get user sessions: %w", err)
+	}
+
+	pipe := r.client.Pipeline()
+	cmds := make([]*redis.StringCmd, len(sessionIDs))
+	for i, sessionID := range sessionIDs {
+		cmds[i] = pipe.Get(ctx, fmt.Sprintf("session:%s", sessionID))
+	}
+	_, err = pipe.Exec(ctx)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		return nil, fmt.Errorf("could not execute pipeline: %w", err)
+	}
+	sessions := make([][]byte, 0, len(sessionIDs))
+	for _, cmd := range cmds {
+		data, err := cmd.Bytes()
+		if err != nil && !errors.Is(err, redis.Nil) {
+			return nil, fmt.Errorf("could not get session data: %w", err)
+		}
+		if err == nil {
+			sessions = append(sessions, data)
+		}
+	}
+	return sessions, nil
+}
+
+func (r *Redis) DeleteAllUserSessions(ctx context.Context, userID string) error {
+	sessionIDs, err := r.client.SMembers(ctx, fmt.Sprintf("user_sessions:%s", userID)).Result()
+	if err != nil {
+		return fmt.Errorf("could not get user sessions: %w", err)
+	}
+
+	pipe := r.client.Pipeline()
+	for _, sessionID := range sessionIDs {
+		pipe.Del(ctx, fmt.Sprintf("session:%s", sessionID))
+	}
+	pipe.Del(ctx, fmt.Sprintf("user_sessions:%s", userID))
+	_, err = pipe.Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("could not delete user sessions: %w", err)
+	}
+	return nil
 }

@@ -39,7 +39,7 @@ func main() {
 		panic(err)
 	}
 
-	gen := service.NewTokenGenerator(cfg.Repository.AccessTokenTTL, cfg.Repository.RefreshTokenTTL, cfg.JWTSecret)
+	gen := service.NewTokenizer(cfg.Repository.AccessTokenTTL, cfg.Repository.RefreshTokenTTL, cfg.JWTSecret)
 
 	svc := service.NewAuth(gen, repo)
 	handler := server.NewHandler(svc)
