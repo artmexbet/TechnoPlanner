@@ -34,7 +34,7 @@ func main() {
 	store := storage.NewStorage(_postgres) // инициализация хранилища
 
 	userSvc := service.NewUserService(store)
-	authSvc := service.NewAuthService(userSvc)
+	authSvc := service.NewAuthService(store)
 
 	r := app.NewRouter(cfg.Router, userSvc, authSvc).
 		InitMiddlewares().
