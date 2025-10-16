@@ -3,12 +3,16 @@ package queries
 import (
 	"auth/internal/models"
 
+	"log/slog"
+
 	"github.com/google/uuid"
 )
 
 func (u *User) ToDomain() models.User {
-	var id uuid.UUID
-	_ = id.Scan(u.ID)
+	id, err := uuid.Parse(u.ID.String())
+	if err != nil {
+		slog.Error("User ToDomain: parse id", "id", u.ID, "err", err)
+	}
 	return models.User{
 		ID:           id,
 		Username:     u.Username,

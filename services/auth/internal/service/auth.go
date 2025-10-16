@@ -15,6 +15,7 @@ type iTokenGenerator interface {
 type iRepository interface {
 	GetUserByUsername(ctx context.Context, username string) (models.User, error)
 	StoreToken(ctx context.Context, session *models.Session, refreshToken string) error
+	CreateUser(ctx context.Context, username, email, passwordHash string) (models.User, error)
 }
 
 type Auth struct {
@@ -57,8 +58,16 @@ func (a *Auth) Login(ctx context.Context, loginRequest models.LoginRequest) (mod
 	return tokenPair, nil
 }
 
-func (a *Auth) Register(ctx context.Context, username, password string) error {
-	return nil
+func (a *Auth) Register(ctx context.Context, req models.RegisterRequest) (models.User, error) {
+	h, err := req.HashPassword()
+	if err != nil {
+		return models.User{}, fmt.Errorf("failed to hash password: %w", err)
+	}
+	u, err := a.repository.CreateUser(ctx, req.Username, req.Email, string(h))
+	if err != nil {
+		return models.User{}, fmt.Errorf("failed to create user: %w", err)
+	}
+	return u, nil
 }
 
 func (a *Auth) ValidateToken(ctx context.Context, token string) (string, error) {

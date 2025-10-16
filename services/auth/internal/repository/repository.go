@@ -25,6 +25,7 @@ type iRedis interface {
 
 type iPostgres interface {
 	FindUserByUsername(ctx context.Context, username string) (models.User, error)
+	CreateUser(ctx context.Context, username, email, passwordHash string) (models.User, error)
 }
 
 type Repository struct {
@@ -67,4 +68,8 @@ func (r *Repository) GetSessionByRefreshToken(ctx context.Context, refreshToken 
 
 func (r *Repository) GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	return r.p.FindUserByUsername(ctx, username)
+}
+
+func (r *Repository) CreateUser(ctx context.Context, username, email, passwordHash string) (models.User, error) {
+	return r.p.CreateUser(ctx, username, email, passwordHash)
 }

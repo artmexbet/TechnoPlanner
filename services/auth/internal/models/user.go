@@ -2,6 +2,7 @@ package models
 
 import (
 	"proto"
+
 	"time"
 
 	"github.com/google/uuid"
@@ -18,11 +19,7 @@ type User struct {
 }
 
 func (u *User) CheckPassword(password string) (bool, error) {
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return false, err
-	}
-	err = bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), passwordHash)
+	err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
 	if err != nil {
 		return false, nil
 	}
@@ -44,5 +41,23 @@ func UserLoginFromProto(in *proto.LoginRequest) *LoginRequest {
 		DeviceID:  in.GetDeviceId(),
 		UserAgent: in.GetUserAgent(),
 		IP:        in.GetIpAddress(),
+	}
+}
+
+type RegisterRequest struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (r *RegisterRequest) HashPassword() ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
+}
+
+func UserRegisterFromProto(in *proto.RegisterRequest) *RegisterRequest {
+	return &RegisterRequest{
+		Username: in.GetUsername(),
+		Email:    in.GetEmail(),
+		Password: in.GetPassword(),
 	}
 }
