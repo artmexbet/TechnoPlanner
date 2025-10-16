@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"auth/internal/postgres/queries"
+
 	"context"
 	"fmt"
 
@@ -21,6 +23,7 @@ type Config struct {
 
 type Postgres struct {
 	pool *pgxpool.Pool
+	q    *queries.Queries
 }
 
 func New(cfg Config) (*Postgres, error) {
@@ -35,5 +38,11 @@ func New(cfg Config) (*Postgres, error) {
 		return nil, fmt.Errorf("could not connect to postgres: %w", err)
 	}
 
-	return &Postgres{pool: pool}, nil
+	q := queries.New(pool)
+
+	return &Postgres{pool: pool, q: q}, nil
+}
+
+func (p *Postgres) Close() {
+	p.pool.Close()
 }

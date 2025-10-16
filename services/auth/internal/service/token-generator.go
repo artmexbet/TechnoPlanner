@@ -58,3 +58,17 @@ func (t *TokenGenerator) GenerateTokenPair(userid string) (models.TokenPair, err
 		RefreshToken: refreshToken,
 	}, nil
 }
+
+func (t *TokenGenerator) GenerateSession(u models.User, deviceID, userAgent, ip string) *models.Session {
+	sessionId := uuid.NewString()
+	session := &models.Session{
+		UserID:    u.ID.String(),
+		SessionID: sessionId,
+		DeviceID:  deviceID,
+		UserAgent: userAgent,
+		IP:        ip,
+		CreatedAt: time.Now(),
+		ExpiresAt: time.Now().Add(t.refreshTTL),
+	}
+	return session
+}

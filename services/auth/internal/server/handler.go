@@ -1,6 +1,8 @@
 package server
 
 import (
+	"auth/internal/models"
+
 	"context"
 	"log/slog"
 
@@ -8,9 +10,9 @@ import (
 )
 
 type authService interface {
-	Login(username, password string) (string, error)
-	Register(username, password string) error
-	ValidateToken(token string) (string, error)
+	Login(ctx context.Context, loginRequest models.LoginRequest) (models.TokenPair, error)
+	Register(ctx context.Context, username, password string) error
+	ValidateToken(ctx context.Context, token string) (string, error)
 }
 
 type Handler struct {

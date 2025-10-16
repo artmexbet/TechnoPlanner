@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Session struct {
 	UserID    string    `json:"user_id"`

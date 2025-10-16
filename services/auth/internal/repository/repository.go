@@ -2,8 +2,10 @@ package repository
 
 import (
 	"auth/internal/models"
+
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -22,6 +24,7 @@ type iRedis interface {
 }
 
 type iPostgres interface {
+	FindUserByUsername(ctx context.Context, username string) (models.User, error)
 }
 
 type Repository struct {
@@ -42,6 +45,26 @@ func New(cfg Config, r iRedis, p iPostgres) (*Repository, error) {
 }
 
 func (r *Repository) StoreToken(ctx context.Context, session *models.Session, refreshToken string) error {
-	data, _ := json.Marshal(session)
+	data, err := json.Marshal(session)
+	if err != nil {
+		return fmt.Errorf("marshal session: %w", err)
+	}
 	return r.r.StoreSession(ctx, session.SessionID, session.UserID, refreshToken, data, r.refreshTokenTTL)
+}
+
+func (r *Repository) GetSessionByRefreshToken(ctx context.Context, refreshToken string) (*models.Session, error) {
+	data, err := r.r.GetSession(ctx, refreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("get session: %w", err)
+	}
+
+	var session models.Session
+	if err = json.Unmarshal(data, &session); err != nil {
+		return nil, fmt.Errorf("unmarshal session: %w", err)
+	}
+	return &session, nil
+}
+
+func (r *Repository) GetUserByUsername(ctx context.Context, username string) (models.User, error) {
+	return r.p.FindUserByUsername(ctx, username)
 }
