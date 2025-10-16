@@ -3,6 +3,7 @@ package postgres
 import (
 	"auth/internal/models"
 	"auth/internal/postgres/queries"
+
 	"context"
 	"fmt"
 
@@ -11,12 +12,12 @@ import (
 )
 
 func (p *Postgres) FindUserByID(ctx context.Context, id uuid.UUID) (models.User, error) {
-	var pgId pgtype.UUID
-	err := pgId.Scan(id)
+	var pgID pgtype.UUID
+	err := pgID.Scan(id)
 	if err != nil {
 		return models.User{}, fmt.Errorf("findUserByID: %w", err)
 	}
-	u, err := p.q.FindUserByID(ctx, pgId)
+	u, err := p.q.FindUserByID(ctx, pgID)
 	if err != nil {
 		return models.User{}, fmt.Errorf("findUserByID: %w", err)
 	}

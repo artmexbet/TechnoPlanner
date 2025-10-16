@@ -29,10 +29,10 @@ func NewTokenizer(accessTTL, refreshTTL time.Duration, jwtSecret string) *Tokeni
 }
 
 func (t *Tokenizer) GenerateTokenPair(userid string) (models.TokenPair, error) {
-	sessionId, _ := uuid.NewUUID()
+	sessionID, _ := uuid.NewUUID()
 	claims := models.Claims{
 		UserID:    userid,
-		SessionID: sessionId.String(),
+		SessionID: sessionID.String(),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(t.accessTTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -46,7 +46,7 @@ func (t *Tokenizer) GenerateTokenPair(userid string) (models.TokenPair, error) {
 
 	refreshClaims := models.Claims{
 		UserID:    userid,
-		SessionID: sessionId.String(),
+		SessionID: sessionID.String(),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(t.refreshTTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -65,10 +65,10 @@ func (t *Tokenizer) GenerateTokenPair(userid string) (models.TokenPair, error) {
 }
 
 func (t *Tokenizer) GenerateSession(u models.User, deviceID, userAgent, ip string) *models.Session {
-	sessionId := uuid.NewString()
+	sessionID := uuid.NewString()
 	session := &models.Session{
 		UserID:    u.ID.String(),
-		SessionID: sessionId,
+		SessionID: sessionID,
 		DeviceID:  deviceID,
 		UserAgent: userAgent,
 		IP:        ip,
@@ -92,7 +92,7 @@ func (t *Tokenizer) DecodeToken(tokenStr string) (*models.Claims, error) {
 	if !ok || !token.Valid {
 		return nil, fmt.Errorf("invalid token")
 	}
-	if claims.ExpiresAt.Time.Before(time.Now()) {
+	if claims.ExpiresAt.Before(time.Now()) {
 		return claims, ErrTokenExpired
 	}
 	return claims, nil

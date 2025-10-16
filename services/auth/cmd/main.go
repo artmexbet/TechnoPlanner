@@ -8,8 +8,9 @@ import (
 	"auth/internal/server"
 	"auth/internal/service"
 	"auth/internal/storeredis"
-	"config"
 	"proto"
+
+	"config"
 
 	"google.golang.org/grpc"
 )
