@@ -29,7 +29,7 @@ func NewTokenizer(accessTTL, refreshTTL time.Duration, jwtSecret string) *Tokeni
 }
 
 func (t *Tokenizer) GenerateTokenPair(userid string) (models.TokenPair, error) {
-	sessionID, _ := uuid.NewUUID()
+	sessionID := uuid.New()
 	claims := models.Claims{
 		UserID:    userid,
 		SessionID: sessionID.String(),
