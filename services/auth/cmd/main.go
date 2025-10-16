@@ -45,7 +45,7 @@ func main() {
 	svc := service.NewAuth(gen, repo)
 	handler := server.NewHandler(svc)
 
-	grpcServer := grpc.NewServer() //todo: накинуть интерцептор логирования
+	grpcServer := grpc.NewServer() // TODO: add logging interceptor
 	proto.RegisterAuthServer(grpcServer, handler)
 	grpcListener, err := net.Listen("tcp", ":8080")
 	if err != nil {
