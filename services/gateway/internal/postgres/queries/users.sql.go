@@ -11,39 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const CreateUser = `-- name: CreateUser :one
-INSERT INTO users (username, email, password_hash, role_id)
-VALUES ($1, $2, $3, $4)
-RETURNING id, username, email, password_hash, role_id, created_at, updated_at
-`
-
-type CreateUserParams struct {
-	Username     string
-	Email        string
-	PasswordHash string
-	RoleID       int32
-}
-
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, CreateUser,
-		arg.Username,
-		arg.Email,
-		arg.PasswordHash,
-		arg.RoleID,
-	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.PasswordHash,
-		&i.RoleID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const DeleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1
@@ -52,66 +19,6 @@ WHERE id = $1
 func (q *Queries) DeleteUser(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, DeleteUser, id)
 	return err
-}
-
-const FindUserByEmail = `-- name: FindUserByEmail :one
-SELECT id, username, email, password_hash, role_id, created_at, updated_at FROM users
-WHERE email = $1
-`
-
-func (q *Queries) FindUserByEmail(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRow(ctx, FindUserByEmail, email)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.PasswordHash,
-		&i.RoleID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const FindUserByID = `-- name: FindUserByID :one
-SELECT id, username, email, password_hash, role_id, created_at, updated_at FROM users
-WHERE id = $1
-`
-
-func (q *Queries) FindUserByID(ctx context.Context, id pgtype.UUID) (User, error) {
-	row := q.db.QueryRow(ctx, FindUserByID, id)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.PasswordHash,
-		&i.RoleID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const FindUserByUsername = `-- name: FindUserByUsername :one
-SELECT id, username, email, password_hash, role_id, created_at, updated_at FROM users
-WHERE username = $1
-`
-
-func (q *Queries) FindUserByUsername(ctx context.Context, username string) (User, error) {
-	row := q.db.QueryRow(ctx, FindUserByUsername, username)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.PasswordHash,
-		&i.RoleID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
 }
 
 const ListUsers = `-- name: ListUsers :many

@@ -1,10 +1,25 @@
 package service
 
-type Auth struct {
+import "auth/internal/models"
+
+type iTokenGenerator interface {
+	GenerateTokenPair(userid string) (models.TokenPair, error)
 }
 
-func NewAuth() *Auth {
-	return &Auth{}
+type iRepository interface {
+	// Define repository methods here
+}
+
+type Auth struct {
+	generator  iTokenGenerator
+	repository iRepository
+}
+
+func NewAuth(generator iTokenGenerator, repository iRepository) *Auth {
+	return &Auth{
+		generator:  generator,
+		repository: repository,
+	}
 }
 
 func (a *Auth) Login(username, password string) (string, error) {

@@ -248,7 +248,7 @@ const file_contract_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId2s\n" +
 	"\x04Auth\x120\n" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x129\n" +
-	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponseB$Z\"services/auth/internal/proto;protob\x06proto3"
+	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponseB\tZ\a/;protob\x06proto3"
 
 var (
 	file_contract_proto_rawDescOnce sync.Once

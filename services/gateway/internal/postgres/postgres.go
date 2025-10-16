@@ -10,6 +10,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+//go:generate sqlc generate -f ./queries/sqlc.yaml
+
 type Config struct {
 	User string `yaml:"user" env:"USER"`
 	Pass string `yaml:"password" env:"PASSWORD"`

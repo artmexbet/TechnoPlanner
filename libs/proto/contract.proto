@@ -2,7 +2,7 @@ syntax="proto3";
 
 package auth;
 
-option go_package="services/auth/internal/proto;proto";
+option go_package="/;proto";
 
 service Auth {
   rpc Login(LoginRequest) returns (LoginResponse);
