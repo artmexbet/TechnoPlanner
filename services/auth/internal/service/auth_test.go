@@ -9,10 +9,20 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func TestAuth_Login(t *testing.T) {
+// ServiceTestSuite объединяет тесты для auth сервиса
+type ServiceTestSuite struct {
+	suite.Suite
+}
+
+func TestServiceSuite(t *testing.T) {
+	suite.Run(t, new(ServiceTestSuite))
+}
+
+func (s *ServiceTestSuite) TestLogin() {
 	mockPass := "pass"
 	mockPassHash, _ := bcrypt.GenerateFromPassword([]byte(mockPass), bcrypt.DefaultCost)
 	testUser := models.User{
@@ -90,7 +100,7 @@ func TestAuth_Login(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		s.T().Run(tt.name, func(t *testing.T) {
 			repo := newMockiRepository(t)
 			tokenizer := newMockiTokenizer(t)
 			if tt.setup != nil {
@@ -105,7 +115,7 @@ func TestAuth_Login(t *testing.T) {
 	}
 }
 
-func TestAuth_Register(t *testing.T) {
+func (s *ServiceTestSuite) TestRegister() {
 	tests := []struct {
 		name    string
 		regReq  models.RegisterRequest
@@ -143,7 +153,7 @@ func TestAuth_Register(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		s.T().Run(tt.name, func(t *testing.T) {
 			repo := newMockiRepository(t)
 			if tt.setup != nil {
 				tt.setup(repo)
@@ -157,7 +167,7 @@ func TestAuth_Register(t *testing.T) {
 	}
 }
 
-func TestAuth_ValidateToken(t *testing.T) {
+func (s *ServiceTestSuite) TestValidateToken() {
 	tests := []struct {
 		name      string
 		setup     func(tokenizer *mockiTokenizer)
@@ -201,7 +211,7 @@ func TestAuth_ValidateToken(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		s.T().Run(tt.name, func(t *testing.T) {
 			tokenizer := newMockiTokenizer(t)
 			if tt.setup != nil {
 				tt.setup(tokenizer)
@@ -218,7 +228,7 @@ func TestAuth_ValidateToken(t *testing.T) {
 	}
 }
 
-func TestAuth_Refresh(t *testing.T) {
+func (s *ServiceTestSuite) TestRefresh() {
 	tests := []struct {
 		name       string
 		refreshReq models.TokenRefreshRequest
@@ -292,7 +302,7 @@ func TestAuth_Refresh(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		s.T().Run(tt.name, func(t *testing.T) {
 			repo := newMockiRepository(t)
 			tokenizer := newMockiTokenizer(t)
 			if tt.setup != nil {

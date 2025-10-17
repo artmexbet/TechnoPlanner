@@ -35,8 +35,10 @@ func (t *Tokenizer) GenerateTokenPair(userid string) (models.TokenPair, error) {
 		SessionID: sessionID.String(),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(t.accessTTL)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    "auth_service",
+			// TODO: подумать о том, чтобы вынести time.Now()
+			// 	в репозиторий, чтобы можно было мокать время в тестах
+			IssuedAt: jwt.NewNumericDate(time.Now()),
+			Issuer:   "auth_service",
 		},
 	}
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(t.jwtSecret)
