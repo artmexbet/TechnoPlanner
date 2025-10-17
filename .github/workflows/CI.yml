@@ -27,7 +27,7 @@ jobs:
         uses: golangci/golangci-lint-action@v8
         with:
           version: latest
-          args: --timeout=3m ./services/gateway/...
+          args: --timeout=3m --fix ./services/gateway/... ./services/auth/...
 
 #  codegen:
 #    runs-on: ubuntu-latest

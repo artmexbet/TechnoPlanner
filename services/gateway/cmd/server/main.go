@@ -13,9 +13,10 @@ import (
 )
 
 type Config struct {
-	Router   app.Config      `yaml:"router" env:"ROUTER"`
-	Broker   broker.Config   `yaml:"broker" env:"BROKER"`
-	Postgres postgres.Config `yaml:"postgres" env:"POSTGRES"`
+	Router   app.Config                `yaml:"router" env:"ROUTER"`
+	Broker   broker.Config             `yaml:"broker" env:"BROKER"`
+	Postgres postgres.Config           `yaml:"postgres" env:"POSTGRES"`
+	GRPC     service.AuthServiceConfig `yaml:"grpc" env:"GRPC"`
 }
 
 func main() {
@@ -34,10 +35,14 @@ func main() {
 	store := storage.NewStorage(_postgres) // инициализация хранилища
 
 	userSvc := service.NewUserService(store)
-	authSvc := service.NewAuthService(store)
+	authSvc, err := service.NewGRPCWrapper(cfg.GRPC)
+	if err != nil {
+		panic(err)
+	}
 
 	r := app.NewRouter(cfg.Router, userSvc, authSvc).
 		InitMiddlewares().
-		InitBaseRoutes()
+		InitBaseRoutes().
+		InitUserRoutes()
 	r.Run()
 }
