@@ -39,6 +39,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer authSvc.Close()
 
 	r := app.NewRouter(cfg.Router, userSvc, authSvc).
 		InitMiddlewares().

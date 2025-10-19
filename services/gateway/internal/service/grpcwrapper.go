@@ -15,7 +15,8 @@ type AuthServiceConfig struct {
 }
 
 type GRPCWrapper struct {
-	client proto.AuthClient
+	client   proto.AuthClient
+	grpcConn *grpc.ClientConn
 }
 
 func NewGRPCWrapper(cfg AuthServiceConfig) (*GRPCWrapper, error) {
@@ -24,8 +25,13 @@ func NewGRPCWrapper(cfg AuthServiceConfig) (*GRPCWrapper, error) {
 		return nil, fmt.Errorf("could not create grpc client: %w", err)
 	}
 	return &GRPCWrapper{
-		client: proto.NewAuthClient(conn),
+		client:   proto.NewAuthClient(conn),
+		grpcConn: conn,
 	}, nil
+}
+
+func (g *GRPCWrapper) Close() error {
+	return g.grpcConn.Close()
 }
 
 func (g *GRPCWrapper) Login(ctx context.Context, req models.LoginRequest) (models.TokenPair, error) {

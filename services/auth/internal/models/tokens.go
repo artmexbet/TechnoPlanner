@@ -13,9 +13,9 @@ func (t TokenState) ToProto() int32 {
 }
 
 const (
-	TokenStateValid TokenState = iota
-	TokenStateExpired
-	TokenStateInvalid
+	TokenStateValid   TokenState = 0
+	TokenStateExpired TokenState = 1
+	TokenStateInvalid TokenState = 2
 )
 
 type TokenPair struct {

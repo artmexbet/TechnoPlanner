@@ -74,8 +74,8 @@ func (t *Tokenizer) GenerateSession(u models.User, deviceID, userAgent, ip strin
 		DeviceID:  deviceID,
 		UserAgent: userAgent,
 		IP:        ip,
-		CreatedAt: time.Now(),
-		ExpiresAt: time.Now().Add(t.refreshTTL),
+		CreatedAt: time.Now().UTC(),
+		ExpiresAt: time.Now().Add(t.refreshTTL).UTC(),
 	}
 	return session
 }
@@ -94,7 +94,7 @@ func (t *Tokenizer) DecodeToken(tokenStr string) (*models.Claims, error) {
 	if !ok || !token.Valid {
 		return nil, fmt.Errorf("invalid token")
 	}
-	if claims.ExpiresAt.Before(time.Now()) {
+	if claims.ExpiresAt.Before(time.Now().UTC()) {
 		return claims, ErrTokenExpired
 	}
 	return claims, nil

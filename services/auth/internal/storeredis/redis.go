@@ -54,13 +54,17 @@ func (r *Redis) StoreSession(
 	sessionData []byte,
 	tokenTTL time.Duration) error {
 	pipe := r.client.Pipeline()
-	pipe.Set(ctx, fmt.Sprintf("session:%s", sessionID), sessionData, tokenTTL)
+	pipe.Set(ctx, sessionKey(sessionID), sessionData, tokenTTL)
 	pipe.Set(ctx, fmt.Sprintf("refresh:%s", refreshToken), sessionID, tokenTTL)
 
 	pipe.SAdd(ctx, fmt.Sprintf("user_sessions:%s", userID), sessionID)
 	pipe.Expire(ctx, fmt.Sprintf("user_sessions:%s", userID), tokenTTL)
 	_, err := pipe.Exec(ctx)
 	return err
+}
+
+func sessionKey(sessionID string) string {
+	return fmt.Sprintf("session:%s", sessionID)
 }
 
 func (r *Redis) GetSession(ctx context.Context, refreshToken string) ([]byte, error) {
