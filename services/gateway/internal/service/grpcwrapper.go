@@ -7,6 +7,7 @@ import (
 
 	"gateway/internal/models"
 
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 )
 
@@ -20,7 +21,10 @@ type GRPCWrapper struct {
 }
 
 func NewGRPCWrapper(cfg AuthServiceConfig) (*GRPCWrapper, error) {
-	conn, err := grpc.NewClient(cfg.Address)
+	conn, err := grpc.NewClient(
+		cfg.Address,
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("could not create grpc client: %w", err)
 	}

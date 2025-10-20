@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"log"
 	"net"
 
 	"auth/internal/postgres"
@@ -11,7 +13,9 @@ import (
 	"proto"
 
 	"config"
+	"telemetry"
 
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 )
 
@@ -19,12 +23,24 @@ type Config struct {
 	Repository repository.Config `yaml:"repository" env:"REPOSITORY"`
 	Redis      storeredis.Config `yaml:"redis" env:"REDIS"`
 	Postgres   postgres.Config   `yaml:"postgres" env:"POSTGRES"`
+	Telemetry  telemetry.Config  `yaml:"telemetry" env:"TELEMETRY"`
 
 	JWTSecret string `yaml:"jwt_secret" env:"JWT_SECRET"`
 }
 
 func main() {
 	cfg := config.MustParseConfig[Config]("./cmd/config/cfg.yaml")
+
+	// Initialize telemetry
+	tel, err := telemetry.New(cfg.Telemetry)
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		if err := tel.Shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down telemetry: %v", err)
+		}
+	}()
 
 	pg, err := postgres.New(cfg.Postgres)
 	if err != nil {
@@ -45,7 +61,10 @@ func main() {
 	svc := service.NewAuth(gen, repo)
 	handler := server.NewHandler(svc)
 
-	grpcServer := grpc.NewServer() // TODO: add logging interceptor
+	// Create gRPC server with OpenTelemetry interceptors
+	grpcServer := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+	)
 	proto.RegisterAuthServer(grpcServer, handler)
 	grpcListener, err := net.Listen("tcp", ":8080")
 	if err != nil {

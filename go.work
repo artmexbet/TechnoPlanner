@@ -4,6 +4,7 @@ use (
 	./libs/broker
 	./libs/config
 	./libs/proto
+	./libs/telemetry
 	./services/auth
 	./services/gateway
 )

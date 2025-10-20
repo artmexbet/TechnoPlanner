@@ -27,8 +27,9 @@ type iAuthSvcConnector interface {
 }
 
 type Config struct {
-	Address string `yaml:"address" env:"ADDRESS"`
-	Port    string `yaml:"port" env:"PORT"`
+	Address     string `yaml:"address" env:"ADDRESS"`
+	Port        string `yaml:"port" env:"PORT"`
+	ServiceName string // Added for telemetry
 }
 
 type Router struct {
@@ -51,6 +52,11 @@ func NewRouter(cfg Config, userSvc iUserService, authSvc iAuthSvcConnector) *Rou
 }
 
 func (r *Router) InitMiddlewares() *Router {
+	// Add telemetry middleware first if service name is configured
+	if r.cfg.ServiceName != "" {
+		r.r.Use(TelemetryMiddleware(r.cfg.ServiceName))
+	}
+	
 	r.r.Use(cors.New(
 		cors.Config{
 			AllowOrigins: "*",

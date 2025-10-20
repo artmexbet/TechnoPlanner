@@ -16,3 +16,7 @@ postgres:
   password: postgres
   db: gateway
   timeout: 5s
+telemetry:
+  service_name: "gateway-service"
+  jaeger_endpoint: "http://localhost:14268/api/traces"
+  enabled: true
