@@ -16,6 +16,7 @@ import (
 	"config"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
 )
 
@@ -33,23 +34,26 @@ func main() {
 
 	ctx := context.Background()
 
-	exporter, err := opentelemetry.NewOTLPHTTPExporter(ctx, "", true)
+	traceExp, err := opentelemetry.NewOTLPHTTPExporter(ctx, "", true)
 	if err != nil {
 		panic(err)
 	}
-	tracer, shutdownFn := opentelemetry.NewTracerProvider(exporter, "auth-service")
+	tracer, shutdownFn := opentelemetry.NewTracerProvider(traceExp, "auth-service")
 	defer func() {
 		if err := shutdownFn(ctx); err != nil {
 			panic(err)
 		}
 	}()
-	//otel.SetTracerProvider(tracer)
+	otel.SetTracerProvider(tracer)
 
-	pg, err := postgres.New(cfg.Postgres)
+	// Настраиваем propagator для передачи trace context между сервисами
+	otel.SetTextMapPropagator(opentelemetry.NewPropagator())
+
+	pg, err := postgres.New(ctx, cfg.Postgres)
 	if err != nil {
 		panic(err)
 	}
-	redisClient, err := storeredis.New(cfg.Redis)
+	redisClient, err := storeredis.New(cfg.Redis, tracer)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +69,7 @@ func main() {
 	handler := server.NewHandler(svc)
 
 	grpcServer := grpc.NewServer(
-		grpc.StatsHandler(otelgrpc.NewServerHandler(otelgrpc.WithTracerProvider(tracer))),
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.UnaryInterceptor(server.LoggingInterceptor),
 	)
 	proto.RegisterAuthServer(grpcServer, handler)

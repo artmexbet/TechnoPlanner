@@ -4,13 +4,14 @@ import (
 	"context"
 	"log/slog"
 
+	"observability/opentelemetry"
+
 	"broker"
 	"config"
 	"gateway/internal/postgres"
 	"gateway/internal/router"
 	"gateway/internal/service"
 	"gateway/internal/storage"
-	"observability/opentelemetry"
 
 	"go.opentelemetry.io/otel"
 )
@@ -39,6 +40,9 @@ func main() {
 		}
 	}()
 	otel.SetTracerProvider(tracer)
+
+	// Настраиваем propagator для передачи trace context между сервисами
+	otel.SetTextMapPropagator(opentelemetry.NewPropagator())
 	slog.Info("Starting otel connection")
 
 	//nats := broker.NewNATSBroker(cfg.Broker) // понадобится позже

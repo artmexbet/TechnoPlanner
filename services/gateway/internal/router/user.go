@@ -1,6 +1,8 @@
 package router
 
 import (
+	"log/slog"
+
 	"gateway/internal/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -51,6 +53,8 @@ func (r *Router) RegisterUser() fiber.Handler {
 
 func (r *Router) LoginUser() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
+		slog.InfoContext(ctx.UserContext(), "LoginUser handler called", "context", ctx.UserContext())
+
 		var req models.LoginRequest
 		err := easyjson.Unmarshal(ctx.Body(), &req)
 		if err != nil {

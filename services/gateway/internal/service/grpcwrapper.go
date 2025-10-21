@@ -24,7 +24,7 @@ type GRPCWrapper struct {
 func NewGRPCWrapper(cfg AuthServiceConfig) (*GRPCWrapper, error) {
 	conn, err := grpc.NewClient(cfg.Address,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler(otelgrpc.WithPublicEndpoint())),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("could not create grpc client: %w", err)

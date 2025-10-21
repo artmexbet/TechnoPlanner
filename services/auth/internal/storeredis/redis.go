@@ -8,6 +8,7 @@ import (
 
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Config struct {
@@ -22,7 +23,7 @@ type Redis struct {
 	client *redis.Client
 }
 
-func New(cfg Config) (*Redis, error) {
+func New(cfg Config, tracer trace.TracerProvider) (*Redis, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     cfg.Addr,
 		Username: cfg.User,
@@ -34,12 +35,15 @@ func New(cfg Config) (*Redis, error) {
 		return nil, fmt.Errorf("could not connect to redis: %w", err)
 	}
 
-	if err := redisotel.InstrumentTracing(client); err != nil {
+	if err := redisotel.InstrumentTracing(client,
+		redisotel.WithTracerProvider(tracer),
+		redisotel.WithCallerEnabled(true),
+	); err != nil {
 		return nil, fmt.Errorf("could not instrument redis client: %w", err)
 	}
-	if err := redisotel.InstrumentMetrics(client); err != nil {
-		return nil, fmt.Errorf("could not instrument redis client: %w", err)
-	}
+	//if err := redisotel.InstrumentMetrics(client, redisotel.WithMeterProvider(meter)); err != nil {
+	//	return nil, fmt.Errorf("could not instrument redis client: %w", err)
+	//}
 
 	return &Redis{client: client}, nil
 }

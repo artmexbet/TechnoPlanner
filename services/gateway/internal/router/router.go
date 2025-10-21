@@ -3,8 +3,9 @@ package router
 import (
 	"context"
 	"fmt"
-	"gateway/internal/models"
 	"log/slog"
+
+	"gateway/internal/models"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/contrib/otelfiber/v2"
@@ -66,7 +67,7 @@ func (r *Router) InitMiddlewares(provider trace.TracerProvider) *Router {
 			otelfiber.WithTracerProvider(provider),
 		),
 	)
-	r.r.Use(slogfiber.NewWithConfig(slog.Default(), slogfiber.Config{WithSpanID: true, WithTraceID: true}))
+	r.r.Use(slogfiber.New(slog.Default()))
 	return r
 }
 

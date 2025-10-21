@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -26,20 +27,27 @@ type Postgres struct {
 	q    *queries.Queries
 }
 
-func New(cfg Config) (*Postgres, error) {
-	pool, err := pgxpool.New(
-		context.Background(),
-		fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
-			cfg.User, cfg.Pass,
-			cfg.Host, cfg.Port,
-			cfg.DBName, cfg.SSLMode),
-	)
+func New(ctx context.Context, cfg Config) (*Postgres, error) {
+	pgCfg, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
+		cfg.User, cfg.Pass,
+		cfg.Host, cfg.Port,
+		cfg.DBName, cfg.SSLMode))
+	if err != nil {
+		return nil, fmt.Errorf("could not parse postgres config: %w", err)
+	}
+
+	pgCfg.ConnConfig.Tracer = otelpgx.NewTracer()
+
+	pool, err := pgxpool.NewWithConfig(ctx, pgCfg)
 	if err != nil {
 		return nil, fmt.Errorf("could not connect to postgres: %w", err)
 	}
 
 	q := queries.New(pool)
 
+	if err = otelpgx.RecordStats(pool); err != nil {
+		return nil, fmt.Errorf("could not record pgx stats: %w", err)
+	}
 	return &Postgres{pool: pool, q: q}, nil
 }
 

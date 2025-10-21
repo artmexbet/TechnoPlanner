@@ -34,10 +34,10 @@ func (t *Tokenizer) GenerateTokenPair(userid string) (models.TokenPair, error) {
 		UserID:    userid,
 		SessionID: sessionID.String(),
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(t.accessTTL)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(t.accessTTL).UTC()),
 			// TODO: подумать о том, чтобы вынести time.Now()
 			// 	в репозиторий, чтобы можно было мокать время в тестах
-			IssuedAt: jwt.NewNumericDate(time.Now()),
+			IssuedAt: jwt.NewNumericDate(time.Now().UTC()),
 			Issuer:   "auth_service",
 		},
 	}
@@ -50,8 +50,8 @@ func (t *Tokenizer) GenerateTokenPair(userid string) (models.TokenPair, error) {
 		UserID:    userid,
 		SessionID: sessionID.String(),
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(t.refreshTTL)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(t.refreshTTL).UTC()),
+			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
 			Issuer:    "auth_service",
 		},
 	}
