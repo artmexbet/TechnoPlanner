@@ -15,3 +15,11 @@ type Place struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
+
+type User struct {
+	ID        uuid.UUID
+	Username  string
+	Email     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}

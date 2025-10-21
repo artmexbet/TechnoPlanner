@@ -43,3 +43,36 @@ func (q *Queries) AddPlace(ctx context.Context, arg AddPlaceParams) (Place, erro
 	)
 	return i, err
 }
+
+const GetPlaces = `-- name: GetPlaces :many
+SELECT id, name, description, latitude, longitude, created_at, updated_at FROM places
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetPlaces(ctx context.Context) ([]Place, error) {
+	rows, err := q.db.Query(ctx, GetPlaces)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Place
+	for rows.Next() {
+		var i Place
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Latitude,
+			&i.Longitude,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

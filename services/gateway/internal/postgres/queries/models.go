@@ -48,6 +48,17 @@ type SoftToTechnic struct {
 	TechnicID int64
 }
 
+type Task struct {
+	ID          pgtype.UUID
+	Description pgtype.Text
+	Status      string
+	RequestID   pgtype.UUID
+	UserID      pgtype.UUID
+	WorkerID    pgtype.UUID
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+}
+
 type Technic struct {
 	ID   int64
 	Name string
