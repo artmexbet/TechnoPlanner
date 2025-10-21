@@ -8,7 +8,7 @@ broker:
       name: SMTHING
       subjects:
         - "smthing.created"
-      max_age: 1d
+      max_age: 24h
 postgres:
   host: localhost
   port: 5433
@@ -16,3 +16,5 @@ postgres:
   password: postgres
   db: gateway
   timeout: 5s
+grpc:
+  address: "localhost:8081"

@@ -57,6 +57,17 @@ services:
       timeout: 10s
       retries: 5
 
+  jaeger:
+    image: cr.jaegertracing.io/jaegertracing/jaeger
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+      - "9411:9411"
+      - "5778:5778"
+    networks:
+      - tech
+
 networks:
   tech:
 

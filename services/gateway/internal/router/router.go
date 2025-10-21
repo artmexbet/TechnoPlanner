@@ -1,16 +1,19 @@
-package app
+package router
 
 import (
 	"context"
 	"fmt"
-
 	"gateway/internal/models"
+	"log/slog"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/contrib/otelfiber/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
+	slogfiber "github.com/samber/slog-fiber"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type iUserService interface {
@@ -50,7 +53,7 @@ func NewRouter(cfg Config, userSvc iUserService, authSvc iAuthSvcConnector) *Rou
 	}
 }
 
-func (r *Router) InitMiddlewares() *Router {
+func (r *Router) InitMiddlewares(provider trace.TracerProvider) *Router {
 	r.r.Use(cors.New(
 		cors.Config{
 			AllowOrigins: "*",
@@ -58,6 +61,12 @@ func (r *Router) InitMiddlewares() *Router {
 	))
 	r.r.Use(recover.New())
 	r.r.Use(requestid.New()) // Trace
+	r.r.Use(
+		otelfiber.Middleware(
+			otelfiber.WithTracerProvider(provider),
+		),
+	)
+	r.r.Use(slogfiber.NewWithConfig(slog.Default(), slogfiber.Config{WithSpanID: true, WithTraceID: true}))
 	return r
 }
 

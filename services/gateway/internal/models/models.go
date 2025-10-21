@@ -2,6 +2,14 @@ package models
 
 //go:generate easyjson -all models.go
 
+type TokenState string
+
+const (
+	TokenStateValid   TokenState = "valid"
+	TokenStateExpired TokenState = "expired"
+	TokenStateInvalid TokenState = "invalid"
+)
+
 //easyjson:json
 type RegisterRequest struct {
 	Username string `json:"username" validate:"min=3,max=30"`
@@ -29,8 +37,8 @@ type TokenPair struct {
 }
 
 type TokenValidationResponse struct {
-	UserID string `json:"user_id"`
-	State  string `json:"state"`
+	UserID string     `json:"user_id"`
+	State  TokenState `json:"state"`
 }
 
 type TokenRefreshRequest struct {

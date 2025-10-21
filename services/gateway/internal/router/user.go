@@ -1,4 +1,4 @@
-package app
+package router
 
 import (
 	"gateway/internal/models"
@@ -35,7 +35,7 @@ func (r *Router) RegisterUser() fiber.Handler {
 			})
 		}
 
-		userID, err := r.authSvc.Register(ctx.Context(), req.Username, req.Password, req.Email)
+		userID, err := r.authSvc.Register(ctx.UserContext(), req.Username, req.Password, req.Email)
 		if err != nil {
 			return ctx.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
 				Error:   "could not register user",
@@ -72,7 +72,7 @@ func (r *Router) LoginUser() fiber.Handler {
 		req.UserAgent = string(ctx.Request().Header.UserAgent())
 		req.DeviceID = string(ctx.Request().Header.Host())
 
-		tokens, err := r.authSvc.Login(ctx.Context(), req)
+		tokens, err := r.authSvc.Login(ctx.UserContext(), req)
 		if err != nil {
 			return ctx.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{
 				Error:   "invalid credentials",
@@ -107,7 +107,7 @@ func (r *Router) RefreshToken() fiber.Handler {
 		req.UserAgent = string(ctx.Request().Header.UserAgent())
 		req.DeviceID = string(ctx.Request().Header.Host())
 
-		tokens, err := r.authSvc.Refresh(ctx.Context(), req)
+		tokens, err := r.authSvc.Refresh(ctx.UserContext(), req)
 		if err != nil {
 			return ctx.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{
 				Error:   "could not refresh token",

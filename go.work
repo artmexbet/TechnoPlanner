@@ -6,4 +6,5 @@ use (
 	./libs/proto
 	./services/auth
 	./services/gateway
+	libs/observability
 )

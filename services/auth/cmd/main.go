@@ -1,17 +1,21 @@
 package main
 
 import (
-	"net"
-
 	"auth/internal/postgres"
 	"auth/internal/repository"
 	"auth/internal/server"
 	"auth/internal/service"
 	"auth/internal/storeredis"
+	"context"
+	"fmt"
+	"log/slog"
+	"net"
+	"observability/opentelemetry"
 	"proto"
 
 	"config"
 
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 )
 
@@ -21,10 +25,25 @@ type Config struct {
 	Postgres   postgres.Config   `yaml:"postgres" env:"POSTGRES"`
 
 	JWTSecret string `yaml:"jwt_secret" env:"JWT_SECRET"`
+	Port      string `yaml:"port" env:"PORT"`
 }
 
 func main() {
 	cfg := config.MustParseConfig[Config]("./cmd/config/cfg.yaml")
+
+	ctx := context.Background()
+
+	exporter, err := opentelemetry.NewOTLPHTTPExporter(ctx, "", true)
+	if err != nil {
+		panic(err)
+	}
+	tracer, shutdownFn := opentelemetry.NewTracerProvider(exporter, "auth-service")
+	defer func() {
+		if err := shutdownFn(ctx); err != nil {
+			panic(err)
+		}
+	}()
+	//otel.SetTracerProvider(tracer)
 
 	pg, err := postgres.New(cfg.Postgres)
 	if err != nil {
@@ -45,9 +64,13 @@ func main() {
 	svc := service.NewAuth(gen, repo)
 	handler := server.NewHandler(svc)
 
-	grpcServer := grpc.NewServer() // TODO: add logging interceptor
+	grpcServer := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler(otelgrpc.WithTracerProvider(tracer))),
+		grpc.UnaryInterceptor(server.LoggingInterceptor),
+	)
 	proto.RegisterAuthServer(grpcServer, handler)
-	grpcListener, err := net.Listen("tcp", ":8080")
+	slog.Info("Starting gRPC server", "port", cfg.Port)
+	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Port))
 	if err != nil {
 		panic(err)
 	}
