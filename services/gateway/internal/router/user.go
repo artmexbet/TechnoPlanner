@@ -12,9 +12,9 @@ import (
 func (r *Router) InitUserRoutes() *Router {
 	users := r.r.Group("/api/v1/users")
 
-	users.Post("/register", r.RegisterUser()) // регистрация пользователя
-	users.Post("/login", r.LoginUser())       // логин пользователя
-	users.Post("/refresh", r.RefreshToken())  // обновление токенов
+	users.Post("/register", r.RegisterUser()) // user registration
+	users.Post("/login", r.LoginUser())       // user login
+	users.Post("/refresh", r.RefreshToken())  // token refresh
 
 	return r
 }

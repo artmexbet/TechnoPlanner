@@ -20,7 +20,14 @@ func CheckJWTMiddleware(authClient iAuthClient) fiber.Handler {
 				Error: "missing authorization header",
 			})
 		}
-		token := h[0][len("Bearer "):]
+		authHeader := h[0]
+		const bearerPrefix = "Bearer "
+		if len(authHeader) < len(bearerPrefix) || authHeader[:len(bearerPrefix)] != bearerPrefix {
+			return c.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{
+				Error: "invalid authorization header format",
+			})
+		}
+		token := authHeader[len(bearerPrefix):]
 		validateRes, err := authClient.ValidateToken(c.Context(), token)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{

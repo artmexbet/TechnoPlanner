@@ -29,7 +29,10 @@ func NewGRPCWrapper(cfg AuthServiceConfig) (*GRPCWrapper, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not create grpc client: %w", err)
 	}
-	conn.Connect()
+	if err := conn.Connect(); err != nil {
+		conn.Close()
+		return nil, fmt.Errorf("could not connect grpc client: %w", err)
+	}
 	return &GRPCWrapper{
 		client:   proto.NewAuthClient(conn),
 		grpcConn: conn,
