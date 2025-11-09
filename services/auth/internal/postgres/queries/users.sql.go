@@ -8,7 +8,7 @@ package queries
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const CreateUser = `-- name: CreateUser :one
@@ -19,7 +19,7 @@ RETURNING id, username, email, password_hash, created_at, updated_at
 
 type CreateUserParams struct {
 	Username     string
-	Email        pgtype.Text
+	Email        *string
 	PasswordHash string
 }
 
@@ -42,7 +42,7 @@ SELECT id, username, email, password_hash, created_at, updated_at FROM users
 WHERE id = $1
 `
 
-func (q *Queries) FindUserByID(ctx context.Context, id pgtype.UUID) (User, error) {
+func (q *Queries) FindUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 	row := q.db.QueryRow(ctx, FindUserByID, id)
 	var i User
 	err := row.Scan(

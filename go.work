@@ -3,8 +3,10 @@ go 1.25.1
 use (
 	./libs/broker
 	./libs/config
+	./libs/observability
 	./libs/proto
+	./libs/utills
 	./services/auth
 	./services/gateway
-	libs/observability
+	./services/requests
 )

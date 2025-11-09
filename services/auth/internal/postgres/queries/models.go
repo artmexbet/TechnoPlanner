@@ -5,14 +5,16 @@
 package queries
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type User struct {
-	ID           pgtype.UUID
+	ID           uuid.UUID
 	Username     string
-	Email        pgtype.Text
+	Email        *string
 	PasswordHash string
-	CreatedAt    pgtype.Timestamptz
-	UpdatedAt    pgtype.Timestamptz
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
