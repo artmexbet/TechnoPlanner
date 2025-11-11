@@ -2,18 +2,22 @@ package postgres
 
 import (
 	"context"
+	"errors"
 
 	"requests/internal/domain"
 	"requests/internal/postgres/queries"
 	"utills/pointer"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 func (p *Postgres) GetUserByTelegramID(ctx context.Context, telegramID int64) (domain.User, error) {
 	u, err := p.q.GetUserByTelegramID(ctx, telegramID)
-	if err != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return domain.User{}, err
+	} else if errors.Is(err, pgx.ErrNoRows) {
+		return domain.User{}, domain.ErrUserNotFound
 	}
 	return *u.ToDomain(), nil
 }

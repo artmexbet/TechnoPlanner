@@ -93,14 +93,20 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain(out *jwriter.Writer, in User) 
 	out.RawByte('{')
 	first := true
 	_ = first
-	{
+	if true {
 		const prefix string = ",\"id\":"
+		first = false
 		out.RawString(prefix[1:])
 		out.RawText((in.ID).MarshalText())
 	}
 	{
 		const prefix string = ",\"telegram_id\":"
-		out.RawString(prefix)
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Int64(int64(in.TelegramID))
 	}
 	{
@@ -118,12 +124,12 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain(out *jwriter.Writer, in User) 
 		out.RawString(prefix)
 		out.String(string(in.LastName))
 	}
-	{
+	if true {
 		const prefix string = ",\"created_at\":"
 		out.RawString(prefix)
 		out.Raw((in.CreatedAt).MarshalJSON())
 	}
-	{
+	if true {
 		const prefix string = ",\"updated_at\":"
 		out.RawString(prefix)
 		out.Raw((in.UpdatedAt).MarshalJSON())
@@ -242,12 +248,12 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain1(out *jwriter.Writer, in Techn
 		out.RawString(prefix)
 		out.Int(int(in.Quantity))
 	}
-	{
+	if true {
 		const prefix string = ",\"created_at\":"
 		out.RawString(prefix)
 		out.Raw((in.CreatedAt).MarshalJSON())
 	}
-	{
+	if true {
 		const prefix string = ",\"updated_at\":"
 		out.RawString(prefix)
 		out.Raw((in.UpdatedAt).MarshalJSON())
@@ -298,14 +304,6 @@ func easyjson3e1fa5ecDecodeRequestsInternalDomain2(in *jlexer.Lexer, out *Reques
 			} else {
 				if data := in.UnsafeBytes(); in.Ok() {
 					in.AddError((out.ID).UnmarshalText(data))
-				}
-			}
-		case "user_id":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.UserID).UnmarshalText(data))
 				}
 			}
 		case "request_text":
@@ -387,11 +385,6 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain2(out *jwriter.Writer, in Reque
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
 		out.RawText((in.ID).MarshalText())
-	}
-	{
-		const prefix string = ",\"user_id\":"
-		out.RawString(prefix)
-		out.RawText((in.UserID).MarshalText())
 	}
 	{
 		const prefix string = ",\"request_text\":"

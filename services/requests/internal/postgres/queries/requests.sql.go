@@ -107,7 +107,7 @@ RETURNING id, telegram_user_id, request_text, status, created_at, updated_at
 
 type UpdateRequestStatusParams struct {
 	ID     uuid.UUID
-	Status string
+	Status RequestStatus
 }
 
 func (q *Queries) UpdateRequestStatus(ctx context.Context, arg UpdateRequestStatusParams) (Request, error) {

@@ -18,20 +18,28 @@ func (s *StatusType) String() string {
 }
 
 const (
-	StatusPending StatusType = "pending"
+	StatusCanceled   StatusType = "canceled"
+	StatusPending    StatusType = "pending"
+	StatusAssigned   StatusType = "assigned"
+	StatusInProgress StatusType = "in_progress"
+	StatusCompleted  StatusType = "completed"
+	StatusRejected   StatusType = "rejected"
 )
 
-func (s *StatusType) Set(value string) error {
-	if value != string(StatusPending) {
+func (s *StatusType) Set(value interface{}) error {
+	sVal, ok := value.(string)
+	if !ok {
 		return ErrInvalidStatus
 	}
-	*s = StatusType(value)
+	if sVal != string(StatusPending) {
+		return ErrInvalidStatus
+	}
+	*s = StatusType(sVal)
 	return nil
 }
 
 type Request struct {
 	ID          uuid.UUID  `json:"id"`
-	UserID      uuid.UUID  `json:"user_id"`
 	RequestText string     `json:"request_text"`
 	Status      StatusType `json:"status"`
 	Technics    []Technic  `json:"technics"`
@@ -41,13 +49,13 @@ type Request struct {
 }
 
 type User struct {
-	ID         uuid.UUID `json:"id"`
+	ID         uuid.UUID `json:"id,omitempty"`
 	TelegramID int64     `json:"telegram_id"`
 	Username   string    `json:"username"`
 	FirstName  string    `json:"first_name"`
 	LastName   string    `json:"last_name"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	CreatedAt  time.Time `json:"created_at,omitempty"`
+	UpdatedAt  time.Time `json:"updated_at,omitempty"`
 }
 
 type Technic struct {
@@ -55,6 +63,6 @@ type Technic struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Quantity    int       `json:"quantity"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time `json:"created_at,omitempty"`
+	UpdatedAt   time.Time `json:"updated_at,omitempty"`
 }

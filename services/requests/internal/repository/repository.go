@@ -13,7 +13,7 @@ type iPostgres interface {
 	CreateRequest(ctx context.Context, req domain.Request) (*domain.Request, error)
 	CreateTechnics(ctx context.Context, technics []domain.Technic) error
 	GetRequestsByUserID(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]domain.Request, error)
-	UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status string) error
+	UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status domain.StatusType) error
 	GetRequestByID(ctx context.Context, requestID uuid.UUID) (*domain.Request, error)
 	AssignTechnicsToRequest(ctx context.Context, requestID uuid.UUID, technicIDs []int) []error
 	GetTechnicsByRequestID(ctx context.Context, requestID uuid.UUID) ([]domain.Technic, error)
@@ -23,6 +23,8 @@ type iPostgres interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 }
 
+// Repository struct that interacts with the databases.
+// We will be in need of sending data to broker in the future, so having a repository wrapper is a good idea.
 type Repository struct {
 	pg iPostgres
 }
@@ -43,16 +45,17 @@ func (r *Repository) GetRequestsByUserID(ctx context.Context, userID uuid.UUID, 
 	return r.pg.GetRequestsByUserID(ctx, userID, limit, offset)
 }
 
-func (r *Repository) UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status string) error {
+func (r *Repository) UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status domain.StatusType) error {
 	return r.pg.UpdateRequestStatus(ctx, requestID, status)
 }
 
+// GetRequestByID retrieves a request by its ID, including its issuer and associated technics.
 func (r *Repository) GetRequestByID(ctx context.Context, requestID uuid.UUID) (*domain.Request, error) {
 	req, err := r.pg.GetRequestByID(ctx, requestID)
 	if err != nil {
 		return nil, err
 	}
-	req.Issuer, err = r.pg.GetUserByID(ctx, req.UserID)
+	req.Issuer, err = r.pg.GetUserByID(ctx, req.Issuer.ID)
 	if err != nil {
 		return nil, fmt.Errorf("get user: %w", err)
 	}
@@ -70,4 +73,8 @@ func (r *Repository) GetTechnicsByRequestID(ctx context.Context, requestID uuid.
 }
 func (r *Repository) GetTechnicByRequestIDs(ctx context.Context, requestIDs []uuid.UUID) (map[uuid.UUID][]domain.Technic, error) {
 	return r.pg.GetTechnicByRequestIDs(ctx, requestIDs)
+}
+
+func (r *Repository) SaveTelegramUser(ctx context.Context, user domain.User) (domain.User, error) {
+	return r.pg.SaveTelegramUser(ctx, user)
 }

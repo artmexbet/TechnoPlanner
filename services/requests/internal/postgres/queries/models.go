@@ -5,16 +5,64 @@
 package queries
 
 import (
+	"database/sql/driver"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 )
 
+type RequestStatus string
+
+const (
+	RequestStatusCanceled   RequestStatus = "canceled"
+	RequestStatusPending    RequestStatus = "pending"
+	RequestStatusAssigned   RequestStatus = "assigned"
+	RequestStatusInProgress RequestStatus = "in_progress"
+	RequestStatusCompleted  RequestStatus = "completed"
+	RequestStatusRejected   RequestStatus = "rejected"
+)
+
+func (e *RequestStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = RequestStatus(s)
+	case string:
+		*e = RequestStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for RequestStatus: %T", src)
+	}
+	return nil
+}
+
+type NullRequestStatus struct {
+	RequestStatus RequestStatus
+	Valid         bool // Valid is true if RequestStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullRequestStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.RequestStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.RequestStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullRequestStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.RequestStatus), nil
+}
+
 type Request struct {
 	ID             uuid.UUID
 	TelegramUserID uuid.UUID
 	RequestText    string
-	Status         string
+	Status         RequestStatus
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }

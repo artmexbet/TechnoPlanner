@@ -5,14 +5,22 @@ import (
 	"utills/pointer"
 )
 
-func (r *Request) ToDomain() *domain.Request {
+func (t *RequestStatus) ToDomain() domain.StatusType {
 	var status domain.StatusType
-	_ = status.Set(r.Status)
+	_ = status.Set(string(*t))
+	return status
+}
+
+func RequestStatusFromDomain(s domain.StatusType) *RequestStatus {
+	str := RequestStatus(s.String())
+	return &str
+}
+
+func (r *Request) ToDomain() *domain.Request {
 	return &domain.Request{
 		ID:          r.ID,
-		UserID:      r.TelegramUserID,
 		RequestText: r.RequestText,
-		Status:      status,
+		Status:      r.Status.ToDomain(),
 		Technics:    nil,
 		CreatedAt:   r.CreatedAt,
 		UpdatedAt:   r.UpdatedAt,
@@ -22,9 +30,9 @@ func (r *Request) ToDomain() *domain.Request {
 func RequestFromDomain(r domain.Request) *Request {
 	return &Request{
 		ID:             r.ID,
-		TelegramUserID: r.UserID,
+		TelegramUserID: r.Issuer.ID,
 		RequestText:    r.RequestText,
-		Status:         r.Status.String(),
+		Status:         *RequestStatusFromDomain(r.Status),
 		CreatedAt:      r.CreatedAt,
 		UpdatedAt:      r.UpdatedAt,
 	}
