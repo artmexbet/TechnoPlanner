@@ -7,16 +7,39 @@ package queries
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
-const GetTelegramUserByID = `-- name: GetTelegramUserByID :one
+const GetUserByID = `-- name: GetUserByID :one
+SELECT id, telegram_id, username, first_name, last_name, created_at, updated_at
+FROM telegram_users
+WHERE id = $1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (TelegramUser, error) {
+	row := q.db.QueryRow(ctx, GetUserByID, id)
+	var i TelegramUser
+	err := row.Scan(
+		&i.ID,
+		&i.TelegramID,
+		&i.Username,
+		&i.FirstName,
+		&i.LastName,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const GetUserByTelegramID = `-- name: GetUserByTelegramID :one
 SELECT id, telegram_id, username, first_name, last_name, created_at, updated_at
 FROM telegram_users
 WHERE telegram_id = $1
 `
 
-func (q *Queries) GetTelegramUserByID(ctx context.Context, telegramID int64) (TelegramUser, error) {
-	row := q.db.QueryRow(ctx, GetTelegramUserByID, telegramID)
+func (q *Queries) GetUserByTelegramID(ctx context.Context, telegramID int64) (TelegramUser, error) {
+	row := q.db.QueryRow(ctx, GetUserByTelegramID, telegramID)
 	var i TelegramUser
 	err := row.Scan(
 		&i.ID,
@@ -43,8 +66,8 @@ RETURNING id, telegram_id, username, first_name, last_name, created_at, updated_
 
 type SaveTelegramUserParams struct {
 	TelegramID int64
-	Username   *string
-	FirstName  *string
+	Username   string
+	FirstName  string
 	LastName   *string
 }
 

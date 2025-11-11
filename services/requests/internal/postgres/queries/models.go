@@ -40,8 +40,8 @@ type TechnicsToRequest struct {
 type TelegramUser struct {
 	ID         uuid.UUID
 	TelegramID int64
-	Username   *string
-	FirstName  *string
+	Username   string
+	FirstName  string
 	LastName   *string
 	CreatedAt  time.Time
 	UpdatedAt  time.Time

@@ -8,7 +8,12 @@ SET username = EXCLUDED.username,
     updated_at = NOW()
 RETURNING *;
 
--- name: GetTelegramUserByID :one
+-- name: GetUserByTelegramID :one
 SELECT *
 FROM telegram_users
 WHERE telegram_id = $1;
+
+-- name: GetUserByID :one
+SELECT *
+FROM telegram_users
+WHERE id = $1;

@@ -36,6 +36,26 @@ func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (R
 	return i, err
 }
 
+const GetRequestByID = `-- name: GetRequestByID :one
+SELECT id, telegram_user_id, request_text, status, created_at, updated_at
+FROM requests
+WHERE id = $1
+`
+
+func (q *Queries) GetRequestByID(ctx context.Context, id uuid.UUID) (Request, error) {
+	row := q.db.QueryRow(ctx, GetRequestByID, id)
+	var i Request
+	err := row.Scan(
+		&i.ID,
+		&i.TelegramUserID,
+		&i.RequestText,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const GetRequestsByTelegramUserID = `-- name: GetRequestsByTelegramUserID :many
 SELECT id, telegram_user_id, request_text, status, created_at, updated_at
 FROM requests

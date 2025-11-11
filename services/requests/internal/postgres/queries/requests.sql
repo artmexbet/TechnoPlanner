@@ -16,3 +16,8 @@ SET status     = $2,
     updated_at = NOW()
 WHERE id = $1
 RETURNING *;
+
+-- name: GetRequestByID :one
+SELECT *
+FROM requests
+WHERE id = $1;
