@@ -11,6 +11,10 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateRequest creates a new request along with its associated technics in a transaction.
+// It returns the created request with its ID and associated technics.
+// Uses batching to assign technics to the request.
+// In cause of need to do this in one transaction we have to write it this way.
 func (p *Postgres) CreateRequest(ctx context.Context, req domain.Request) (*domain.Request, error) {
 	tx, err := p.pool.Begin(ctx)
 	if err != nil {
@@ -22,7 +26,7 @@ func (p *Postgres) CreateRequest(ctx context.Context, req domain.Request) (*doma
 
 	// Create the request
 	params := queries.CreateRequestParams{
-		TelegramUserID: req.UserID,
+		TelegramUserID: req.Issuer.ID,
 		RequestText:    req.RequestText,
 	}
 	createdReq, err := q.CreateRequest(ctx, params)
@@ -79,7 +83,7 @@ func (p *Postgres) GetRequestsByUserID(ctx context.Context, userID uuid.UUID, li
 	return result, nil
 }
 
-func (p *Postgres) UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status string) error {
+func (p *Postgres) UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status domain.StatusType) error {
 	tx, err := p.pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %w", err)
@@ -88,7 +92,7 @@ func (p *Postgres) UpdateRequestStatus(ctx context.Context, requestID uuid.UUID,
 	q := p.q.WithTx(tx)
 	params := queries.UpdateRequestStatusParams{
 		ID:     requestID,
-		Status: status,
+		Status: queries.RequestStatus(status),
 	}
 	_, err = q.UpdateRequestStatus(ctx, params)
 	if err != nil {

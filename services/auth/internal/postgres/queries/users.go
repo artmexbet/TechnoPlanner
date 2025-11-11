@@ -2,6 +2,7 @@ package queries
 
 import (
 	"auth/internal/models"
+	"utills/pointer"
 
 	"log/slog"
 
@@ -16,9 +17,9 @@ func (u *User) ToDomain() models.User {
 	return models.User{
 		ID:           id,
 		Username:     u.Username,
-		Email:        u.Email.String,
+		Email:        pointer.From(u.Email),
 		PasswordHash: u.PasswordHash,
-		CreatedAt:    u.CreatedAt.Time,
-		UpdatedAt:    u.UpdatedAt.Time,
+		CreatedAt:    u.CreatedAt,
+		UpdatedAt:    u.UpdatedAt,
 	}
 }
