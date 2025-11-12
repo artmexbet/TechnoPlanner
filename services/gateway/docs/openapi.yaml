@@ -1,0 +1,261 @@
+openapi: 3.1.0
+info:
+  title: Gateway Service API
+  version: 0.1.0
+  description: API documentation for the Gateway Service.
+tags:
+  - name: user
+    description: Operations related to user management.
+  - name: protected
+    description: Protected operations requiring authentication.
+  - name: auth
+    description: Authentication and authorization operations.
+  - name: technic
+    description: Operations related to technic management.
+  - name: request
+    description: Operations related to user requests.
+paths:
+  /api/v1/users/login:
+    post:
+      tags:
+        - auth
+      summary: User login
+      requestBody:
+        description: User credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          description: Unauthorized
+  /api/v1/requests:  # Тут добавлю фильтры потом, под них тоже ручка будет
+    get:
+      tags:
+        - protected
+        - request
+      summary: Get user requests
+      responses:
+        '200':
+          description: A list of user requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '401':
+          description: Unauthorized
+      security:
+        - bearerAuth: []
+  /api/v1/technics:
+    get:
+      tags:
+        - protected
+        - technic
+      summary: Get available technics
+      responses:
+        '200':
+          description: A list of technics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Technic'
+        '401':
+          description: Unauthorized
+      security:
+        - bearerAuth: []
+  /api/v1/requests/{request_id}:
+    parameters:
+      - $ref: '#/components/parameters/requestId'
+    get:
+      tags:
+        - protected
+        - request
+      summary: Get request by ID
+      responses:
+        '200':
+          description: Request details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Request not found
+      security:
+        - bearerAuth: []
+  /api/v1/employees:
+    get:
+      tags:
+        - protected
+        - user
+      summary: Get list of employees
+      responses:
+        '200':
+          description: A list of employees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+        '401':
+          description: Unauthorized
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - protected
+        - user
+      summary: Create a new employee
+      requestBody:
+        description: Employee details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Employee created successfully
+        '401':
+          description: Unauthorized
+      security:
+        - bearerAuth: []
+  /api/v1/requests/{request_id}/assign:
+    parameters:
+      - $ref: '#/components/parameters/requestId'
+    post:
+      tags:
+        - protected
+        - request
+      summary: Assign an employee to request
+      requestBody:
+        description: Employee assignment details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                employee_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Request assigned successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Request not found
+      security:
+        - bearerAuth: []
+components:
+  parameters:
+    requestId:
+      name: request_id
+      in: path
+      description: ID of the request
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    TokenPair:
+      type: object
+      properties:
+        access_token:
+          type: string
+          format: bearer
+        refresh_token:
+          type: string
+          format: bearer
+    Technic:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        quantity:
+          type: integer
+    RequestStatus:
+      type: string
+      oneOf:
+        - title: pending
+          type: string
+        - title: assigned
+          type: string
+        - title: in_progress
+          type: string
+        - title: completed
+          type: string
+        - title: cancelled
+          type: string
+        - title: rejected
+          type: string
+    Request:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/RequestStatus'
+        technics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Technic'
+    Employee:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        position:
+          type: string
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        position:
+          type: string
+      required:
+        - username
+        - password
+        - email
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
