@@ -9,9 +9,11 @@ CREATE TYPE request_status AS ENUM (
 
 CREATE TABLE IF NOT EXISTS requests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    telegram_user_id UUID NOT NULL REFERENCES telegram_users(id) ON DELETE SET NULL,
+    telegram_user_id UUID NOT NULL REFERENCES telegram_users(id) ON DELETE RESTRICT,
     request_text TEXT,
     status request_status NOT NULL DEFAULT 'pending',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    schedule_time TEXT NOT NULL,
+    address TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

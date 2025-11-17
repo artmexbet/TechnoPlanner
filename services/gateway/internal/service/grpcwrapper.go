@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
-	"proto"
-
-	"gateway/internal/models"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"proto"
+
+	"gateway/internal/models"
 )
 
 type AuthServiceConfig struct {

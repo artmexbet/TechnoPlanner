@@ -1,11 +1,12 @@
 package server
 
 import (
-	"auth/internal/models"
-	"proto"
-
 	"context"
 	"fmt"
+
+	"proto"
+
+	"auth/internal/models"
 )
 
 type authService interface {

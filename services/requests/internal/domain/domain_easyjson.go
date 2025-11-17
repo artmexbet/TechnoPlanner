@@ -60,8 +60,16 @@ func easyjson3e1fa5ecDecodeRequestsInternalDomain(in *jlexer.Lexer, out *User) {
 		case "last_name":
 			if in.IsNull() {
 				in.Skip()
+				out.LastName = nil
 			} else {
-				out.LastName = string(in.String())
+				if out.LastName == nil {
+					out.LastName = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.LastName = string(in.String())
+				}
 			}
 		case "created_at":
 			if in.IsNull() {
@@ -122,7 +130,11 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain(out *jwriter.Writer, in User) 
 	{
 		const prefix string = ",\"last_name\":"
 		out.RawString(prefix)
-		out.String(string(in.LastName))
+		if in.LastName == nil {
+			out.RawString("null")
+		} else {
+			out.String(string(*in.LastName))
+		}
 	}
 	if true {
 		const prefix string = ",\"created_at\":"
@@ -160,7 +172,7 @@ func (v *User) UnmarshalJSON(data []byte) error {
 func (v *User) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson3e1fa5ecDecodeRequestsInternalDomain(l, v)
 }
-func easyjson3e1fa5ecDecodeRequestsInternalDomain1(in *jlexer.Lexer, out *Technic) {
+func easyjson3e1fa5ecDecodeRequestsInternalDomain1(in *jlexer.Lexer, out *Equipment) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -189,8 +201,16 @@ func easyjson3e1fa5ecDecodeRequestsInternalDomain1(in *jlexer.Lexer, out *Techni
 		case "description":
 			if in.IsNull() {
 				in.Skip()
+				out.Description = nil
 			} else {
-				out.Description = string(in.String())
+				if out.Description == nil {
+					out.Description = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.Description = string(in.String())
+				}
 			}
 		case "quantity":
 			if in.IsNull() {
@@ -224,7 +244,7 @@ func easyjson3e1fa5ecDecodeRequestsInternalDomain1(in *jlexer.Lexer, out *Techni
 		in.Consumed()
 	}
 }
-func easyjson3e1fa5ecEncodeRequestsInternalDomain1(out *jwriter.Writer, in Technic) {
+func easyjson3e1fa5ecEncodeRequestsInternalDomain1(out *jwriter.Writer, in Equipment) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -241,7 +261,11 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain1(out *jwriter.Writer, in Techn
 	{
 		const prefix string = ",\"description\":"
 		out.RawString(prefix)
-		out.String(string(in.Description))
+		if in.Description == nil {
+			out.RawString("null")
+		} else {
+			out.String(string(*in.Description))
+		}
 	}
 	{
 		const prefix string = ",\"quantity\":"
@@ -262,26 +286,26 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain1(out *jwriter.Writer, in Techn
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v Technic) MarshalJSON() ([]byte, error) {
+func (v Equipment) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
 	easyjson3e1fa5ecEncodeRequestsInternalDomain1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v Technic) MarshalEasyJSON(w *jwriter.Writer) {
+func (v Equipment) MarshalEasyJSON(w *jwriter.Writer) {
 	easyjson3e1fa5ecEncodeRequestsInternalDomain1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *Technic) UnmarshalJSON(data []byte) error {
+func (v *Equipment) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjson3e1fa5ecDecodeRequestsInternalDomain1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *Technic) UnmarshalEasyJSON(l *jlexer.Lexer) {
+func (v *Equipment) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson3e1fa5ecDecodeRequestsInternalDomain1(l, v)
 }
 func easyjson3e1fa5ecDecodeRequestsInternalDomain2(in *jlexer.Lexer, out *Request) {
@@ -309,8 +333,16 @@ func easyjson3e1fa5ecDecodeRequestsInternalDomain2(in *jlexer.Lexer, out *Reques
 		case "request_text":
 			if in.IsNull() {
 				in.Skip()
+				out.RequestText = nil
 			} else {
-				out.RequestText = string(in.String())
+				if out.RequestText == nil {
+					out.RequestText = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.RequestText = string(in.String())
+				}
 			}
 		case "status":
 			if in.IsNull() {
@@ -326,15 +358,15 @@ func easyjson3e1fa5ecDecodeRequestsInternalDomain2(in *jlexer.Lexer, out *Reques
 				in.Delim('[')
 				if out.Technics == nil {
 					if !in.IsDelim(']') {
-						out.Technics = make([]Technic, 0, 0)
+						out.Technics = make([]Equipment, 0, 0)
 					} else {
-						out.Technics = []Technic{}
+						out.Technics = []Equipment{}
 					}
 				} else {
 					out.Technics = (out.Technics)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v1 Technic
+					var v1 Equipment
 					if in.IsNull() {
 						in.Skip()
 					} else {
@@ -350,6 +382,18 @@ func easyjson3e1fa5ecDecodeRequestsInternalDomain2(in *jlexer.Lexer, out *Reques
 				in.Skip()
 			} else {
 				(out.Issuer).UnmarshalEasyJSON(in)
+			}
+		case "schedule_time":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.ScheduleTime = string(in.String())
+			}
+		case "address":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Address = string(in.String())
 			}
 		case "created_at":
 			if in.IsNull() {
@@ -389,7 +433,11 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain2(out *jwriter.Writer, in Reque
 	{
 		const prefix string = ",\"request_text\":"
 		out.RawString(prefix)
-		out.String(string(in.RequestText))
+		if in.RequestText == nil {
+			out.RawString("null")
+		} else {
+			out.String(string(*in.RequestText))
+		}
 	}
 	{
 		const prefix string = ",\"status\":"
@@ -416,6 +464,16 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain2(out *jwriter.Writer, in Reque
 		const prefix string = ",\"issuer\":"
 		out.RawString(prefix)
 		(in.Issuer).MarshalEasyJSON(out)
+	}
+	{
+		const prefix string = ",\"schedule_time\":"
+		out.RawString(prefix)
+		out.String(string(in.ScheduleTime))
+	}
+	{
+		const prefix string = ",\"address\":"
+		out.RawString(prefix)
+		out.String(string(in.Address))
 	}
 	{
 		const prefix string = ",\"created_at\":"

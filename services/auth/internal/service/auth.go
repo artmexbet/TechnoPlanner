@@ -1,11 +1,11 @@
 package service
 
 import (
-	"auth/internal/models"
-	"errors"
-
 	"context"
+	"errors"
 	"fmt"
+
+	"auth/internal/models"
 )
 
 type iTokenizer interface {

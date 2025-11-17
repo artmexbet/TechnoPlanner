@@ -4,20 +4,20 @@ import (
 	"context"
 	"fmt"
 
-	"requests/internal/domain"
-
 	"github.com/google/uuid"
+
+	"requests/internal/domain"
 )
 
 type iPostgres interface {
 	CreateRequest(ctx context.Context, req domain.Request) (*domain.Request, error)
-	CreateTechnics(ctx context.Context, technics []domain.Technic) error
+	CreateEquipment(ctx context.Context, technics []domain.Equipment) error
 	GetRequestsByUserID(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]domain.Request, error)
 	UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status domain.StatusType) error
 	GetRequestByID(ctx context.Context, requestID uuid.UUID) (*domain.Request, error)
-	AssignTechnicsToRequest(ctx context.Context, requestID uuid.UUID, technicIDs []int) []error
-	GetTechnicsByRequestID(ctx context.Context, requestID uuid.UUID) ([]domain.Technic, error)
-	GetTechnicByRequestIDs(ctx context.Context, requestIDs []uuid.UUID) (map[uuid.UUID][]domain.Technic, error)
+	AssignEquipmentToRequest(ctx context.Context, requestID uuid.UUID, technics []domain.Equipment) []error
+	GetEquipmentByRequestID(ctx context.Context, requestID uuid.UUID) ([]domain.Equipment, error)
+	GetEquipmentByRequestIDs(ctx context.Context, requestIDs []uuid.UUID) (map[uuid.UUID][]domain.Equipment, error)
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (domain.User, error)
 	SaveTelegramUser(ctx context.Context, user domain.User) (domain.User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
@@ -37,8 +37,8 @@ func (r *Repository) CreateRequest(ctx context.Context, req domain.Request) (*do
 	return r.pg.CreateRequest(ctx, req)
 }
 
-func (r *Repository) CreateTechnics(ctx context.Context, technics []domain.Technic) error {
-	return r.pg.CreateTechnics(ctx, technics)
+func (r *Repository) CreateEquipment(ctx context.Context, technics []domain.Equipment) error {
+	return r.pg.CreateEquipment(ctx, technics)
 }
 
 func (r *Repository) GetRequestsByUserID(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]domain.Request, error) {
@@ -59,20 +59,20 @@ func (r *Repository) GetRequestByID(ctx context.Context, requestID uuid.UUID) (*
 	if err != nil {
 		return nil, fmt.Errorf("get user: %w", err)
 	}
-	req.Technics, err = r.pg.GetTechnicsByRequestID(ctx, requestID)
+	req.Technics, err = r.pg.GetEquipmentByRequestID(ctx, requestID)
 	if err != nil {
 		return nil, fmt.Errorf("get technics: %w", err)
 	}
-	return r.pg.GetRequestByID(ctx, requestID)
+	return req, nil
 }
-func (r *Repository) AssignTechnicsToRequest(ctx context.Context, requestID uuid.UUID, technicIDs []int) []error {
-	return r.pg.AssignTechnicsToRequest(ctx, requestID, technicIDs)
+func (r *Repository) AssignEquipmentToRequest(ctx context.Context, requestID uuid.UUID, equipment []domain.Equipment) []error {
+	return r.pg.AssignEquipmentToRequest(ctx, requestID, equipment)
 }
-func (r *Repository) GetTechnicsByRequestID(ctx context.Context, requestID uuid.UUID) ([]domain.Technic, error) {
-	return r.pg.GetTechnicsByRequestID(ctx, requestID)
+func (r *Repository) GetEquipmentByRequestID(ctx context.Context, requestID uuid.UUID) ([]domain.Equipment, error) {
+	return r.pg.GetEquipmentByRequestID(ctx, requestID)
 }
-func (r *Repository) GetTechnicByRequestIDs(ctx context.Context, requestIDs []uuid.UUID) (map[uuid.UUID][]domain.Technic, error) {
-	return r.pg.GetTechnicByRequestIDs(ctx, requestIDs)
+func (r *Repository) GetEquipmentByRequestIDs(ctx context.Context, requestIDs []uuid.UUID) (map[uuid.UUID][]domain.Equipment, error) {
+	return r.pg.GetEquipmentByRequestIDs(ctx, requestIDs)
 }
 
 func (r *Repository) SaveTelegramUser(ctx context.Context, user domain.User) (domain.User, error) {

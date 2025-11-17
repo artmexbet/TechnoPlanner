@@ -17,25 +17,25 @@ var (
 	ErrBatchAlreadyClosed = errors.New("batch already closed")
 )
 
-const AddTechnic = `-- name: AddTechnic :batchone
-INSERT INTO technics (name, description, quantity)
+const AddEquipment = `-- name: AddEquipment :batchone
+INSERT INTO equipment (name, description, quantity)
 VALUES ($1, $2, $3)
 RETURNING id, name, description, quantity, created_at, updated_at
 `
 
-type AddTechnicBatchResults struct {
+type AddEquipmentBatchResults struct {
 	br     pgx.BatchResults
 	tot    int
 	closed bool
 }
 
-type AddTechnicParams struct {
+type AddEquipmentParams struct {
 	Name        string
-	Description string
+	Description *string
 	Quantity    int32
 }
 
-func (q *Queries) AddTechnic(ctx context.Context, arg []AddTechnicParams) *AddTechnicBatchResults {
+func (q *Queries) AddEquipment(ctx context.Context, arg []AddEquipmentParams) *AddEquipmentBatchResults {
 	batch := &pgx.Batch{}
 	for _, a := range arg {
 		vals := []interface{}{
@@ -43,16 +43,16 @@ func (q *Queries) AddTechnic(ctx context.Context, arg []AddTechnicParams) *AddTe
 			a.Description,
 			a.Quantity,
 		}
-		batch.Queue(AddTechnic, vals...)
+		batch.Queue(AddEquipment, vals...)
 	}
 	br := q.db.SendBatch(ctx, batch)
-	return &AddTechnicBatchResults{br, len(arg), false}
+	return &AddEquipmentBatchResults{br, len(arg), false}
 }
 
-func (b *AddTechnicBatchResults) QueryRow(f func(int, Technic, error)) {
+func (b *AddEquipmentBatchResults) QueryRow(f func(int, Equipment, error)) {
 	defer b.br.Close()
 	for t := 0; t < b.tot; t++ {
-		var i Technic
+		var i Equipment
 		if b.closed {
 			if f != nil {
 				f(t, i, ErrBatchAlreadyClosed)
@@ -74,47 +74,47 @@ func (b *AddTechnicBatchResults) QueryRow(f func(int, Technic, error)) {
 	}
 }
 
-func (b *AddTechnicBatchResults) Close() error {
+func (b *AddEquipmentBatchResults) Close() error {
 	b.closed = true
 	return b.br.Close()
 }
 
-const AssignTechnicToRequest = `-- name: AssignTechnicToRequest :batchone
-INSERT INTO technics_to_requests (technic_id, request_id, quantity)
+const AssignEquipmentToRequest = `-- name: AssignEquipmentToRequest :batchone
+INSERT INTO equipment_to_requests (equipment_id, request_id, quantity)
 VALUES ($1, $2, $3)
-RETURNING id, request_id, technic_id, quantity, created_at, updated_at
+RETURNING id, request_id, equipment_id, quantity, created_at, updated_at
 `
 
-type AssignTechnicToRequestBatchResults struct {
+type AssignEquipmentToRequestBatchResults struct {
 	br     pgx.BatchResults
 	tot    int
 	closed bool
 }
 
-type AssignTechnicToRequestParams struct {
-	TechnicID int32
-	RequestID uuid.UUID
-	Quantity  int32
+type AssignEquipmentToRequestParams struct {
+	EquipmentID int32
+	RequestID   uuid.UUID
+	Quantity    int32
 }
 
-func (q *Queries) AssignTechnicToRequest(ctx context.Context, arg []AssignTechnicToRequestParams) *AssignTechnicToRequestBatchResults {
+func (q *Queries) AssignEquipmentToRequest(ctx context.Context, arg []AssignEquipmentToRequestParams) *AssignEquipmentToRequestBatchResults {
 	batch := &pgx.Batch{}
 	for _, a := range arg {
 		vals := []interface{}{
-			a.TechnicID,
+			a.EquipmentID,
 			a.RequestID,
 			a.Quantity,
 		}
-		batch.Queue(AssignTechnicToRequest, vals...)
+		batch.Queue(AssignEquipmentToRequest, vals...)
 	}
 	br := q.db.SendBatch(ctx, batch)
-	return &AssignTechnicToRequestBatchResults{br, len(arg), false}
+	return &AssignEquipmentToRequestBatchResults{br, len(arg), false}
 }
 
-func (b *AssignTechnicToRequestBatchResults) QueryRow(f func(int, TechnicsToRequest, error)) {
+func (b *AssignEquipmentToRequestBatchResults) QueryRow(f func(int, EquipmentToRequest, error)) {
 	defer b.br.Close()
 	for t := 0; t < b.tot; t++ {
-		var i TechnicsToRequest
+		var i EquipmentToRequest
 		if b.closed {
 			if f != nil {
 				f(t, i, ErrBatchAlreadyClosed)
@@ -125,7 +125,7 @@ func (b *AssignTechnicToRequestBatchResults) QueryRow(f func(int, TechnicsToRequ
 		err := row.Scan(
 			&i.ID,
 			&i.RequestID,
-			&i.TechnicID,
+			&i.EquipmentID,
 			&i.Quantity,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -136,40 +136,40 @@ func (b *AssignTechnicToRequestBatchResults) QueryRow(f func(int, TechnicsToRequ
 	}
 }
 
-func (b *AssignTechnicToRequestBatchResults) Close() error {
+func (b *AssignEquipmentToRequestBatchResults) Close() error {
 	b.closed = true
 	return b.br.Close()
 }
 
-const BatchGetTechnicsByRequestID = `-- name: BatchGetTechnicsByRequestID :batchmany
-SELECT t.id, t.name, t.description, t.quantity, t.created_at, t.updated_at FROM technics_to_requests tr
-JOIN technics t ON tr.technic_id = t.id AND t.quantity > 0
+const BatchGetEquipmentByRequestID = `-- name: BatchGetEquipmentByRequestID :batchmany
+SELECT t.id, t.name, t.description, t.quantity, t.created_at, t.updated_at FROM equipment_to_requests tr
+JOIN equipment t ON tr.equipment_id = t.id AND t.quantity > 0
 WHERE tr.request_id = $1
 ORDER BY t.created_at DESC
 `
 
-type BatchGetTechnicsByRequestIDBatchResults struct {
+type BatchGetEquipmentByRequestIDBatchResults struct {
 	br     pgx.BatchResults
 	tot    int
 	closed bool
 }
 
-func (q *Queries) BatchGetTechnicsByRequestID(ctx context.Context, requestID []uuid.UUID) *BatchGetTechnicsByRequestIDBatchResults {
+func (q *Queries) BatchGetEquipmentByRequestID(ctx context.Context, requestID []uuid.UUID) *BatchGetEquipmentByRequestIDBatchResults {
 	batch := &pgx.Batch{}
 	for _, a := range requestID {
 		vals := []interface{}{
 			a,
 		}
-		batch.Queue(BatchGetTechnicsByRequestID, vals...)
+		batch.Queue(BatchGetEquipmentByRequestID, vals...)
 	}
 	br := q.db.SendBatch(ctx, batch)
-	return &BatchGetTechnicsByRequestIDBatchResults{br, len(requestID), false}
+	return &BatchGetEquipmentByRequestIDBatchResults{br, len(requestID), false}
 }
 
-func (b *BatchGetTechnicsByRequestIDBatchResults) Query(f func(int, []Technic, error)) {
+func (b *BatchGetEquipmentByRequestIDBatchResults) Query(f func(int, []Equipment, error)) {
 	defer b.br.Close()
 	for t := 0; t < b.tot; t++ {
-		var items []Technic
+		var items []Equipment
 		if b.closed {
 			if f != nil {
 				f(t, items, ErrBatchAlreadyClosed)
@@ -183,7 +183,7 @@ func (b *BatchGetTechnicsByRequestIDBatchResults) Query(f func(int, []Technic, e
 			}
 			defer rows.Close()
 			for rows.Next() {
-				var i Technic
+				var i Equipment
 				if err := rows.Scan(
 					&i.ID,
 					&i.Name,
@@ -204,7 +204,7 @@ func (b *BatchGetTechnicsByRequestIDBatchResults) Query(f func(int, []Technic, e
 	}
 }
 
-func (b *BatchGetTechnicsByRequestIDBatchResults) Close() error {
+func (b *BatchGetEquipmentByRequestIDBatchResults) Close() error {
 	b.closed = true
 	return b.br.Close()
 }

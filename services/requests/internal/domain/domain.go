@@ -31,21 +31,20 @@ func (s *StatusType) Set(value interface{}) error {
 	if !ok {
 		return ErrInvalidStatus
 	}
-	if sVal != string(StatusPending) {
-		return ErrInvalidStatus
-	}
 	*s = StatusType(sVal)
 	return nil
 }
 
 type Request struct {
-	ID          uuid.UUID  `json:"id"`
-	RequestText string     `json:"request_text"`
-	Status      StatusType `json:"status"`
-	Technics    []Technic  `json:"technics"`
-	Issuer      User       `json:"issuer"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	ID           uuid.UUID   `json:"id"`
+	RequestText  *string     `json:"request_text"`
+	Status       StatusType  `json:"status"`
+	Technics     []Equipment `json:"technics"`
+	Issuer       User        `json:"issuer"`
+	ScheduleTime string      `json:"schedule_time"`
+	Address      string      `json:"address"`
+	CreatedAt    time.Time   `json:"created_at"`
+	UpdatedAt    time.Time   `json:"updated_at"`
 }
 
 type User struct {
@@ -53,15 +52,15 @@ type User struct {
 	TelegramID int64     `json:"telegram_id"`
 	Username   string    `json:"username"`
 	FirstName  string    `json:"first_name"`
-	LastName   string    `json:"last_name"`
+	LastName   *string   `json:"last_name"`
 	CreatedAt  time.Time `json:"created_at,omitempty"`
 	UpdatedAt  time.Time `json:"updated_at,omitempty"`
 }
 
-type Technic struct {
+type Equipment struct {
 	ID          int       `json:"id"`
 	Name        string    `json:"name"`
-	Description string    `json:"description"`
+	Description *string   `json:"description"`
 	Quantity    int       `json:"quantity"`
 	CreatedAt   time.Time `json:"created_at,omitempty"`
 	UpdatedAt   time.Time `json:"updated_at,omitempty"`

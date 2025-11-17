@@ -2,7 +2,6 @@ package queries
 
 import (
 	"requests/internal/domain"
-	"utills/pointer"
 )
 
 func (t *RequestStatus) ToDomain() domain.StatusType {
@@ -44,7 +43,7 @@ func (u *TelegramUser) ToDomain() *domain.User {
 		TelegramID: u.TelegramID,
 		Username:   u.Username,
 		FirstName:  u.FirstName,
-		LastName:   pointer.From(u.LastName),
+		LastName:   u.LastName,
 		CreatedAt:  u.CreatedAt,
 		UpdatedAt:  u.UpdatedAt,
 	}
@@ -56,14 +55,14 @@ func TelegramUserFromDomain(u domain.User) *TelegramUser {
 		TelegramID: u.TelegramID,
 		Username:   u.Username,
 		FirstName:  u.FirstName,
-		LastName:   pointer.To(u.LastName),
+		LastName:   u.LastName,
 		CreatedAt:  u.CreatedAt,
 		UpdatedAt:  u.UpdatedAt,
 	}
 }
 
-func (t *Technic) ToDomain() *domain.Technic {
-	return &domain.Technic{
+func (t *Equipment) ToDomain() *domain.Equipment {
+	return &domain.Equipment{
 		ID:          int(t.ID),
 		Name:        t.Name,
 		Description: t.Description,
@@ -73,8 +72,8 @@ func (t *Technic) ToDomain() *domain.Technic {
 	}
 }
 
-func TechnicFromDomain(t domain.Technic) *Technic {
-	return &Technic{
+func EquipmentFromDomain(t domain.Equipment) *Equipment {
+	return &Equipment{
 		ID:          int32(t.ID),
 		Name:        t.Name,
 		Description: t.Description,

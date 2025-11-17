@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"gateway/internal/models"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/contrib/otelfiber/v2"
 	"github.com/gofiber/fiber/v2"
@@ -15,6 +13,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	slogfiber "github.com/samber/slog-fiber"
 	"go.opentelemetry.io/otel/trace"
+
+	"gateway/internal/models"
 )
 
 type iUserService interface {

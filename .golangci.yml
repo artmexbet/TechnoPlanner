@@ -47,15 +47,32 @@ formatters:
     - gofmt
     - goimports
     - swaggo
+    - gci
   settings:
     gofmt:
       simplify: true
     goimports:
       local-prefixes:
         - gateway
+        - requests
+        - auth
         - broker
         - config
         - technoBro
+    gci:
+      sections:
+        - standard # встроенные пакеты
+        - default # внешние пакеты
+        - prefix(gateway) # внутренние пакеты
+        - prefix(requests) # внутренние пакеты
+        - prefix(auth) # внутренние пакеты
+        - prefix(broker) # внутренние пакеты
+        - prefix(config) # внутренние пакеты
+        - prefix(utills) # внутренние пакеты
+      skip-generated: true
+      custom-order: true
+
+
   exclusions:
     generated: strict
     paths:

@@ -1,14 +1,15 @@
 package postgres
 
 import (
-	"auth/internal/models"
-	"auth/internal/postgres/queries"
-	"utills/pointer"
-
 	"context"
 	"fmt"
 
 	"github.com/google/uuid"
+
+	"auth/internal/models"
+	"auth/internal/postgres/queries"
+
+	"utills/pointer"
 )
 
 func (p *Postgres) FindUserByID(ctx context.Context, id uuid.UUID) (models.User, error) {

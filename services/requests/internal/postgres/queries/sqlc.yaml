@@ -14,16 +14,25 @@ sql:
         overrides:
           - db_type: "uuid"
             go_type: "github.com/google/uuid.UUID"
+
           - db_type: "pg_catalog.timestamptz"
-            go_type: "time.Time"
+            go_type:
+              type: "time.Time"
+              pointer: true
             nullable: true
+          - db_type: "pg_catalog.timestamptz"
+            go_type:
+              type: "time.Time"
+            nullable: false
 
           - db_type: "text"
             go_type: "string"
             nullable: false
           - db_type: "text"
             nullable: true
-            go_type: "string"
+            go_type:
+              type: "string"
+              pointer: true
 
           - db_type: "pg_catalog.int4"
             go_type: "int"

@@ -58,31 +58,33 @@ func (ns NullRequestStatus) Value() (driver.Value, error) {
 	return string(ns.RequestStatus), nil
 }
 
-type Request struct {
-	ID             uuid.UUID
-	TelegramUserID uuid.UUID
-	RequestText    string
-	Status         RequestStatus
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-}
-
-type Technic struct {
+type Equipment struct {
 	ID          int32
 	Name        string
-	Description string
+	Description *string
 	Quantity    int32
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
 
-type TechnicsToRequest struct {
-	ID        uuid.UUID
-	RequestID uuid.UUID
-	TechnicID int32
-	Quantity  int32
-	CreatedAt time.Time
-	UpdatedAt time.Time
+type EquipmentToRequest struct {
+	ID          uuid.UUID
+	RequestID   uuid.UUID
+	EquipmentID int32
+	Quantity    int32
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+type Request struct {
+	ID             uuid.UUID
+	TelegramUserID uuid.UUID
+	RequestText    *string
+	Status         RequestStatus
+	ScheduleTime   string
+	Address        string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type TelegramUser struct {

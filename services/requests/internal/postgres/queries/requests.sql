@@ -1,6 +1,6 @@
 -- name: CreateRequest :one
-INSERT INTO requests (telegram_user_id, request_text)
-VALUES ($1, $2)
+INSERT INTO requests (telegram_user_id, request_text, schedule_time, address)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- name: GetRequestsByTelegramUserID :many

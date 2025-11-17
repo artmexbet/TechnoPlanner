@@ -1,13 +1,13 @@
 package service
 
 import (
-	"auth/internal/models"
-
 	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+
+	"auth/internal/models"
 )
 
 var (

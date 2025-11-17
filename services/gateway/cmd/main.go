@@ -4,16 +4,17 @@ import (
 	"context"
 	"log/slog"
 
+	"go.opentelemetry.io/otel"
 	"observability/opentelemetry"
 
-	"broker"
-	"config"
 	"gateway/internal/postgres"
 	"gateway/internal/router"
 	"gateway/internal/service"
 	"gateway/internal/storage"
 
-	"go.opentelemetry.io/otel"
+	"broker"
+
+	"config"
 )
 
 type Config struct {

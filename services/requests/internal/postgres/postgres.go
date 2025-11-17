@@ -1,9 +1,9 @@
 package postgres
 
 import (
-	"requests/internal/postgres/queries"
-
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"requests/internal/postgres/queries"
 )
 
 //go:generate sqlc generate -f ./queries/sqlc.yaml

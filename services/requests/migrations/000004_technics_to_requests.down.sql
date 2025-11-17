@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS technics_to_requests;

@@ -1,12 +1,13 @@
 package queries
 
 import (
-	"auth/internal/models"
-	"utills/pointer"
-
 	"log/slog"
 
 	"github.com/google/uuid"
+
+	"auth/internal/models"
+
+	"utills/pointer"
 )
 
 func (u *User) ToDomain() models.User {

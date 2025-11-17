@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"requests/internal/domain"
-
 	"github.com/google/uuid"
+
+	"requests/internal/domain"
 )
 
 type iRepository interface {

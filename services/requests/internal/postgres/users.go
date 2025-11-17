@@ -4,12 +4,11 @@ import (
 	"context"
 	"errors"
 
-	"requests/internal/domain"
-	"requests/internal/postgres/queries"
-	"utills/pointer"
-
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+
+	"requests/internal/domain"
+	"requests/internal/postgres/queries"
 )
 
 func (p *Postgres) GetUserByTelegramID(ctx context.Context, telegramID int64) (domain.User, error) {
@@ -27,7 +26,7 @@ func (p *Postgres) SaveTelegramUser(ctx context.Context, user domain.User) (doma
 		TelegramID: user.TelegramID,
 		Username:   user.Username,
 		FirstName:  user.FirstName,
-		LastName:   pointer.To(user.LastName),
+		LastName:   user.LastName,
 	})
 	if err != nil {
 		return domain.User{}, err

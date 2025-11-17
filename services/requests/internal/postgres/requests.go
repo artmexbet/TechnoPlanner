@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/google/uuid"
+
 	"requests/internal/domain"
 	"requests/internal/postgres/queries"
-
-	"github.com/google/uuid"
 )
 
 // CreateRequest creates a new request along with its associated technics in a transaction.
@@ -20,7 +20,7 @@ func (p *Postgres) CreateRequest(ctx context.Context, req domain.Request) (*doma
 	if err != nil {
 		return nil, fmt.Errorf("error starting transaction: %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer tx.Rollback(ctx) //nolint:errcheck
 
 	q := p.q.WithTx(tx)
 
@@ -28,6 +28,8 @@ func (p *Postgres) CreateRequest(ctx context.Context, req domain.Request) (*doma
 	params := queries.CreateRequestParams{
 		TelegramUserID: req.Issuer.ID,
 		RequestText:    req.RequestText,
+		ScheduleTime:   req.ScheduleTime,
+		Address:        req.Address,
 	}
 	createdReq, err := q.CreateRequest(ctx, params)
 	if err != nil {
@@ -37,24 +39,25 @@ func (p *Postgres) CreateRequest(ctx context.Context, req domain.Request) (*doma
 	createdReqConverted := createdReq.ToDomain()
 
 	// Assign technics to the request
-	assignTechnicParams := make([]queries.AssignTechnicToRequestParams, len(req.Technics))
+	assignTechnicParams := make([]queries.AssignEquipmentToRequestParams, len(req.Technics))
 	for i, technic := range req.Technics {
-		assignTechnicParams[i] = queries.AssignTechnicToRequestParams{
-			RequestID: createdReq.ID,
-			TechnicID: int32(technic.ID),
+		assignTechnicParams[i] = queries.AssignEquipmentToRequestParams{
+			RequestID:   createdReq.ID,
+			EquipmentID: int32(technic.ID),
+			Quantity:    int32(technic.Quantity),
 		}
 	}
-	br := q.AssignTechnicToRequest(ctx, assignTechnicParams)
-	defer br.Close()
+	br := q.AssignEquipmentToRequest(ctx, assignTechnicParams)
+	defer br.Close() //nolint:errcheck
 
-	// Collect assigned technics (need only ID and quantity)
-	br.QueryRow(func(i int, row queries.TechnicsToRequest, _err error) {
+	// Collect assigned equipment (need only ID and quantity)
+	br.QueryRow(func(_ int, row queries.EquipmentToRequest, _err error) {
 		if _err != nil {
 			slog.Error("error assigning technic to request", "error", _err)
 			return
 		}
-		createdReqConverted.Technics = append(createdReqConverted.Technics, domain.Technic{
-			ID:       int(row.TechnicID),
+		createdReqConverted.Technics = append(createdReqConverted.Technics, domain.Equipment{
+			ID:       int(row.EquipmentID),
 			Quantity: int(row.Quantity),
 		})
 	})
@@ -88,7 +91,7 @@ func (p *Postgres) UpdateRequestStatus(ctx context.Context, requestID uuid.UUID,
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer tx.Rollback(ctx) //nolint:errcheck
 	q := p.q.WithTx(tx)
 	params := queries.UpdateRequestStatusParams{
 		ID:     requestID,
@@ -113,22 +116,23 @@ func (p *Postgres) GetRequestByID(ctx context.Context, requestID uuid.UUID) (*do
 	return reqDomain, nil
 }
 
-func (p *Postgres) AssignTechnicsToRequest(ctx context.Context, requestID uuid.UUID, technicIDs []int) []error {
-	assignTechnicParams := make([]queries.AssignTechnicToRequestParams, len(technicIDs))
-	for i, technicID := range technicIDs {
-		assignTechnicParams[i] = queries.AssignTechnicToRequestParams{
-			RequestID: requestID,
-			TechnicID: int32(technicID),
+func (p *Postgres) AssignEquipmentToRequest(ctx context.Context, requestID uuid.UUID, technicIDs []domain.Equipment) []error {
+	assignTechnicParams := make([]queries.AssignEquipmentToRequestParams, len(technicIDs))
+	for i, technic := range technicIDs {
+		assignTechnicParams[i] = queries.AssignEquipmentToRequestParams{
+			RequestID:   requestID,
+			EquipmentID: int32(technic.ID),
+			Quantity:    int32(technic.Quantity),
 		}
 	}
-	br := p.q.AssignTechnicToRequest(ctx, assignTechnicParams)
-	defer br.Close()
+	br := p.q.AssignEquipmentToRequest(ctx, assignTechnicParams)
+	defer br.Close() //nolint:errcheck
 	var resultErrors []error
-	br.QueryRow(func(i int, t queries.TechnicsToRequest, err error) {
+	br.QueryRow(func(_ int, t queries.EquipmentToRequest, err error) {
 		if err != nil {
 			slog.Error("error assigning technic to request", "err", err)
 			resultErrors = append(resultErrors,
-				fmt.Errorf("error assigning technic id:<%v> to request: %w", t.TechnicID, err))
+				fmt.Errorf("error assigning technic id:<%v> to request: %w", t.EquipmentID, err))
 		}
 	})
 	return resultErrors
