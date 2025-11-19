@@ -39,7 +39,7 @@ type Request struct {
 	ID           uuid.UUID   `json:"id"`
 	RequestText  *string     `json:"request_text"`
 	Status       StatusType  `json:"status"`
-	Technics     []Equipment `json:"technics"`
+	Equipments   []Equipment `json:"equipments"`
 	Issuer       User        `json:"issuer"`
 	ScheduleTime string      `json:"schedule_time"`
 	Address      string      `json:"address"`

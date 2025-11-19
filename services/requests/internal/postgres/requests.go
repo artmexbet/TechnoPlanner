@@ -39,8 +39,8 @@ func (p *Postgres) CreateRequest(ctx context.Context, req domain.Request) (*doma
 	createdReqConverted := createdReq.ToDomain()
 
 	// Assign technics to the request
-	assignTechnicParams := make([]queries.AssignEquipmentToRequestParams, len(req.Technics))
-	for i, technic := range req.Technics {
+	assignTechnicParams := make([]queries.AssignEquipmentToRequestParams, len(req.Equipments))
+	for i, technic := range req.Equipments {
 		assignTechnicParams[i] = queries.AssignEquipmentToRequestParams{
 			RequestID:   createdReq.ID,
 			EquipmentID: int32(technic.ID),
@@ -56,7 +56,7 @@ func (p *Postgres) CreateRequest(ctx context.Context, req domain.Request) (*doma
 			slog.Error("error assigning technic to request", "error", _err)
 			return
 		}
-		createdReqConverted.Technics = append(createdReqConverted.Technics, domain.Equipment{
+		createdReqConverted.Equipments = append(createdReqConverted.Equipments, domain.Equipment{
 			ID:       int(row.EquipmentID),
 			Quantity: int(row.Quantity),
 		})

@@ -27,7 +27,7 @@ func New(repository iRepository) *Service {
 	}
 }
 
-func (s *Service) AddRequest(ctx context.Context, newRequest domain.Request) (*domain.Request, error) {
+func (s *Service) Add(ctx context.Context, newRequest domain.Request) (*domain.Request, error) {
 	issuer, err := s.repository.SaveTelegramUser(ctx, newRequest.Issuer) // Save or retrieve the user from db
 	if err != nil {
 		return nil, fmt.Errorf("add request: %w", err)
@@ -42,7 +42,7 @@ func (s *Service) AddRequest(ctx context.Context, newRequest domain.Request) (*d
 	return request, nil
 }
 
-func (s *Service) GetRequests(ctx context.Context, user domain.User, limit, offset int32) ([]domain.Request, error) {
+func (s *Service) List(ctx context.Context, user domain.User, limit, offset int32) ([]domain.Request, error) {
 	user, err := s.repository.SaveTelegramUser(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("get requests: %w", err)
@@ -56,7 +56,7 @@ func (s *Service) GetRequests(ctx context.Context, user domain.User, limit, offs
 	return requests, nil
 }
 
-func (s *Service) GetRequest(ctx context.Context, requestID uuid.UUID) (*domain.Request, error) {
+func (s *Service) Get(ctx context.Context, requestID uuid.UUID) (*domain.Request, error) {
 	req, err := s.repository.GetRequestByID(ctx, requestID)
 	if err != nil {
 		return nil, fmt.Errorf("get request: %w", err)
@@ -65,10 +65,18 @@ func (s *Service) GetRequest(ctx context.Context, requestID uuid.UUID) (*domain.
 	return req, nil
 }
 
-func (s *Service) CancelRequest(ctx context.Context, requestID uuid.UUID) error {
+func (s *Service) Cancel(ctx context.Context, requestID uuid.UUID) error {
 	err := s.repository.UpdateRequestStatus(ctx, requestID, domain.StatusCanceled)
 	if err != nil {
 		return fmt.Errorf("cancel request: %w", err)
+	}
+	return nil
+}
+
+func (s *Service) UpdateStatus(ctx context.Context, requestID uuid.UUID, status domain.StatusType) error {
+	err := s.repository.UpdateRequestStatus(ctx, requestID, status)
+	if err != nil {
+		return fmt.Errorf("update request status: %w", err)
 	}
 	return nil
 }

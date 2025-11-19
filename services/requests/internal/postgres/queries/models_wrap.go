@@ -20,7 +20,7 @@ func (r *Request) ToDomain() *domain.Request {
 		ID:          r.ID,
 		RequestText: r.RequestText,
 		Status:      r.Status.ToDomain(),
-		Technics:    nil,
+		Equipments:  nil,
 		CreatedAt:   r.CreatedAt,
 		UpdatedAt:   r.UpdatedAt,
 	}

@@ -59,7 +59,7 @@ func (r *Repository) GetRequestByID(ctx context.Context, requestID uuid.UUID) (*
 	if err != nil {
 		return nil, fmt.Errorf("get user: %w", err)
 	}
-	req.Technics, err = r.pg.GetEquipmentByRequestID(ctx, requestID)
+	req.Equipments, err = r.pg.GetEquipmentByRequestID(ctx, requestID)
 	if err != nil {
 		return nil, fmt.Errorf("get technics: %w", err)
 	}

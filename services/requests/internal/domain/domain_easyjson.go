@@ -353,17 +353,17 @@ func easyjson3e1fa5ecDecodeRequestsInternalDomain2(in *jlexer.Lexer, out *Reques
 		case "technics":
 			if in.IsNull() {
 				in.Skip()
-				out.Technics = nil
+				out.Equipments = nil
 			} else {
 				in.Delim('[')
-				if out.Technics == nil {
+				if out.Equipments == nil {
 					if !in.IsDelim(']') {
-						out.Technics = make([]Equipment, 0, 0)
+						out.Equipments = make([]Equipment, 0, 0)
 					} else {
-						out.Technics = []Equipment{}
+						out.Equipments = []Equipment{}
 					}
 				} else {
-					out.Technics = (out.Technics)[:0]
+					out.Equipments = (out.Equipments)[:0]
 				}
 				for !in.IsDelim(']') {
 					var v1 Equipment
@@ -372,7 +372,7 @@ func easyjson3e1fa5ecDecodeRequestsInternalDomain2(in *jlexer.Lexer, out *Reques
 					} else {
 						(v1).UnmarshalEasyJSON(in)
 					}
-					out.Technics = append(out.Technics, v1)
+					out.Equipments = append(out.Equipments, v1)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -447,11 +447,11 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain2(out *jwriter.Writer, in Reque
 	{
 		const prefix string = ",\"technics\":"
 		out.RawString(prefix)
-		if in.Technics == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+		if in.Equipments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v2, v3 := range in.Technics {
+			for v2, v3 := range in.Equipments {
 				if v2 > 0 {
 					out.RawByte(',')
 				}
