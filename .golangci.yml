@@ -1,4 +1,4 @@
-version: "2.4.0"
+version: 2
 run:
   go: "1.25"
   tests: false
@@ -46,7 +46,6 @@ formatters:
   enable:
     - gofmt
     - goimports
-    - swaggo
     - gci
   settings:
     gofmt:
