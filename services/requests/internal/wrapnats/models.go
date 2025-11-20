@@ -1,9 +1,9 @@
 package wrapnats
 
 import (
-	"requests/internal/domain"
-
 	"github.com/google/uuid"
+
+	"requests/internal/domain"
 )
 
 //go:generate easyjson -all models.go
@@ -81,4 +81,8 @@ type requestList struct {
 	TelegramID int64 `json:"telegram_id" validate:"required"`
 	Limit      int32 `json:"limit" validate:"required,min=1"`
 	Offset     int32 `json:"offset" validate:"min=0"`
+}
+
+type addEquipment struct {
+	Equipments []domain.Equipment `json:"equipments" validate:"required,dive"`
 }

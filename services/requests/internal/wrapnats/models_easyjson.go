@@ -7,6 +7,7 @@ import (
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
+	domain "requests/internal/domain"
 )
 
 // suppress unused package warning
@@ -583,4 +584,101 @@ func (v *equipmentInfo) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *equipmentInfo) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonD2b7633eDecodeRequestsInternalWrapnats5(l, v)
+}
+func easyjsonD2b7633eDecodeRequestsInternalWrapnats6(in *jlexer.Lexer, out *addEquipment) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		switch key {
+		case "equipments":
+			if in.IsNull() {
+				in.Skip()
+				out.Equipments = nil
+			} else {
+				in.Delim('[')
+				if out.Equipments == nil {
+					if !in.IsDelim(']') {
+						out.Equipments = make([]domain.Equipment, 0, 0)
+					} else {
+						out.Equipments = []domain.Equipment{}
+					}
+				} else {
+					out.Equipments = (out.Equipments)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v4 domain.Equipment
+					if in.IsNull() {
+						in.Skip()
+					} else {
+						(v4).UnmarshalEasyJSON(in)
+					}
+					out.Equipments = append(out.Equipments, v4)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonD2b7633eEncodeRequestsInternalWrapnats6(out *jwriter.Writer, in addEquipment) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"equipments\":"
+		out.RawString(prefix[1:])
+		if in.Equipments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v5, v6 := range in.Equipments {
+				if v5 > 0 {
+					out.RawByte(',')
+				}
+				(v6).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v addEquipment) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonD2b7633eEncodeRequestsInternalWrapnats6(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v addEquipment) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonD2b7633eEncodeRequestsInternalWrapnats6(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *addEquipment) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonD2b7633eDecodeRequestsInternalWrapnats6(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *addEquipment) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonD2b7633eDecodeRequestsInternalWrapnats6(l, v)
 }

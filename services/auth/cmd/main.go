@@ -6,19 +6,19 @@ import (
 	"log/slog"
 	"net"
 
-	"config"
-	"observability/opentelemetry"
-	"proto"
-
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
+	"observability/opentelemetry"
+	"proto"
 
 	"auth/internal/postgres"
 	"auth/internal/repository"
 	"auth/internal/server"
 	"auth/internal/service"
 	"auth/internal/storeredis"
+
+	"config"
 )
 
 type Config struct {

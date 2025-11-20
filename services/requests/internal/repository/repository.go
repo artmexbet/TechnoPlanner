@@ -23,18 +23,34 @@ type iPostgres interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 }
 
+type iPublisher interface {
+	PublishRequestCreated(req domain.Request) error
+	PublishRequestCanceled(req domain.Request) error
+	PublishUserAdded(user domain.User) error
+}
+
 // Repository struct that interacts with the databases.
 // We will be in need of sending data to broker in the future, so having a repository wrapper is a good idea.
 type Repository struct {
-	pg iPostgres
+	pg        iPostgres
+	publisher iPublisher
 }
 
-func NewRepository(pg iPostgres) *Repository {
-	return &Repository{pg: pg}
+func NewRepository(pg iPostgres, publisher iPublisher) *Repository {
+	return &Repository{pg: pg, publisher: publisher}
 }
 
 func (r *Repository) CreateRequest(ctx context.Context, req domain.Request) (*domain.Request, error) {
-	return r.pg.CreateRequest(ctx, req)
+	newReq, err := r.pg.CreateRequest(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+	// Publish event
+	err = r.publisher.PublishRequestCreated(*newReq)
+	if err != nil {
+		return nil, fmt.Errorf("error publishing request created event: %w", err)
+	}
+	return newReq, nil
 }
 
 func (r *Repository) CreateEquipment(ctx context.Context, technics []domain.Equipment) error {
@@ -46,7 +62,22 @@ func (r *Repository) GetRequestsByUserID(ctx context.Context, userID uuid.UUID, 
 }
 
 func (r *Repository) UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status domain.StatusType) error {
-	return r.pg.UpdateRequestStatus(ctx, requestID, status)
+	err := r.pg.UpdateRequestStatus(ctx, requestID, status)
+	if err != nil {
+		return fmt.Errorf("error updating request status: %w", err)
+	}
+	if status == domain.StatusCanceled { // only canceled status requires event publishing
+		req, err := r.pg.GetRequestByID(ctx, requestID)
+		if err != nil {
+			return fmt.Errorf("get request for cancelation event: %w", err)
+		}
+		// Publish event
+		err = r.publisher.PublishRequestCanceled(*req)
+		if err != nil {
+			return fmt.Errorf("error publishing request canceled event: %w", err)
+		}
+	}
+	return nil
 }
 
 // GetRequestByID retrieves a request by its ID, including its issuer and associated technics.
@@ -76,5 +107,14 @@ func (r *Repository) GetEquipmentByRequestIDs(ctx context.Context, requestIDs []
 }
 
 func (r *Repository) SaveTelegramUser(ctx context.Context, user domain.User) (domain.User, error) {
-	return r.pg.SaveTelegramUser(ctx, user)
+	u, err := r.pg.SaveTelegramUser(ctx, user)
+	if err != nil {
+		return domain.User{}, fmt.Errorf("save telegram user: %w", err)
+	}
+	// Publish event
+	err = r.publisher.PublishUserAdded(u)
+	if err != nil {
+		return domain.User{}, fmt.Errorf("error publishing user added event: %w", err)
+	}
+	return u, nil
 }
