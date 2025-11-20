@@ -1,4 +1,4 @@
-version: 2
+version: "2"
 run:
   go: "1.25"
   tests: false
@@ -68,7 +68,6 @@ formatters:
         - prefix(broker) # внутренние пакеты
         - prefix(config) # внутренние пакеты
         - prefix(utills) # внутренние пакеты
-      skip-generated: true
       custom-order: true
 
 
