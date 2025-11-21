@@ -43,9 +43,9 @@ func main() {
 	repo := repository.NewRepository(pg, publisher)
 
 	requestService := request.New(repo)
-	equipmentSerice := equipment.New(repo)
+	equipmentService := equipment.New(repo)
 
-	wrapper, err := wrapnats.New(cfg.Nats, conn, requestService, equipmentSerice)
+	wrapper, err := wrapnats.New(cfg.Nats, conn, requestService, equipmentService)
 	if err != nil {
 		panic(err)
 	}

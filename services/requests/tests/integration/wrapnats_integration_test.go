@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
-	nConntainer "github.com/testcontainers/testcontainers-go/modules/nats"
+	nContainer "github.com/testcontainers/testcontainers-go/modules/nats"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
@@ -72,7 +72,7 @@ func (m *MockEquipmentService) Add(ctx context.Context, technics []domain.Equipm
 // Вспомогательные функции
 func setupNATSContainer(t *testing.T) (*nats.Conn, func()) {
 	ctx := context.Background()
-	container, err := nConntainer.Run(
+	container, err := nContainer.Run(
 		ctx,
 		"nats:latest",
 		testcontainers.WithWaitStrategy(

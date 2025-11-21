@@ -115,6 +115,7 @@ func (w *NatsWrapper) handleUpdateStatus(msg *nats.Msg) {
 	if err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling update status request", "error", err)
 		_ = respondError(msg, "invalid request format", err.Error(), statusBadRequest)
+		return
 	}
 
 	if err = w.validator.Struct(req); err != nil {
@@ -126,7 +127,7 @@ func (w *NatsWrapper) handleUpdateStatus(msg *nats.Msg) {
 		return
 	}
 
-	err = w.reqService.UpdateStatus(context.Background(), req.RequestID, domain.StatusType(req.Status))
+	err = w.reqService.UpdateStatus(ctx, req.RequestID, domain.StatusType(req.Status))
 	if err != nil {
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
 		slog.ErrorContext(
