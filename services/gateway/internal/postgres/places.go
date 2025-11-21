@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackc/pgx/v5/pgtype"
+
 	"gateway/internal/domain"
 	"gateway/internal/postgres/queries"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (d *DB) AddPlace(ctx context.Context, place domain.Place) (domain.Place, error) {

@@ -1,11 +1,13 @@
 package queries
 
 import (
-	"auth/internal/models"
-
 	"log/slog"
 
 	"github.com/google/uuid"
+
+	"auth/internal/models"
+
+	"utills/pointer"
 )
 
 func (u *User) ToDomain() models.User {
@@ -16,9 +18,9 @@ func (u *User) ToDomain() models.User {
 	return models.User{
 		ID:           id,
 		Username:     u.Username,
-		Email:        u.Email.String,
+		Email:        pointer.From(u.Email),
 		PasswordHash: u.PasswordHash,
-		CreatedAt:    u.CreatedAt.Time,
-		UpdatedAt:    u.UpdatedAt.Time,
+		CreatedAt:    u.CreatedAt,
+		UpdatedAt:    u.UpdatedAt,
 	}
 }

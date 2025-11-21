@@ -1,12 +1,11 @@
 package models
 
 import (
-	"proto"
-
 	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"proto"
 )
 
 type User struct {

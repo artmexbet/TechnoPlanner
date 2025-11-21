@@ -3,10 +3,10 @@ package router
 import (
 	"log/slog"
 
-	"gateway/internal/models"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/mailru/easyjson"
+
+	"gateway/internal/models"
 )
 
 func (r *Router) InitUserRoutes() *Router {

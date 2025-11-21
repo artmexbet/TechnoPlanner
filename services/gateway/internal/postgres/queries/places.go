@@ -1,11 +1,11 @@
 package queries
 
 import (
-	"gateway/internal/domain"
-
 	"log/slog"
 
 	"github.com/google/uuid"
+
+	"gateway/internal/domain"
 )
 
 func (p *Place) ToDomain() domain.Place {

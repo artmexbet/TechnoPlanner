@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
-	"proto"
-
-	"gateway/internal/models"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"proto"
+
+	"gateway/internal/models"
 )
 
 type AuthServiceConfig struct {
@@ -29,10 +29,7 @@ func NewGRPCWrapper(cfg AuthServiceConfig) (*GRPCWrapper, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not create grpc client: %w", err)
 	}
-	if err := conn.Connect(); err != nil {
-		conn.Close()
-		return nil, fmt.Errorf("could not connect grpc client: %w", err)
-	}
+	conn.Connect()
 	return &GRPCWrapper{
 		client:   proto.NewAuthClient(conn),
 		grpcConn: conn,

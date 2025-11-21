@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"gateway/internal/postgres/queries"
-
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"gateway/internal/postgres/queries"
 )
 
 //go:generate sqlc generate -f ./queries/sqlc.yaml
