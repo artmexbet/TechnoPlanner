@@ -329,7 +329,7 @@ func easyjsonD2b7633eDecodeRequestsInternalWrapnats3(in *jlexer.Lexer, out *requ
 			} else {
 				out.TelegramID = int64(in.Int64())
 			}
-		case "equipment_ids":
+		case "equipments":
 			if in.IsNull() {
 				in.Skip()
 				out.Equipments = nil
@@ -396,7 +396,7 @@ func easyjsonD2b7633eEncodeRequestsInternalWrapnats3(out *jwriter.Writer, in req
 		out.Int64(int64(in.TelegramID))
 	}
 	{
-		const prefix string = ",\"equipment_ids\":"
+		const prefix string = ",\"equipments\":"
 		out.RawString(prefix)
 		if in.Equipments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 			out.RawString("null")

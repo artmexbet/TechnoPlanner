@@ -48,7 +48,7 @@ type requestCreate struct {
 	Text         *string         `json:"text" validate:"omitempty,max=1000"`
 	ScheduleTime string          `json:"schedule_time" validate:"required"`
 	TelegramID   int64           `json:"telegram_id" validate:"required"`
-	Equipments   []equipmentInfo `json:"equipment_ids" validate:"required,dive,gt=0"`
+	Equipments   []equipmentInfo `json:"equipments" validate:"required,dive"`
 	Address      string          `json:"address" validate:"required,max=1000"`
 }
 
