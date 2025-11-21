@@ -1,12 +1,12 @@
 package repository
 
 import (
-	"auth/internal/models"
-
 	"context"
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"auth/internal/models"
 )
 
 type Config struct {

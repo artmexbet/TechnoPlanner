@@ -3,9 +3,9 @@ package middlwares
 import (
 	"context"
 
-	"gateway/internal/models"
-
 	"github.com/gofiber/fiber/v2"
+
+	"gateway/internal/models"
 )
 
 type iAuthClient interface {

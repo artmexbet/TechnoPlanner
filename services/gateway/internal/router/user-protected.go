@@ -1,10 +1,10 @@
 package router
 
 import (
+	"github.com/gofiber/fiber/v2"
+
 	"gateway/internal/models"
 	"gateway/internal/router/middlwares"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 func (r *Router) InitProtectedUserRoutes() *Router {

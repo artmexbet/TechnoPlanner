@@ -1,13 +1,13 @@
 package postgres
 
 import (
-	"auth/internal/postgres/queries"
-
 	"context"
 	"fmt"
 
 	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"auth/internal/postgres/queries"
 )
 
 //go:generate sqlc generate -f ./queries/sqlc.yaml

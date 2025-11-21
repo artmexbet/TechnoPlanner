@@ -1,3 +1,4 @@
+name: techno_planner
 services:
   broker:
     image: nats
@@ -18,7 +19,6 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - tech
 

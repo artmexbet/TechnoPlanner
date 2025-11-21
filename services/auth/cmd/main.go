@@ -1,23 +1,25 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"log/slog"
+	"net"
+
+	"observability/opentelemetry"
+	"proto"
+
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel"
+	"google.golang.org/grpc"
+
 	"auth/internal/postgres"
 	"auth/internal/repository"
 	"auth/internal/server"
 	"auth/internal/service"
 	"auth/internal/storeredis"
-	"context"
-	"fmt"
-	"log/slog"
-	"net"
-	"observability/opentelemetry"
-	"proto"
 
 	"config"
-
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"go.opentelemetry.io/otel"
-	"google.golang.org/grpc"
 )
 
 type Config struct {
