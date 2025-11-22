@@ -36,7 +36,7 @@ paths:
                 $ref: '#/components/schemas/TokenPair'
         '401':
           description: Unauthorized
-  /api/v1/requests:  # Тут добавлю фильтры потом, под них тоже ручка будет
+  /api/v1/requests: # Тут добавлю фильтры потом, под них тоже ручка будет
     get:
       tags:
         - protected
@@ -54,26 +54,45 @@ paths:
         '401':
           description: Unauthorized
       security:
-        - bearerAuth: []
-  /api/v1/technics:
+        - bearerAuth: [ ]
+  /api/v1/equipments:
+    post:
+      tags:
+        - protected
+        - technic
+      summary: Add new equipment
+      requestBody:
+        description: Equipment details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+      responses:
+        '201':
+          description: Equipment added successfully
+        '401':
+          description: Unauthorized
+      security:
+        - bearerAuth: [ ]
     get:
       tags:
         - protected
         - technic
-      summary: Get available technics
+      summary: Get available equipments
       responses:
         '200':
-          description: A list of technics
+          description: A list of equipments
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Technic'
+                  $ref: '#/components/schemas/Equipment'
         '401':
           description: Unauthorized
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
   /api/v1/requests/{request_id}:
     parameters:
       - $ref: '#/components/parameters/requestId'
@@ -94,7 +113,7 @@ paths:
         '404':
           description: Request not found
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
   /api/v1/employees:
     get:
       tags:
@@ -113,7 +132,7 @@ paths:
         '401':
           description: Unauthorized
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
     post:
       tags:
         - protected
@@ -132,7 +151,7 @@ paths:
         '401':
           description: Unauthorized
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
   /api/v1/requests/{request_id}/assign:
     parameters:
       - $ref: '#/components/parameters/requestId'
@@ -160,7 +179,53 @@ paths:
         '404':
           description: Request not found
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
+  /api/v1/requests/statuses:
+    get:
+      tags:
+        - protected
+        - request
+      summary: Retrieve available requests statuses
+      responses:
+        '201':
+          description: A list of request statuses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RequestStatus'
+        '401':
+          description: Unauthorized
+      security:
+        - bearerAuth: [ ]
+  /api/v1/requests/{request_id}/status:
+    parameters:
+      - $ref: '#/components/parameters/requestId'
+    patch:
+      tags:
+        - protected
+        - request
+      summary: Update request status
+      requestBody:
+        description: New status for the request
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/schemas/RequestStatus'
+      responses:
+        '200':
+          description: Request status updated successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Request not found
+      security:
+        - bearerAuth: [ ]
 components:
   parameters:
     requestId:
@@ -191,7 +256,7 @@ components:
         refresh_token:
           type: string
           format: bearer
-    Technic:
+    Equipment:
       type: object
       properties:
         id:
@@ -204,31 +269,48 @@ components:
           type: integer
     RequestStatus:
       type: string
-      oneOf:
-        - title: pending
-          type: string
-        - title: assigned
-          type: string
-        - title: in_progress
-          type: string
-        - title: completed
-          type: string
-        - title: cancelled
-          type: string
-        - title: rejected
-          type: string
+      oneOf: [ "pending", "assigned", "in_progress", "completed", "cancelled", "rejected" ]
     Request:
       type: object
       properties:
         id:
           type: string
           format: uuid
+        issuer:
+          $ref: '#/components/schemas/TelegramUser'
+        assignee:
+          $ref: '#/components/schemas/Employee'
+        request_text:
+          type: string
         status:
           $ref: '#/components/schemas/RequestStatus'
-        technics:
+        equipments:
           type: array
           items:
-            $ref: '#/components/schemas/Technic'
+            $ref: '#/components/schemas/Equipment'
+        time:
+          type: string
+          # format: # custom-time-format
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    TelegramUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        telegram_id:
+          type: integer
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
     Employee:
       type: object
       properties:
@@ -239,6 +321,9 @@ components:
           type: string
         position:
           type: string
+          oneOf:
+            - admin
+            - technician
     RegisterRequest:
       type: object
       properties:
