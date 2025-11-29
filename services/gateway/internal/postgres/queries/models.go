@@ -5,8 +5,74 @@
 package queries
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type RequestStatus string
+
+const (
+	RequestStatusCanceled   RequestStatus = "canceled"
+	RequestStatusPending    RequestStatus = "pending"
+	RequestStatusAssigned   RequestStatus = "assigned"
+	RequestStatusInProgress RequestStatus = "in_progress"
+	RequestStatusCompleted  RequestStatus = "completed"
+	RequestStatusRejected   RequestStatus = "rejected"
+)
+
+func (e *RequestStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = RequestStatus(s)
+	case string:
+		*e = RequestStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for RequestStatus: %T", src)
+	}
+	return nil
+}
+
+type NullRequestStatus struct {
+	RequestStatus RequestStatus
+	Valid         bool // Valid is true if RequestStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullRequestStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.RequestStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.RequestStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullRequestStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.RequestStatus), nil
+}
+
+type Equipment struct {
+	ID          int32
+	Name        string
+	Description pgtype.Text
+	Quantity    int32
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+}
+
+type EquipmentToRequest struct {
+	RequestID   pgtype.UUID
+	EquipmentID int32
+	Quantity    int32
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+}
 
 type Place struct {
 	ID          pgtype.UUID
@@ -20,12 +86,15 @@ type Place struct {
 
 type Request struct {
 	ID                pgtype.UUID
-	FromR             string
-	Time              pgtype.Timestamptz
-	UsageInterval     pgtype.Interval
-	PlaceID           pgtype.UUID
+	TelegramUserInfo  []byte
+	RequestText       pgtype.Text
+	Status            RequestStatus
+	ScheduleTime      string
+	EndTime           pgtype.Timestamp
+	Address           string
 	ResponsibleUserID pgtype.UUID
-	Days              []pgtype.Timestamptz
+	CreatedAt         pgtype.Timestamptz
+	UpdatedAt         pgtype.Timestamptz
 }
 
 type Role struct {
@@ -34,39 +103,6 @@ type Role struct {
 	Description pgtype.Text
 	CreatedAt   pgtype.Timestamptz
 	UpdatedAt   pgtype.Timestamptz
-}
-
-type Soft struct {
-	ID          int64
-	Name        string
-	InstallLink string
-	Description pgtype.Text
-}
-
-type SoftToTechnic struct {
-	SoftID    int64
-	TechnicID int64
-}
-
-type Task struct {
-	ID          pgtype.UUID
-	Description pgtype.Text
-	Status      string
-	RequestID   pgtype.UUID
-	UserID      pgtype.UUID
-	WorkerID    pgtype.UUID
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
-}
-
-type Technic struct {
-	ID   int64
-	Name string
-}
-
-type TechnicUsage struct {
-	RequestID pgtype.UUID
-	TechnicID int64
 }
 
 type User struct {

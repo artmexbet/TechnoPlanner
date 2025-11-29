@@ -10,7 +10,6 @@ const (
 	TokenStateInvalid TokenState = "invalid"
 )
 
-//easyjson:json
 type RegisterRequest struct {
 	Username string `json:"username" validate:"min=3,max=30"`
 	Email    string `json:"email" validate:"email"`
@@ -21,7 +20,6 @@ type RegisterResponse struct {
 	UserID string `json:"user_id"`
 }
 
-//easyjson:json
 type LoginRequest struct {
 	Username  string `json:"username" validate:"required"`
 	Password  string `json:"password" validate:"required"`
