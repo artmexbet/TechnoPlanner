@@ -7,8 +7,9 @@ package queries
 import (
 	"database/sql/driver"
 	"fmt"
+	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 type RequestStatus string
@@ -60,57 +61,89 @@ func (ns NullRequestStatus) Value() (driver.Value, error) {
 type Equipment struct {
 	ID          int32
 	Name        string
-	Description pgtype.Text
+	Description *string
 	Quantity    int32
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   *time.Time
+	CreatedBy   *uuid.UUID
+	UpdatedBy   *uuid.UUID
+}
+
+type EquipmentCategory struct {
+	ID          int32
+	Name        string
+	Description *string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   *time.Time
+	CreatedBy   *uuid.UUID
+	UpdatedBy   *uuid.UUID
+}
+
+type EquipmentCategoryLink struct {
+	EquipmentID int32
+	CategoryID  int32
 }
 
 type EquipmentToRequest struct {
-	RequestID   pgtype.UUID
+	RequestID   uuid.UUID
 	EquipmentID int32
 	Quantity    int32
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type Place struct {
-	ID          pgtype.UUID
+	ID          uuid.UUID
 	Name        string
-	Description pgtype.Text
+	Description *string
 	Latitude    float64
 	Longitude   float64
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type Request struct {
-	ID                pgtype.UUID
+	ID                uuid.UUID
 	TelegramUserInfo  []byte
-	RequestText       pgtype.Text
+	RequestText       *string
 	Status            RequestStatus
 	ScheduleTime      string
-	EndTime           pgtype.Timestamp
+	EndTime           time.Time
 	Address           string
-	ResponsibleUserID pgtype.UUID
-	CreatedAt         pgtype.Timestamptz
-	UpdatedAt         pgtype.Timestamptz
+	ResponsibleUserID *uuid.UUID
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	DeletedAt         *time.Time
+	CreatedBy         *uuid.UUID
+	UpdatedBy         *uuid.UUID
+}
+
+type RequestStatusHistory struct {
+	ID        int32
+	RequestID uuid.UUID
+	Status    RequestStatus
+	Comment   *string
+	ChangedBy *uuid.UUID
+	ChangedAt time.Time
 }
 
 type Role struct {
 	ID          int32
 	Name        string
-	Description pgtype.Text
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
+	Description *string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type User struct {
-	ID           pgtype.UUID
+	ID           uuid.UUID
 	Username     string
 	Email        string
 	PasswordHash string
 	RoleID       int32
-	CreatedAt    pgtype.Timestamptz
-	UpdatedAt    pgtype.Timestamptz
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    *time.Time
 }

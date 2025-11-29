@@ -7,8 +7,6 @@ package queries
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const AddPlace = `-- name: AddPlace :one
@@ -19,7 +17,7 @@ RETURNING id, name, description, latitude, longitude, created_at, updated_at
 
 type AddPlaceParams struct {
 	Name        string
-	Description pgtype.Text
+	Description *string
 	Latitude    float64
 	Longitude   float64
 }
