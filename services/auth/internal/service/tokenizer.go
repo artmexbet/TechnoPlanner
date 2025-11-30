@@ -28,11 +28,12 @@ func NewTokenizer(accessTTL, refreshTTL time.Duration, jwtSecret string) *Tokeni
 	}
 }
 
-func (t *Tokenizer) GenerateTokenPair(userid string) (models.TokenPair, error) {
+func (t *Tokenizer) GenerateTokenPair(userid string, role string) (models.TokenPair, error) {
 	sessionID := uuid.New()
 	claims := models.Claims{
 		UserID:    userid,
 		SessionID: sessionID.String(),
+		Role:      role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(t.accessTTL).UTC()),
 			// TODO: подумать о том, чтобы вынести time.Now()
@@ -49,6 +50,7 @@ func (t *Tokenizer) GenerateTokenPair(userid string) (models.TokenPair, error) {
 	refreshClaims := models.Claims{
 		UserID:    userid,
 		SessionID: sessionID.String(),
+		Role:      role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(t.refreshTTL).UTC()),
 			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
@@ -74,6 +76,7 @@ func (t *Tokenizer) GenerateSession(u models.User, deviceID, userAgent, ip strin
 		DeviceID:  deviceID,
 		UserAgent: userAgent,
 		IP:        ip,
+		Role:      roleNameFromID(u.RoleID),
 		CreatedAt: time.Now().UTC(),
 		ExpiresAt: time.Now().Add(t.refreshTTL).UTC(),
 	}

@@ -2,20 +2,34 @@ package storage
 
 import (
 	"context"
-
-	"gateway/internal/domain"
 )
 
-type postgres interface {
-	AddPlace(context.Context, domain.Place) (domain.Place, error)
+type repository interface {
+	porterRepository
+	equipmentRepository
+	categoryRepository
+	requestRepository
+	requestHistoryRepository
+}
+
+type EventPublisher interface {
+	Publish(ctx context.Context, subject string, payload interface{}) error
 }
 
 type Storage struct {
-	p postgres
+	Porters       *PorterStorage
+	Equipment     *EquipmentStorage
+	Categories    *CategoryStorage
+	Requests      *RequestStorage
+	StatusHistory *RequestHistoryStorage
 }
 
-func NewStorage(p postgres) *Storage {
+func NewStorage(repo repository, publisher EventPublisher) *Storage {
 	return &Storage{
-		p: p,
+		Porters:       NewPorterStorage(repo),
+		Equipment:     NewEquipmentStorage(repo, publisher),
+		Categories:    NewCategoryStorage(repo, publisher),
+		Requests:      NewRequestStorage(repo, publisher),
+		StatusHistory: NewRequestHistoryStorage(repo, publisher),
 	}
 }

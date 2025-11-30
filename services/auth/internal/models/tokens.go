@@ -39,12 +39,14 @@ func TokenPairFromProto(in *proto.TokenPair) TokenPair {
 type Claims struct {
 	UserID    string `json:"user_id"`
 	SessionID string `json:"session_id"`
+	Role      string `json:"role"`
 	jwt.RegisteredClaims
 }
 
 type TokenValidateResult struct {
 	State  TokenState
 	UserID string
+	Role   string
 }
 
 type TokenRefreshRequest struct {

@@ -37,6 +37,7 @@ type TokenPair struct {
 type TokenValidationResponse struct {
 	UserID string     `json:"user_id"`
 	State  TokenState `json:"state"`
+	Role   string     `json:"role"`
 }
 
 type TokenRefreshRequest struct {

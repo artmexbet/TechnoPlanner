@@ -20,11 +20,12 @@ func (p *Postgres) FindUserByID(ctx context.Context, id uuid.UUID) (models.User,
 	return u.ToDomain(), nil
 }
 
-func (p *Postgres) CreateUser(ctx context.Context, username, email, passwordHash string) (models.User, error) {
+func (p *Postgres) CreateUser(ctx context.Context, username, email, passwordHash string, roleID int32) (models.User, error) {
 	u, err := p.q.CreateUser(ctx, queries.CreateUserParams{
 		Username:     username,
 		Email:        pointer.To(email),
 		PasswordHash: passwordHash,
+		RoleID:       roleID,
 	})
 	if err != nil {
 		return models.User{}, fmt.Errorf("createUser: %w", err)

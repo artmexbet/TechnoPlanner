@@ -52,10 +52,10 @@ func (h *Handler) Validate(ctx context.Context, in *proto.TokenRequest) (*proto.
 	if err != nil {
 		return nil, fmt.Errorf("validate token: %w", err)
 	}
-	// if needed, can return more info in the future
 	resp := &proto.ValidateResponse{
 		State:  proto.TokenState(r.State),
 		UserId: r.UserID,
+		Role:   r.Role,
 	}
 	return resp, nil
 }

@@ -8,6 +8,11 @@ import (
 	"gateway/internal/models"
 )
 
+const (
+	ContextUserIDKey   = "user_id"
+	ContextUserRoleKey = "user_role"
+)
+
 type iAuthClient interface {
 	ValidateToken(ctx context.Context, token string) (models.TokenValidationResponse, error)
 }
@@ -42,7 +47,8 @@ func CheckJWTMiddleware(authClient iAuthClient) fiber.Handler {
 			})
 		}
 
-		c.Locals("user_id", validateRes.UserID)
+		c.Locals(ContextUserIDKey, validateRes.UserID)
+		c.Locals(ContextUserRoleKey, validateRes.Role)
 		c.Locals("token", token)
 		return c.Next()
 	}

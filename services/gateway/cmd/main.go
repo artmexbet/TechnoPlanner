@@ -4,8 +4,9 @@ import (
 	"context"
 	"log/slog"
 
-	"go.opentelemetry.io/otel"
 	"observability/opentelemetry"
+
+	"go.opentelemetry.io/otel"
 
 	"gateway/internal/postgres"
 	"gateway/internal/router"
@@ -55,7 +56,7 @@ func main() {
 	defer _postgres.Close()
 	slog.Info("Starting postgres connection")
 
-	store := storage.NewStorage(_postgres) // инициализация хранилища
+	store := storage.NewStorage(_postgres, nil) // TODO: inject publisher
 
 	userSvc := service.NewUserService(store)
 	authSvc, err := service.NewGRPCWrapper(cfg.GRPC)

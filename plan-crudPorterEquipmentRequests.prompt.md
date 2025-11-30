@@ -29,3 +29,10 @@
 3. Нужно ли покрыть новые сервисные методы e2e/интеграционными тестами в `services/gateway/tests` или достаточно
    unit-тестов?
 
+## Progress
+- [x] migrations updated
+- [x] sqlc models regenerated and domain/DTO synced
+- [x] postgres adapters for equipment/categories/requests/status history/porters
+- [x] storage layer with publisher hooks
+- [x] service layer (porter/equipment/category/request/history + RBAC)
+- [ ] router layer & OpenAPI

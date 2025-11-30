@@ -52,7 +52,7 @@ func (s *ServiceTestSuite) TestLogin() {
 					Return(testUser, nil)
 
 				tokenizer.EXPECT().
-					GenerateTokenPair(testUser.ID.String()).
+					GenerateTokenPair(testUser.ID.String(), RolePorter).
 					Return(models.TokenPair{AccessToken: "access", RefreshToken: "refresh"}, nil)
 
 				tokenizer.EXPECT().
@@ -248,7 +248,7 @@ func (s *ServiceTestSuite) TestRefresh() {
 					GetSessionByRefreshToken(mock.Anything, "refresh").
 					Return(&models.Session{DeviceID: "dev1", UserAgent: "agent", IP: "127.0.0.1"}, nil)
 				tokenizer.EXPECT().
-					GenerateTokenPair(mock.Anything).
+					GenerateTokenPair(mock.Anything, mock.Anything).
 					Return(models.TokenPair{AccessToken: "access", RefreshToken: "refresh2"}, nil)
 			},
 			wantErr: false,

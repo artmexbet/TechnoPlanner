@@ -20,6 +20,7 @@ func (u *User) ToDomain() models.User {
 		Username:     u.Username,
 		Email:        pointer.From(u.Email),
 		PasswordHash: u.PasswordHash,
+		RoleID:       u.RoleID,
 		CreatedAt:    u.CreatedAt,
 		UpdatedAt:    u.UpdatedAt,
 	}

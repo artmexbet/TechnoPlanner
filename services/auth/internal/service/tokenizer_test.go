@@ -6,7 +6,7 @@ func (s *ServiceTestSuite) TestTokenizer_Tokenize() {
 	s.Run("valid token generation", func() {
 		t := NewTokenizer(time.Hour, 24*time.Hour, "test")
 		userID := "user123"
-		tokenPair, err := t.GenerateTokenPair(userID)
+		tokenPair, err := t.GenerateTokenPair(userID, RoleAdmin)
 		s.Require().NoError(err)
 		s.Require().NotEmpty(tokenPair.AccessToken)
 		s.Require().NotEmpty(tokenPair.RefreshToken)
@@ -20,7 +20,7 @@ func (s *ServiceTestSuite) TestTokenizer_Tokenize() {
 	s.Run("valid token decoding", func() {
 		t := NewTokenizer(time.Hour, 24*time.Hour, "test")
 		userID := "user123"
-		tokenPair, err := t.GenerateTokenPair(userID)
+		tokenPair, err := t.GenerateTokenPair(userID, RoleAdmin)
 		s.Require().NoError(err)
 
 		claims, err := t.DecodeToken(tokenPair.AccessToken)

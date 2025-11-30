@@ -9,7 +9,7 @@ import (
 )
 
 type iTokenizer interface {
-	GenerateTokenPair(userid string) (models.TokenPair, error)
+	GenerateTokenPair(userid string, role string) (models.TokenPair, error)
 	GenerateSession(u models.User, deviceID, userAgent, ip string) *models.Session
 	DecodeToken(tokenStr string) (*models.Claims, error)
 }
@@ -49,7 +49,7 @@ func (a *Auth) Login(ctx context.Context, loginRequest models.LoginRequest) (mod
 	}
 
 	// Generate token pair
-	tokenPair, err := a.tokenizer.GenerateTokenPair(u.ID.String())
+	tokenPair, err := a.tokenizer.GenerateTokenPair(u.ID.String(), roleNameFromID(u.RoleID))
 	if err != nil {
 		return models.TokenPair{}, fmt.Errorf("failed to generate token pair: %w", err)
 	}
@@ -83,9 +83,10 @@ func (a *Auth) ValidateToken(_ context.Context, token string) (models.TokenValid
 		return models.TokenValidateResult{
 			State:  models.TokenStateExpired,
 			UserID: claims.UserID,
+			Role:   claims.Role,
 		}, nil
 	}
-	return models.TokenValidateResult{State: models.TokenStateValid}, nil
+	return models.TokenValidateResult{State: models.TokenStateValid, UserID: claims.UserID, Role: claims.Role}, nil
 }
 
 func (a *Auth) Refresh(ctx context.Context, req models.TokenRefreshRequest) (models.TokenPair, error) {
@@ -99,7 +100,7 @@ func (a *Auth) Refresh(ctx context.Context, req models.TokenRefreshRequest) (mod
 		return models.TokenPair{}, fmt.Errorf("session validation failed: %w", err)
 	}
 
-	return a.tokenizer.GenerateTokenPair(session.UserID)
+	return a.tokenizer.GenerateTokenPair(session.UserID, session.Role)
 }
 
 func (a *Auth) Logout(ctx context.Context, token string) error {
@@ -117,4 +118,20 @@ func (a *Auth) LogoutAll(ctx context.Context, token string) error {
 	}
 	userID := claims.UserID
 	return a.repository.DeleteAllUserSessions(ctx, userID)
+}
+
+const (
+	RoleAdmin  = "admin"
+	RolePorter = "porter"
+)
+
+func roleNameFromID(id int32) string {
+	switch id {
+	case 1:
+		return RoleAdmin
+	case 2:
+		return RolePorter
+	default:
+		return RolePorter
+	}
 }

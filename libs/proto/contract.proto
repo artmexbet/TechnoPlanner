@@ -28,6 +28,7 @@ enum TokenState {
 message ValidateResponse {
   TokenState state = 1;
   string user_id = 2;
+  string role = 3;
 }
 
 message LoginRequest {

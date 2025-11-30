@@ -15,6 +15,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 
 	"gateway/internal/models"
+	"gateway/internal/service"
 )
 
 type iUserService interface {
@@ -39,18 +40,22 @@ type Router struct {
 	r         *fiber.App
 	validator *validator.Validate
 
-	cfg     Config
-	userSvc iUserService
-	authSvc iAuthSvcConnector
+	cfg          Config
+	userSvc      iUserService
+	authSvc      iAuthSvcConnector
+	porterSvc    service.PorterService
+	equipmentSvc service.EquipmentService
 }
 
-func NewRouter(cfg Config, userSvc iUserService, authSvc iAuthSvcConnector) *Router {
+func NewRouter(cfg Config, userSvc iUserService, authSvc iAuthSvcConnector, porterSvc service.PorterService, equipmentSvc service.EquipmentService) *Router {
 	return &Router{
-		r:         fiber.New(),
-		validator: validator.New(validator.WithRequiredStructEnabled()),
-		cfg:       cfg,
-		userSvc:   userSvc,
-		authSvc:   authSvc,
+		r:            fiber.New(),
+		validator:    validator.New(validator.WithRequiredStructEnabled()),
+		cfg:          cfg,
+		userSvc:      userSvc,
+		authSvc:      authSvc,
+		porterSvc:    porterSvc,
+		equipmentSvc: equipmentSvc,
 	}
 }
 

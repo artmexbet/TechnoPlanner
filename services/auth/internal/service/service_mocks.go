@@ -172,8 +172,8 @@ func (_c *mockiTokenizer_GenerateSession_Call) RunAndReturn(run func(u models.Us
 }
 
 // GenerateTokenPair provides a mock function for the type mockiTokenizer
-func (_mock *mockiTokenizer) GenerateTokenPair(userid string) (models.TokenPair, error) {
-	ret := _mock.Called(userid)
+func (_mock *mockiTokenizer) GenerateTokenPair(userid string, role string) (models.TokenPair, error) {
+	ret := _mock.Called(userid, role)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GenerateTokenPair")
@@ -181,16 +181,16 @@ func (_mock *mockiTokenizer) GenerateTokenPair(userid string) (models.TokenPair,
 
 	var r0 models.TokenPair
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string) (models.TokenPair, error)); ok {
-		return returnFunc(userid)
+	if returnFunc, ok := ret.Get(0).(func(string, string) (models.TokenPair, error)); ok {
+		return returnFunc(userid, role)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string) models.TokenPair); ok {
-		r0 = returnFunc(userid)
+	if returnFunc, ok := ret.Get(0).(func(string, string) models.TokenPair); ok {
+		r0 = returnFunc(userid, role)
 	} else {
 		r0 = ret.Get(0).(models.TokenPair)
 	}
-	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
-		r1 = returnFunc(userid)
+	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = returnFunc(userid, role)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -204,18 +204,24 @@ type mockiTokenizer_GenerateTokenPair_Call struct {
 
 // GenerateTokenPair is a helper method to define mock.On call
 //   - userid string
-func (_e *mockiTokenizer_Expecter) GenerateTokenPair(userid interface{}) *mockiTokenizer_GenerateTokenPair_Call {
-	return &mockiTokenizer_GenerateTokenPair_Call{Call: _e.mock.On("GenerateTokenPair", userid)}
+//   - role string
+func (_e *mockiTokenizer_Expecter) GenerateTokenPair(userid interface{}, role interface{}) *mockiTokenizer_GenerateTokenPair_Call {
+	return &mockiTokenizer_GenerateTokenPair_Call{Call: _e.mock.On("GenerateTokenPair", userid, role)}
 }
 
-func (_c *mockiTokenizer_GenerateTokenPair_Call) Run(run func(userid string)) *mockiTokenizer_GenerateTokenPair_Call {
+func (_c *mockiTokenizer_GenerateTokenPair_Call) Run(run func(userid string, role string)) *mockiTokenizer_GenerateTokenPair_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
 			arg0 = args[0].(string)
 		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -226,7 +232,7 @@ func (_c *mockiTokenizer_GenerateTokenPair_Call) Return(tokenPair models.TokenPa
 	return _c
 }
 
-func (_c *mockiTokenizer_GenerateTokenPair_Call) RunAndReturn(run func(userid string) (models.TokenPair, error)) *mockiTokenizer_GenerateTokenPair_Call {
+func (_c *mockiTokenizer_GenerateTokenPair_Call) RunAndReturn(run func(userid string, role string) (models.TokenPair, error)) *mockiTokenizer_GenerateTokenPair_Call {
 	_c.Call.Return(run)
 	return _c
 }

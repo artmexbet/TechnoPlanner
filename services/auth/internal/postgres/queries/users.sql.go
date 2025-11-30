@@ -12,25 +12,32 @@ import (
 )
 
 const CreateUser = `-- name: CreateUser :one
-INSERT INTO users (username, email, password_hash)
-VALUES ($1, $2, $3)
-RETURNING id, username, email, password_hash, created_at, updated_at
+INSERT INTO users (username, email, password_hash, role_id)
+VALUES ($1, $2, $3, $4)
+RETURNING id, username, email, password_hash, role_id, created_at, updated_at
 `
 
 type CreateUserParams struct {
 	Username     string
 	Email        *string
 	PasswordHash string
+	RoleID       int32
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, CreateUser, arg.Username, arg.Email, arg.PasswordHash)
+	row := q.db.QueryRow(ctx, CreateUser,
+		arg.Username,
+		arg.Email,
+		arg.PasswordHash,
+		arg.RoleID,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
 		&i.Email,
 		&i.PasswordHash,
+		&i.RoleID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -38,7 +45,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const FindUserByID = `-- name: FindUserByID :one
-SELECT id, username, email, password_hash, created_at, updated_at FROM users
+SELECT id, username, email, password_hash, role_id, created_at, updated_at FROM users
 WHERE id = $1
 `
 
@@ -50,6 +57,7 @@ func (q *Queries) FindUserByID(ctx context.Context, id uuid.UUID) (User, error) 
 		&i.Username,
 		&i.Email,
 		&i.PasswordHash,
+		&i.RoleID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -57,7 +65,7 @@ func (q *Queries) FindUserByID(ctx context.Context, id uuid.UUID) (User, error) 
 }
 
 const FindUserByUsername = `-- name: FindUserByUsername :one
-SELECT id, username, email, password_hash, created_at, updated_at FROM users
+SELECT id, username, email, password_hash, role_id, created_at, updated_at FROM users
 WHERE username = $1
 `
 
@@ -69,6 +77,7 @@ func (q *Queries) FindUserByUsername(ctx context.Context, username string) (User
 		&i.Username,
 		&i.Email,
 		&i.PasswordHash,
+		&i.RoleID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

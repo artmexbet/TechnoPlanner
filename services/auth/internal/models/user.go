@@ -3,9 +3,10 @@ package models
 import (
 	"time"
 
+	"proto"
+
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"proto"
 )
 
 type User struct {
@@ -13,6 +14,7 @@ type User struct {
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
 	PasswordHash string    `json:"-"`
+	RoleID       int32     `json:"role_id"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }

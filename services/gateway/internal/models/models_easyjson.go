@@ -43,6 +43,12 @@ func easyjsonD2b7633eDecodeGatewayInternalModels(in *jlexer.Lexer, out *TokenVal
 			} else {
 				out.State = TokenState(in.String())
 			}
+		case "role":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Role = string(in.String())
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -66,6 +72,11 @@ func easyjsonD2b7633eEncodeGatewayInternalModels(out *jwriter.Writer, in TokenVa
 		const prefix string = ",\"state\":"
 		out.RawString(prefix)
 		out.String(string(in.State))
+	}
+	{
+		const prefix string = ",\"role\":"
+		out.RawString(prefix)
+		out.String(string(in.Role))
 	}
 	out.RawByte('}')
 }
