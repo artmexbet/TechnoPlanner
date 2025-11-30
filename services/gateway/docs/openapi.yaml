@@ -1,145 +1,64 @@
 openapi: 3.1.0
 info:
   title: Gateway Service API
-  version: 0.1.0
-  description: API documentation for the Gateway Service.
+  version: 1.0.0
+  description: REST API exposed by the technoBro gateway service.
+servers:
+  - url: https://gateway.local
+    description: Default environment
+  - url: http://localhost:8080
+    description: Local development
+security:
+  - bearerAuth: []
 tags:
-  - name: user
-    description: Operations related to user management.
-  - name: protected
-    description: Protected operations requiring authentication.
+  - name: health
+    description: Health and readiness probes
   - name: auth
-    description: Authentication and authorization operations.
-  - name: technic
-    description: Operations related to technic management.
-  - name: request
-    description: Operations related to user requests.
+    description: Authentication and token lifecycle
+  - name: users
+    description: User management
+  - name: porters
+    description: Porter listings
+  - name: equipment
+    description: Equipment catalog management
+  - name: categories
+    description: Equipment categories
+  - name: requests
+    description: Equipment request workflows
 paths:
-  /api/v1/users/login:
+  /healthz:
+    get:
+      tags: [health]
+      summary: Health probe
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+  /ping:
+    get:
+      tags: [health]
+      summary: Liveness probe
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /api/v1/users/register:
     post:
-      tags:
-        - auth
-      summary: User login
+      tags: [auth, users]
+      summary: Register a new user
       requestBody:
-        description: User credentials
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequest'
-      responses:
-        '200':
-          description: Successful login
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TokenPair'
-        '401':
-          description: Unauthorized
-  /api/v1/requests: # Тут добавлю фильтры потом, под них тоже ручка будет
-    get:
-      tags:
-        - protected
-        - request
-      summary: Get user requests
-      responses:
-        '200':
-          description: A list of user requests
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Request'
-        '401':
-          description: Unauthorized
-      security:
-        - bearerAuth: [ ]
-  /api/v1/equipments:
-    post:
-      tags:
-        - protected
-        - technic
-      summary: Add new equipment
-      requestBody:
-        description: Equipment details
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Equipment'
-      responses:
-        '201':
-          description: Equipment added successfully
-        '401':
-          description: Unauthorized
-      security:
-        - bearerAuth: [ ]
-    get:
-      tags:
-        - protected
-        - technic
-      summary: Get available equipments
-      responses:
-        '200':
-          description: A list of equipments
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Equipment'
-        '401':
-          description: Unauthorized
-      security:
-        - bearerAuth: [ ]
-  /api/v1/requests/{request_id}:
-    parameters:
-      - $ref: '#/components/parameters/requestId'
-    get:
-      tags:
-        - protected
-        - request
-      summary: Get request by ID
-      responses:
-        '200':
-          description: Request details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Request'
-        '401':
-          description: Unauthorized
-        '404':
-          description: Request not found
-      security:
-        - bearerAuth: [ ]
-  /api/v1/employees:
-    get:
-      tags:
-        - protected
-        - user
-      summary: Get list of employees
-      responses:
-        '200':
-          description: A list of employees
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Employee'
-        '401':
-          description: Unauthorized
-      security:
-        - bearerAuth: [ ]
-    post:
-      tags:
-        - protected
-        - user
-      summary: Create a new employee
-      requestBody:
-        description: Employee details
         required: true
         content:
           application/json:
@@ -147,116 +66,493 @@ paths:
               $ref: '#/components/schemas/RegisterRequest'
       responses:
         '201':
-          description: Employee created successfully
-        '401':
-          description: Unauthorized
-      security:
-        - bearerAuth: [ ]
-  /api/v1/requests/{request_id}/assign:
-    parameters:
-      - $ref: '#/components/parameters/requestId'
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/v1/users/login:
     post:
-      tags:
-        - protected
-        - request
-      summary: Assign an employee to request
+      tags: [auth, users]
+      summary: Login with credentials
       requestBody:
-        description: Employee assignment details
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                employee_id:
-                  type: string
-                  format: uuid
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Request assigned successfully
-        '401':
-          description: Unauthorized
-        '404':
-          description: Request not found
-      security:
-        - bearerAuth: [ ]
-  /api/v1/requests/statuses:
-    get:
-      tags:
-        - protected
-        - request
-      summary: Retrieve available requests statuses
+          description: Token pair issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/users/refresh:
+    post:
+      tags: [auth, users]
+      summary: Refresh token pair
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
       responses:
-        '201':
-          description: A list of request statuses
+        '200':
+          description: New token pair issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/users/logout:
+    post:
+      security:
+        - bearerAuth: []
+      tags: [auth, users]
+      summary: Logout current session
+      responses:
+        '204': { description: Logged out }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/v1/porters:
+    get:
+      security:
+        - bearerAuth: []
+      tags: [porters]
+      summary: List porters
+      responses:
+        '200':
+          description: Porter list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PorterListResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/porters/{porterId}:
+    parameters:
+      - $ref: '#/components/parameters/PorterId'
+    get:
+      security:
+        - bearerAuth: []
+      tags: [porters]
+      summary: Get porter by ID
+      responses:
+        '200':
+          description: Porter found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PorterResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v1/equipment:
+    get:
+      security:
+        - bearerAuth: []
+      tags: [equipment]
+      summary: List equipment
+      responses:
+        '200':
+          description: Equipment list
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RequestStatus'
-        '401':
-          description: Unauthorized
+                  $ref: '#/components/schemas/EquipmentResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
       security:
-        - bearerAuth: [ ]
-  /api/v1/requests/{request_id}/status:
-    parameters:
-      - $ref: '#/components/parameters/requestId'
-    patch:
-      tags:
-        - protected
-        - request
-      summary: Update request status
+        - bearerAuth: []
+      tags: [equipment]
+      summary: Create equipment
       requestBody:
-        description: New status for the request
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  $ref: '#/components/schemas/RequestStatus'
+              $ref: '#/components/schemas/EquipmentCreateRequest'
+      responses:
+        '201':
+          description: Equipment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/equipment/{equipmentId}:
+    parameters:
+      - $ref: '#/components/parameters/EquipmentId'
+    get:
+      security:
+        - bearerAuth: []
+      tags: [equipment]
+      summary: Get equipment item
       responses:
         '200':
-          description: Request status updated successfully
-        '401':
-          description: Unauthorized
-        '404':
-          description: Request not found
+          description: Equipment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
+      tags: [equipment]
+      summary: Update equipment item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentUpdateRequest'
+      responses:
+        '200':
+          description: Updated equipment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      security:
+        - bearerAuth: []
+      tags: [equipment]
+      summary: Soft-delete equipment
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v1/equipment/categories:
+    get:
+      security:
+        - bearerAuth: []
+      tags: [categories]
+      summary: List equipment categories
+      responses:
+        '200':
+          description: Categories list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentCategoryListResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      security:
+        - bearerAuth: []
+      tags: [categories]
+      summary: Create equipment category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentCategoryRequest'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentCategoryResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/equipment/categories/{categoryId}:
+    parameters:
+      - $ref: '#/components/parameters/CategoryId'
+    put:
+      security:
+        - bearerAuth: []
+      tags: [categories]
+      summary: Update category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentCategoryRequest'
+      responses:
+        '200':
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentCategoryResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      security:
+        - bearerAuth: []
+      tags: [categories]
+      summary: Delete category
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v1/requests:
+    get:
+      security:
+        - bearerAuth: []
+      tags: [requests]
+      summary: List requests
+      parameters:
+        - in: query
+          name: responsible_id
+          schema:
+            type: string
+            format: uuid
+          description: Filter by responsible porter
+      responses:
+        '200':
+          description: Requests list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestListResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/requests/{requestId}:
+    parameters:
+      - $ref: '#/components/parameters/RequestId'
+    get:
+      security:
+        - bearerAuth: []
+      tags: [requests]
+      summary: Get request by ID
+      responses:
+        '200':
+          description: Request details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v1/requests/{requestId}/responsible:
+    parameters:
+      - $ref: '#/components/parameters/RequestId'
+    post:
+      security:
+        - bearerAuth: []
+      tags: [requests]
+      summary: Assign responsible porter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignResponsibleRequest'
+      responses:
+        '200':
+          description: Assignment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v1/requests/{requestId}/history:
+    parameters:
+      - $ref: '#/components/parameters/RequestId'
+    get:
+      security:
+        - bearerAuth: []
+      tags: [requests]
+      summary: List request status history
+      responses:
+        '200':
+          description: History entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestStatusHistoryListResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      security:
+        - bearerAuth: []
+      tags: [requests]
+      summary: Append status history entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestStatusUpdateRequest'
+      responses:
+        '201':
+          description: History entry added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestStatusHistoryResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   parameters:
-    requestId:
-      name: request_id
+    RequestId:
+      name: requestId
       in: path
-      description: ID of the request
       required: true
       schema:
         type: string
         format: uuid
+    EquipmentId:
+      name: equipmentId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    CategoryId:
+      name: categoryId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    PorterId:
+      name: porterId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication required or failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
   schemas:
-    LoginRequest:
+    ErrorResponse:
       type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: string
+      required: [error]
+    RegisterRequest:
+      type: object
+      required: [username, password, email]
       properties:
         username:
           type: string
         password:
           type: string
-      required:
-        - username
-        - password
+        email:
+          type: string
+          format: email
+    RegisterResponse:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
     TokenPair:
       type: object
       properties:
         access_token:
           type: string
-          format: bearer
         refresh_token:
           type: string
-          format: bearer
-    Equipment:
+    TokenRefreshRequest:
+      type: object
+      properties:
+        pair:
+          $ref: '#/components/schemas/TokenPair'
+      required: [pair]
+    PorterResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    PorterListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PorterResponse'
+    EquipmentCategoryResponse:
       type: object
       properties:
         id:
@@ -265,82 +561,208 @@ components:
           type: string
         description:
           type: string
-        quantity:
-          type: integer
-    RequestStatus:
-      type: string
-      oneOf: [ "pending", "assigned", "in_progress", "completed", "cancelled", "rejected" ]
-    Request:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        issuer:
-          $ref: '#/components/schemas/TelegramUser'
-        assignee:
-          $ref: '#/components/schemas/Employee'
-        request_text:
-          type: string
-        status:
-          $ref: '#/components/schemas/RequestStatus'
-        equipments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Equipment'
-        time:
-          type: string
-          # format: # custom-time-format
         created_at:
           type: string
           format: date-time
         updated_at:
           type: string
           format: date-time
-    TelegramUser:
-      type: object
-      properties:
-        id:
+        created_by:
           type: string
           format: uuid
-        telegram_id:
-          type: integer
-        username:
-          type: string
-        first_name:
-          type: string
-        last_name:
-          type: string
-    Employee:
-      type: object
-      properties:
-        id:
+          nullable: true
+        updated_by:
           type: string
           format: uuid
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+    EquipmentCategoryRequest:
+      type: object
+      required: [name]
+      properties:
         name:
           type: string
-        position:
+        description:
           type: string
-          oneOf:
-            - admin
-            - technician
-    RegisterRequest:
+          nullable: true
+    EquipmentCategoryListResponse:
       type: object
       properties:
-        username:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EquipmentCategoryResponse'
+    EquipmentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
           type: string
-        password:
+        description:
           type: string
-        email:
+          nullable: true
+        quantity:
+          type: integer
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/EquipmentCategoryResponse'
+        created_at:
           type: string
-        position:
+          format: date-time
+        updated_at:
           type: string
-      required:
-        - username
-        - password
-        - email
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        updated_by:
+          type: string
+          format: uuid
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+    EquipmentCreateRequest:
+      type: object
+      required: [name, quantity]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+          minimum: 0
+        category_ids:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+    EquipmentUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/EquipmentCreateRequest'
+    RequestResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        request_text:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/RequestStatus'
+        schedule_time:
+          type: string
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+        address:
+          type: string
+        responsible_id:
+          type: string
+          format: uuid
+          nullable: true
+        equipment:
+          type: array
+          items:
+            $ref: '#/components/schemas/EquipmentSnapshot'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        updated_by:
+          type: string
+          format: uuid
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+    EquipmentSnapshot:
+      type: object
+      properties:
+        id:
+          type: integer
+        quantity:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    RequestListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestResponse'
+    AssignResponsibleRequest:
+      type: object
+      required: [responsible_id]
+      properties:
+        responsible_id:
+          type: string
+          format: uuid
+    RequestStatus:
+      type: string
+      enum:
+        - canceled
+        - pending
+        - assigned
+        - in_progress
+        - completed
+        - rejected
+    RequestStatusUpdateRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/RequestStatus'
+        comment:
+          type: string
+          nullable: true
+    RequestStatusHistoryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/RequestStatus'
+        comment:
+          type: string
+          nullable: true
+        changed_by:
+          type: string
+          format: uuid
+          nullable: true
+        changed_at:
+          type: string
+          format: date-time
+    RequestStatusHistoryListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestStatusHistoryResponse'
