@@ -33,7 +33,7 @@ func CheckJWTMiddleware(authClient iAuthClient) fiber.Handler {
 			})
 		}
 		token := authHeader[len(bearerPrefix):]
-		validateRes, err := authClient.ValidateToken(c.Context(), token)
+		validateRes, err := authClient.ValidateToken(c.UserContext(), token)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{
 				Error:   "invalid token",

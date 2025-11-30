@@ -5,9 +5,9 @@ package models
 type TokenState string
 
 const (
-	TokenStateValid   TokenState = "valid"
-	TokenStateExpired TokenState = "expired"
-	TokenStateInvalid TokenState = "invalid"
+	TokenStateValid   TokenState = "VALID"
+	TokenStateExpired TokenState = "EXPIRED"
+	TokenStateInvalid TokenState = "INVALID"
 )
 
 type RegisterRequest struct {

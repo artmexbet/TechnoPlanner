@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"proto"
+
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"proto"
 
 	"gateway/internal/models"
 )
@@ -79,6 +80,7 @@ func (g *GRPCWrapper) ValidateToken(ctx context.Context, token string) (models.T
 	return models.TokenValidationResponse{
 		UserID: resp.UserId,
 		State:  models.TokenState(resp.State.String()),
+		Role:   resp.Role,
 	}, nil
 }
 

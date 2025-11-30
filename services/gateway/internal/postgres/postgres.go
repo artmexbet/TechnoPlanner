@@ -36,6 +36,9 @@ func New(ctx context.Context, cfg Config) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err = pool.Ping(ctx); err != nil {
+		return nil, fmt.Errorf("postgres connection failed: %w", err)
+	}
 	return &DB{
 		cfg: cfg,
 		p:   pool,

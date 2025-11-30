@@ -1,0 +1,107 @@
+name: techno_planner_full
+services:
+  broker:
+    image: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+      - "6222:6222"
+    networks:
+      - tech
+
+  db:
+    image: postgres:latest
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres # todo: change to true values
+    env_file:
+      - ".env"
+    volumes:
+      - indie_data:/var/lib/postgresql/data
+    networks:
+      - tech
+
+  redis:
+    image: redis:8.2.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - indie_redis_data:/data
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    command: >
+      sh -c '
+        mkdir -p /usr/local/etc/redis &&
+        echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
+        echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
+        echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
+        echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
+        echo "user default on nopass ~* +@all" > /usr/local/etc/redis/users.acl &&
+        echo "user $REDIS_USER on >$REDIS_USER_PASSWORD ~* +@all" >> /usr/local/etc/redis/users.acl &&
+        redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
+      '
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  jaeger:
+    image: cr.jaegertracing.io/jaegertracing/jaeger
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+      - "9411:9411"
+      - "5778:5778"
+    networks:
+      - tech
+
+  auth:
+    build:
+      context: ../
+      dockerfile: ./deploy/build/Dockerfile
+      args:
+        service_name: auth
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+      - redis
+      - broker
+    networks:
+      - tech
+
+  gateway:
+    build:
+      context: ../
+      dockerfile: ./deploy/build/Dockerfile
+      args:
+        service_name: gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth
+      - broker
+    networks:
+      - tech
+
+networks:
+  tech:
+
+volumes:
+  indie_data:
+  indie_redis_data:
