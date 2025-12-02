@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"observability/opentelemetry"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nats-io/nats.go"
+	"go.opentelemetry.io/otel"
 
 	"requests/internal/postgres"
 	"requests/internal/repository"
@@ -26,6 +28,7 @@ const (
 type Config struct {
 	Nats     *wrapnats.Config `yaml:"nats" env-prefix:"NATS_"`
 	Postgres *config.Postgres `yaml:"postgres" env-prefix:"POSTGRES_"`
+	Trace    config.Trace     `yaml:"trace" env-prefix:"TRACE_"`
 }
 
 func main() {
@@ -35,6 +38,21 @@ func main() {
 	}
 	cfg := config.MustParseConfig[Config](cfgPath)
 	ctx := context.Background()
+
+	traceExp, err := opentelemetry.NewOTLPHTTPExporter(ctx, cfg.Trace.Endpoint, cfg.Trace.Insecure)
+	if err != nil {
+		panic(err)
+	}
+	tracer, shutdownFn := opentelemetry.NewTracerProvider(traceExp, "auth-service")
+	defer func() {
+		if err := shutdownFn(ctx); err != nil {
+			panic(err)
+		}
+	}()
+	otel.SetTracerProvider(tracer)
+
+	// Настраиваем propagator для передачи trace context между сервисами
+	otel.SetTextMapPropagator(opentelemetry.NewPropagator()) //todo: use traces later
 
 	conn, err := nats.Connect(cfg.Nats.URL)
 	if err != nil {

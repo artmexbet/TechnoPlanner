@@ -16,5 +16,8 @@ postgres:
   password: postgres
   db: gateway
   timeout: 5s
+trace:
+  insecure: true
+  endpoint: "jaeger:4318"
 grpc:
   address: "auth:8081"

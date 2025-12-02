@@ -28,3 +28,8 @@ func (pg Postgres) DSN() string {
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		pg.Host, pg.Port, pg.User, pg.Password, pg.DBName, pg.SSLMode)
 }
+
+type Trace struct {
+	Endpoint string `yaml:"endpoint" env:"TRACE_ENDPOINT"`
+	Insecure bool   `yaml:"insecure" env:"TRACE_INSECURE" env-default:"true"`
+}

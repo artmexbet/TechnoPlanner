@@ -14,5 +14,8 @@ postgres:
   pass: "postgres"
   db_name: "auth"
   ssl_mode: "disable"
+trace:
+  insecure: true
+  endpoint: "jaeger:4318"
 jwt_secret: "very_very_very_secret_jwt_secret"
 port: "8081"

@@ -33,6 +33,8 @@ type Config struct {
 	Redis      storeredis.Config `yaml:"redis" env:"REDIS"`
 	Postgres   postgres.Config   `yaml:"postgres" env:"POSTGRES"`
 
+	Traces config.Trace `yaml:"trace" env-prefix:"TRACE_"`
+
 	JWTSecret string `yaml:"jwt_secret" env:"JWT_SECRET"`
 	Port      string `yaml:"port" env:"PORT"`
 }
@@ -46,7 +48,7 @@ func main() {
 
 	ctx := context.Background()
 
-	traceExp, err := opentelemetry.NewOTLPHTTPExporter(ctx, "", true)
+	traceExp, err := opentelemetry.NewOTLPHTTPExporter(ctx, cfg.Traces.Endpoint, cfg.Traces.Insecure)
 	if err != nil {
 		panic(err)
 	}

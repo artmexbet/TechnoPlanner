@@ -29,6 +29,7 @@ type Config struct {
 	Broker   broker.Config             `yaml:"broker" env:"BROKER"`
 	Postgres postgres.Config           `yaml:"postgres" env:"POSTGRES"`
 	GRPC     service.AuthServiceConfig `yaml:"grpc" env:"GRPC"`
+	Trace    config.Trace              `yaml:"trace" env:"TRACE"`
 }
 
 func main() {
@@ -41,7 +42,7 @@ func main() {
 	ctx := context.Background()
 
 	// Трейсы мои трейсы
-	exporter, err := opentelemetry.NewOTLPHTTPExporter(ctx, "", true)
+	exporter, err := opentelemetry.NewOTLPHTTPExporter(ctx, cfg.Trace.Endpoint, cfg.Trace.Insecure)
 	if err != nil {
 		panic(err)
 	}
