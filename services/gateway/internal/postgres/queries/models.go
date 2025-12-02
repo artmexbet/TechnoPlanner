@@ -5,76 +5,145 @@
 package queries
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql/driver"
+	"fmt"
+	"time"
+
+	"github.com/google/uuid"
 )
 
-type Place struct {
-	ID          pgtype.UUID
+type RequestStatus string
+
+const (
+	RequestStatusCanceled   RequestStatus = "canceled"
+	RequestStatusPending    RequestStatus = "pending"
+	RequestStatusAssigned   RequestStatus = "assigned"
+	RequestStatusInProgress RequestStatus = "in_progress"
+	RequestStatusCompleted  RequestStatus = "completed"
+	RequestStatusRejected   RequestStatus = "rejected"
+)
+
+func (e *RequestStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = RequestStatus(s)
+	case string:
+		*e = RequestStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for RequestStatus: %T", src)
+	}
+	return nil
+}
+
+type NullRequestStatus struct {
+	RequestStatus RequestStatus
+	Valid         bool // Valid is true if RequestStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullRequestStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.RequestStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.RequestStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullRequestStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.RequestStatus), nil
+}
+
+type Equipment struct {
+	ID          int32
 	Name        string
-	Description pgtype.Text
+	Description *string
+	Quantity    int32
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   *time.Time
+	CreatedBy   *uuid.UUID
+	UpdatedBy   *uuid.UUID
+}
+
+type EquipmentCategory struct {
+	ID          int32
+	Name        string
+	Description *string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   *time.Time
+	CreatedBy   *uuid.UUID
+	UpdatedBy   *uuid.UUID
+}
+
+type EquipmentCategoryLink struct {
+	EquipmentID int32
+	CategoryID  int32
+}
+
+type EquipmentToRequest struct {
+	RequestID   uuid.UUID
+	EquipmentID int32
+	Quantity    int32
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+type Place struct {
+	ID          uuid.UUID
+	Name        string
+	Description *string
 	Latitude    float64
 	Longitude   float64
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type Request struct {
-	ID                pgtype.UUID
-	FromR             string
-	Time              pgtype.Timestamptz
-	UsageInterval     pgtype.Interval
-	PlaceID           pgtype.UUID
-	ResponsibleUserID pgtype.UUID
-	Days              []pgtype.Timestamptz
+	ID                uuid.UUID
+	TelegramUserInfo  []byte
+	RequestText       *string
+	Status            RequestStatus
+	ScheduleTime      string
+	EndTime           time.Time
+	Address           string
+	ResponsibleUserID *uuid.UUID
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	DeletedAt         *time.Time
+	CreatedBy         *uuid.UUID
+	UpdatedBy         *uuid.UUID
+}
+
+type RequestStatusHistory struct {
+	ID        int32
+	RequestID uuid.UUID
+	Status    RequestStatus
+	Comment   *string
+	ChangedBy *uuid.UUID
+	ChangedAt time.Time
 }
 
 type Role struct {
 	ID          int32
 	Name        string
-	Description pgtype.Text
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
-}
-
-type Soft struct {
-	ID          int64
-	Name        string
-	InstallLink string
-	Description pgtype.Text
-}
-
-type SoftToTechnic struct {
-	SoftID    int64
-	TechnicID int64
-}
-
-type Task struct {
-	ID          pgtype.UUID
-	Description pgtype.Text
-	Status      string
-	RequestID   pgtype.UUID
-	UserID      pgtype.UUID
-	WorkerID    pgtype.UUID
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
-}
-
-type Technic struct {
-	ID   int64
-	Name string
-}
-
-type TechnicUsage struct {
-	RequestID pgtype.UUID
-	TechnicID int64
+	Description *string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type User struct {
-	ID           pgtype.UUID
+	ID           uuid.UUID
 	Username     string
 	Email        string
 	PasswordHash string
 	RoleID       int32
-	CreatedAt    pgtype.Timestamptz
-	UpdatedAt    pgtype.Timestamptz
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    *time.Time
 }

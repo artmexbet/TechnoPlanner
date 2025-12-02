@@ -79,6 +79,7 @@ func (g *GRPCWrapper) ValidateToken(ctx context.Context, token string) (models.T
 	return models.TokenValidationResponse{
 		UserID: resp.UserId,
 		State:  models.TokenState(resp.State.String()),
+		Role:   resp.Role,
 	}, nil
 }
 

@@ -10,11 +10,20 @@ import (
 	"github.com/google/uuid"
 )
 
+type Role struct {
+	ID          int32
+	Name        string
+	Description string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
 type User struct {
 	ID           uuid.UUID
 	Username     string
 	Email        *string
 	PasswordHash string
+	RoleID       int32
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }

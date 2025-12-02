@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
-
-	"observability/opentelemetry"
-	"proto"
+	"os"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
+	"observability/opentelemetry"
+	"proto"
 
 	"auth/internal/postgres"
 	"auth/internal/repository"
@@ -22,21 +22,33 @@ import (
 	"config"
 )
 
+const (
+	defaultConfigPath = "./cmd/config/cfg.yaml"
+	configPathKey     = "CONFIG_PATH"
+)
+
 type Config struct {
 	Repository repository.Config `yaml:"repository" env:"REPOSITORY"`
 	Redis      storeredis.Config `yaml:"redis" env:"REDIS"`
 	Postgres   postgres.Config   `yaml:"postgres" env:"POSTGRES"`
 
+	Traces config.Trace `yaml:"trace" env-prefix:"TRACE_"`
+
 	JWTSecret string `yaml:"jwt_secret" env:"JWT_SECRET"`
+	TokenCost int    `yaml:"token_cost" env:"TOKEN_COST" env-default:"8"`
 	Port      string `yaml:"port" env:"PORT"`
 }
 
 func main() {
-	cfg := config.MustParseConfig[Config]("./cmd/config/cfg.yaml")
+	cfgPath := os.Getenv(configPathKey)
+	if cfgPath == "" {
+		cfgPath = defaultConfigPath
+	}
+	cfg := config.MustParseConfig[Config](cfgPath)
 
 	ctx := context.Background()
 
-	traceExp, err := opentelemetry.NewOTLPHTTPExporter(ctx, "", true)
+	traceExp, err := opentelemetry.NewOTLPHTTPExporter(ctx, cfg.Traces.Endpoint, cfg.Traces.Insecure)
 	if err != nil {
 		panic(err)
 	}
@@ -67,7 +79,7 @@ func main() {
 
 	gen := service.NewTokenizer(cfg.Repository.AccessTokenTTL, cfg.Repository.RefreshTokenTTL, cfg.JWTSecret)
 
-	svc := service.NewAuth(gen, repo)
+	svc := service.NewAuth(gen, repo, cfg.TokenCost)
 	handler := server.NewHandler(svc)
 
 	grpcServer := grpc.NewServer(

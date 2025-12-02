@@ -154,6 +154,7 @@ type ValidateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	State         TokenState             `protobuf:"varint,1,opt,name=state,proto3,enum=auth.TokenState" json:"state,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Role          string                 `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -198,6 +199,13 @@ func (x *ValidateResponse) GetState() TokenState {
 func (x *ValidateResponse) GetUserId() string {
 	if x != nil {
 		return x.UserId
+	}
+	return ""
+}
+
+func (x *ValidateResponse) GetRole() string {
+	if x != nil {
+		return x.Role
 	}
 	return ""
 }
@@ -509,10 +517,11 @@ const file_contract_proto_rawDesc = "" +
 	"\x0econtract.proto\x12\x04auth\"\a\n" +
 	"\x05Empty\"$\n" +
 	"\fTokenRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"S\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"g\n" +
 	"\x10ValidateResponse\x12&\n" +
 	"\x05state\x18\x01 \x01(\x0e2\x10.auth.TokenStateR\x05state\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"\xa1\x01\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x12\n" +
+	"\x04role\x18\x03 \x01(\tR\x04role\"\xa1\x01\n" +
 	"\fLoginRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1b\n" +

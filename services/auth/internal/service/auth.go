@@ -9,9 +9,9 @@ import (
 )
 
 type iTokenizer interface {
-	GenerateTokenPair(userid string) (models.TokenPair, error)
+	GenerateTokenPair(ctx context.Context, userid string, role string) (models.TokenPair, error)
 	GenerateSession(u models.User, deviceID, userAgent, ip string) *models.Session
-	DecodeToken(tokenStr string) (*models.Claims, error)
+	DecodeToken(ctx context.Context, tokenStr string) (*models.Claims, error)
 }
 
 type iRepository interface {
@@ -26,12 +26,15 @@ type iRepository interface {
 type Auth struct {
 	tokenizer  iTokenizer
 	repository iRepository
+
+	tokenCost int
 }
 
-func NewAuth(tokenizer iTokenizer, repository iRepository) *Auth {
+func NewAuth(tokenizer iTokenizer, repository iRepository, tokenCost int) *Auth {
 	return &Auth{
 		tokenizer:  tokenizer,
 		repository: repository,
+		tokenCost:  tokenCost,
 	}
 }
 
@@ -49,7 +52,7 @@ func (a *Auth) Login(ctx context.Context, loginRequest models.LoginRequest) (mod
 	}
 
 	// Generate token pair
-	tokenPair, err := a.tokenizer.GenerateTokenPair(u.ID.String())
+	tokenPair, err := a.tokenizer.GenerateTokenPair(ctx, u.ID.String(), roleNameFromID(u.RoleID))
 	if err != nil {
 		return models.TokenPair{}, fmt.Errorf("failed to generate token pair: %w", err)
 	}
@@ -64,7 +67,7 @@ func (a *Auth) Login(ctx context.Context, loginRequest models.LoginRequest) (mod
 }
 
 func (a *Auth) Register(ctx context.Context, req models.RegisterRequest) (models.User, error) {
-	h, err := req.HashPassword()
+	h, err := req.HashPassword(a.tokenCost)
 	if err != nil {
 		return models.User{}, fmt.Errorf("failed to hash password: %w", err)
 	}
@@ -75,17 +78,18 @@ func (a *Auth) Register(ctx context.Context, req models.RegisterRequest) (models
 	return u, nil
 }
 
-func (a *Auth) ValidateToken(_ context.Context, token string) (models.TokenValidateResult, error) {
-	claims, err := a.tokenizer.DecodeToken(token)
+func (a *Auth) ValidateToken(ctx context.Context, token string) (models.TokenValidateResult, error) {
+	claims, err := a.tokenizer.DecodeToken(ctx, token)
 	if err != nil && !errors.Is(err, ErrTokenExpired) {
 		return models.TokenValidateResult{State: models.TokenStateInvalid}, fmt.Errorf("failed to decode token: %w", err)
 	} else if err != nil && errors.Is(err, ErrTokenExpired) {
 		return models.TokenValidateResult{
 			State:  models.TokenStateExpired,
 			UserID: claims.UserID,
+			Role:   claims.Role,
 		}, nil
 	}
-	return models.TokenValidateResult{State: models.TokenStateValid}, nil
+	return models.TokenValidateResult{State: models.TokenStateValid, UserID: claims.UserID, Role: claims.Role}, nil
 }
 
 func (a *Auth) Refresh(ctx context.Context, req models.TokenRefreshRequest) (models.TokenPair, error) {
@@ -99,11 +103,11 @@ func (a *Auth) Refresh(ctx context.Context, req models.TokenRefreshRequest) (mod
 		return models.TokenPair{}, fmt.Errorf("session validation failed: %w", err)
 	}
 
-	return a.tokenizer.GenerateTokenPair(session.UserID)
+	return a.tokenizer.GenerateTokenPair(ctx, session.UserID, session.Role)
 }
 
 func (a *Auth) Logout(ctx context.Context, token string) error {
-	claims, err := a.tokenizer.DecodeToken(token)
+	claims, err := a.tokenizer.DecodeToken(ctx, token)
 	if err != nil && !errors.Is(err, ErrTokenExpired) {
 		return fmt.Errorf("failed to decode token: %w", err)
 	}
@@ -111,10 +115,26 @@ func (a *Auth) Logout(ctx context.Context, token string) error {
 }
 
 func (a *Auth) LogoutAll(ctx context.Context, token string) error {
-	claims, err := a.tokenizer.DecodeToken(token)
+	claims, err := a.tokenizer.DecodeToken(ctx, token)
 	if err != nil && !errors.Is(err, ErrTokenExpired) {
 		return fmt.Errorf("failed to decode token: %w", err)
 	}
 	userID := claims.UserID
 	return a.repository.DeleteAllUserSessions(ctx, userID)
+}
+
+const (
+	RoleAdmin  = "admin"
+	RolePorter = "porter"
+)
+
+func roleNameFromID(id int32) string {
+	switch id {
+	case 1:
+		return RoleAdmin
+	case 2:
+		return RolePorter
+	default:
+		return RolePorter
+	}
 }

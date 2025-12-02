@@ -17,6 +17,7 @@ type Session struct {
 	DeviceID  string    `json:"device_id"`
 	UserAgent string    `json:"user_agent"`
 	IP        string    `json:"ip"`
+	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
 	ExpiresAt time.Time `json:"expires_at"`
 }

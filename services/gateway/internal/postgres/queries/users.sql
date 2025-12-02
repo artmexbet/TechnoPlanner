@@ -12,3 +12,12 @@ WHERE id = $1;
 SELECT * FROM users
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2;
+
+-- name: GetUserByID :one
+SELECT * FROM users
+WHERE id = $1;
+
+-- name: ListPorters :many
+SELECT * FROM users
+WHERE role_id = $1 AND deleted_at IS NULL
+ORDER BY created_at DESC;

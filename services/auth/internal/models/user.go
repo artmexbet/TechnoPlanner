@@ -13,6 +13,7 @@ type User struct {
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
 	PasswordHash string    `json:"-"`
+	RoleID       int32     `json:"role_id"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
@@ -49,8 +50,8 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 }
 
-func (r *RegisterRequest) HashPassword() ([]byte, error) {
-	return bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
+func (r *RegisterRequest) HashPassword(cost int) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(r.Password), cost)
 }
 
 func UserRegisterFromProto(in *proto.RegisterRequest) *RegisterRequest {

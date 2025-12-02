@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5/pgtype"
-
 	"gateway/internal/domain"
 	"gateway/internal/postgres/queries"
 )
@@ -22,7 +20,7 @@ func (d *DB) AddPlace(ctx context.Context, place domain.Place) (domain.Place, er
 
 	res, err := d.q.WithTx(tx).AddPlace(ctx, queries.AddPlaceParams{
 		Name:        place.Name,
-		Description: pgtype.Text{String: place.Description, Valid: place.Description != ""},
+		Description: place.Description,
 		Latitude:    place.Latitude,
 		Longitude:   place.Longitude,
 	})
