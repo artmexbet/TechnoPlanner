@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"observability/opentelemetry"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel"
+	"observability/opentelemetry"
 
 	"requests/internal/postgres"
 	"requests/internal/repository"

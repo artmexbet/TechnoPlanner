@@ -7,12 +7,11 @@ import (
 	"net"
 	"os"
 
-	"observability/opentelemetry"
-	"proto"
-
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
+	"observability/opentelemetry"
+	"proto"
 
 	"auth/internal/postgres"
 	"auth/internal/repository"

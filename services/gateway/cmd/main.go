@@ -5,9 +5,8 @@ import (
 	"log/slog"
 	"os"
 
-	"observability/opentelemetry"
-
 	"go.opentelemetry.io/otel"
+	"observability/opentelemetry"
 
 	"gateway/internal/postgres"
 	"gateway/internal/router"

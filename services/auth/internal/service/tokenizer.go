@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	"auth/internal/models"
-
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
+
+	"auth/internal/models"
 )
 
 const (
@@ -39,7 +39,7 @@ func NewTokenizer(accessTTL, refreshTTL time.Duration, jwtSecret string) *Tokeni
 }
 
 func (t *Tokenizer) GenerateTokenPair(ctx context.Context, userid string, role string) (models.TokenPair, error) {
-	ctx, span := t.tracer.Start(ctx, "GenerateTokenPair") //nolint:ineffassign
+	_, span := t.tracer.Start(ctx, "GenerateTokenPair") //nolint:ineffassign
 	defer span.End()
 
 	sessionID := uuid.New()
@@ -97,7 +97,7 @@ func (t *Tokenizer) GenerateSession(u models.User, deviceID, userAgent, ip strin
 }
 
 func (t *Tokenizer) DecodeToken(ctx context.Context, tokenStr string) (*models.Claims, error) {
-	ctx, span := t.tracer.Start(ctx, "DecodeToken") //nolint:ineffassign
+	_, span := t.tracer.Start(ctx, "DecodeToken") //nolint:ineffassign
 	defer span.End()
 
 	token, err := jwt.ParseWithClaims(tokenStr, &models.Claims{}, func(token *jwt.Token) (interface{}, error) {

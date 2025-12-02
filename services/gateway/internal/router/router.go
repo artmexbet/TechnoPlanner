@@ -575,7 +575,7 @@ func toRequestResponse(req domain.Request) models.RequestResponse {
 		CreatedAt:    req.Audit.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:    req.Audit.UpdatedAt.Format(time.RFC3339),
 	}
-	if req.EndTime.IsZero() == false {
+	if !req.EndTime.IsZero() {
 		resp.EndTime = req.EndTime.Format(time.RFC3339)
 	}
 	if req.ResponsibleUserID != nil {
