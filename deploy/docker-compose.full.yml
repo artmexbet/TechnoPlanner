@@ -21,7 +21,7 @@ services:
       - ".env"
     volumes:
       - indie_data:/var/lib/postgresql/data
-      - ./deploy/init-db:/docker-entrypoint-initdb.d
+      - ./init-db:/docker-entrypoint-initdb.d
     networks:
       - tech-stage
 
