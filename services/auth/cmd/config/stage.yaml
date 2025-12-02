@@ -18,4 +18,5 @@ trace:
   insecure: true
   endpoint: "jaeger:4318"
 jwt_secret: "very_very_very_secret_jwt_secret"
+token_cost: 8
 port: "8081"

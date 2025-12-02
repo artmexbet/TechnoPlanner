@@ -1,13 +1,21 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
+	"auth/internal/models"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
+)
 
-	"auth/internal/models"
+const (
+	serviceName = "auth_service"
+	tracerName  = "auth_service_tracer"
 )
 
 var (
@@ -18,6 +26,7 @@ type Tokenizer struct {
 	accessTTL  time.Duration
 	refreshTTL time.Duration
 	jwtSecret  []byte
+	tracer     trace.Tracer
 }
 
 func NewTokenizer(accessTTL, refreshTTL time.Duration, jwtSecret string) *Tokenizer {
@@ -25,10 +34,14 @@ func NewTokenizer(accessTTL, refreshTTL time.Duration, jwtSecret string) *Tokeni
 		accessTTL:  accessTTL,
 		refreshTTL: refreshTTL,
 		jwtSecret:  []byte(jwtSecret),
+		tracer:     otel.GetTracerProvider().Tracer(tracerName),
 	}
 }
 
-func (t *Tokenizer) GenerateTokenPair(userid string, role string) (models.TokenPair, error) {
+func (t *Tokenizer) GenerateTokenPair(ctx context.Context, userid string, role string) (models.TokenPair, error) {
+	ctx, span := t.tracer.Start(ctx, "GenerateTokenPair") //nolint:ineffassign
+	defer span.End()
+
 	sessionID := uuid.New()
 	claims := models.Claims{
 		UserID:    userid,
@@ -39,7 +52,7 @@ func (t *Tokenizer) GenerateTokenPair(userid string, role string) (models.TokenP
 			// TODO: подумать о том, чтобы вынести time.Now()
 			// 	в репозиторий, чтобы можно было мокать время в тестах
 			IssuedAt: jwt.NewNumericDate(time.Now().UTC()),
-			Issuer:   "auth_service",
+			Issuer:   serviceName,
 		},
 	}
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(t.jwtSecret)
@@ -83,7 +96,10 @@ func (t *Tokenizer) GenerateSession(u models.User, deviceID, userAgent, ip strin
 	return session
 }
 
-func (t *Tokenizer) DecodeToken(tokenStr string) (*models.Claims, error) {
+func (t *Tokenizer) DecodeToken(ctx context.Context, tokenStr string) (*models.Claims, error) {
+	ctx, span := t.tracer.Start(ctx, "DecodeToken") //nolint:ineffassign
+	defer span.End()
+
 	token, err := jwt.ParseWithClaims(tokenStr, &models.Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

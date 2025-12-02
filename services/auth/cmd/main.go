@@ -36,6 +36,7 @@ type Config struct {
 	Traces config.Trace `yaml:"trace" env-prefix:"TRACE_"`
 
 	JWTSecret string `yaml:"jwt_secret" env:"JWT_SECRET"`
+	TokenCost int    `yaml:"token_cost" env:"TOKEN_COST" env-default:"8"`
 	Port      string `yaml:"port" env:"PORT"`
 }
 
@@ -79,7 +80,7 @@ func main() {
 
 	gen := service.NewTokenizer(cfg.Repository.AccessTokenTTL, cfg.Repository.RefreshTokenTTL, cfg.JWTSecret)
 
-	svc := service.NewAuth(gen, repo)
+	svc := service.NewAuth(gen, repo, cfg.TokenCost)
 	handler := server.NewHandler(svc)
 
 	grpcServer := grpc.NewServer(

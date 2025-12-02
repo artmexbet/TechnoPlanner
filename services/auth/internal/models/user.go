@@ -51,8 +51,8 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 }
 
-func (r *RegisterRequest) HashPassword() ([]byte, error) {
-	return bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
+func (r *RegisterRequest) HashPassword(cost int) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(r.Password), cost)
 }
 
 func UserRegisterFromProto(in *proto.RegisterRequest) *RegisterRequest {

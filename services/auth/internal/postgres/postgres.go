@@ -42,6 +42,9 @@ func New(ctx context.Context, cfg Config) (*Postgres, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not connect to postgres: %w", err)
 	}
+	if err = pool.Ping(ctx); err != nil {
+		return nil, fmt.Errorf("could not ping postgres: %w", err)
+	}
 
 	q := queries.New(pool)
 

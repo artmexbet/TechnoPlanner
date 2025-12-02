@@ -9,5 +9,5 @@ FROM alpine:3.22
 ARG service_name
 ARG env=stage
 WORKDIR /app
-COPY --from=builder app ./
+COPY --from=builder /app/app ./
 CMD ["./app"]

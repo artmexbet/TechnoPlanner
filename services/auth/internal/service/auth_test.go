@@ -52,7 +52,7 @@ func (s *ServiceTestSuite) TestLogin() {
 					Return(testUser, nil)
 
 				tokenizer.EXPECT().
-					GenerateTokenPair(testUser.ID.String(), RolePorter).
+					GenerateTokenPair(mock.Anything, testUser.ID.String(), RolePorter).
 					Return(models.TokenPair{AccessToken: "access", RefreshToken: "refresh"}, nil)
 
 				tokenizer.EXPECT().
@@ -106,7 +106,7 @@ func (s *ServiceTestSuite) TestLogin() {
 			if tt.setup != nil {
 				tt.setup(repo, tokenizer)
 			}
-			auth := NewAuth(tokenizer, repo)
+			auth := NewAuth(tokenizer, repo, bcrypt.MinCost)
 			_, err := auth.Login(context.Background(), tt.loginReq)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ожидалась ошибка: %v, получено: %v", tt.wantErr, err)
@@ -158,7 +158,7 @@ func (s *ServiceTestSuite) TestRegister() {
 			if tt.setup != nil {
 				tt.setup(repo)
 			}
-			auth := NewAuth(newMockiTokenizer(t), repo)
+			auth := NewAuth(newMockiTokenizer(t), repo, bcrypt.MinCost)
 			_, err := auth.Register(context.Background(), tt.regReq)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ожидалась ошибка: %v, получено: %v", tt.wantErr, err)
@@ -179,7 +179,7 @@ func (s *ServiceTestSuite) TestValidateToken() {
 			name: "валидный токен",
 			setup: func(tokenizer *mockiTokenizer) {
 				tokenizer.EXPECT().
-					DecodeToken("valid").
+					DecodeToken(mock.Anything, "valid").
 					Return(&models.Claims{UserID: "id"}, nil)
 			},
 			token:     "valid",
@@ -190,7 +190,7 @@ func (s *ServiceTestSuite) TestValidateToken() {
 			name: "просроченный токен",
 			setup: func(tokenizer *mockiTokenizer) {
 				tokenizer.EXPECT().
-					DecodeToken("expired").
+					DecodeToken(mock.Anything, "expired").
 					Return(&models.Claims{UserID: "id"}, ErrTokenExpired)
 			},
 			token:     "expired",
@@ -201,7 +201,7 @@ func (s *ServiceTestSuite) TestValidateToken() {
 			name: "невалидный токен",
 			setup: func(tokenizer *mockiTokenizer) {
 				tokenizer.EXPECT().
-					DecodeToken("invalid").
+					DecodeToken(mock.Anything, "invalid").
 					Return(nil, errors.New("invalid"))
 			},
 			token:     "invalid",
@@ -216,7 +216,7 @@ func (s *ServiceTestSuite) TestValidateToken() {
 			if tt.setup != nil {
 				tt.setup(tokenizer)
 			}
-			auth := NewAuth(tokenizer, newMockiRepository(t))
+			auth := NewAuth(tokenizer, newMockiRepository(t), bcrypt.MinCost)
 			res, err := auth.ValidateToken(context.Background(), tt.token)
 			if res.State != tt.wantState {
 				t.Errorf("ожидалось состояние %v, получено %v", tt.wantState, res.State)
@@ -248,7 +248,7 @@ func (s *ServiceTestSuite) TestRefresh() {
 					GetSessionByRefreshToken(mock.Anything, "refresh").
 					Return(&models.Session{DeviceID: "dev1", UserAgent: "agent", IP: "127.0.0.1"}, nil)
 				tokenizer.EXPECT().
-					GenerateTokenPair(mock.Anything, mock.Anything).
+					GenerateTokenPair(mock.Anything, mock.Anything, mock.Anything).
 					Return(models.TokenPair{AccessToken: "access", RefreshToken: "refresh2"}, nil)
 			},
 			wantErr: false,
@@ -263,7 +263,7 @@ func (s *ServiceTestSuite) TestRefresh() {
 			},
 			setup: func(repo *mockiRepository, tokenizer *mockiTokenizer) {
 				tokenizer.EXPECT().
-					DecodeToken("bad").
+					DecodeToken(mock.Anything, "bad").
 					Return(&models.Claims{
 						UserID: "user1",
 					}, nil)
@@ -286,7 +286,7 @@ func (s *ServiceTestSuite) TestRefresh() {
 			},
 			setup: func(repo *mockiRepository, tokenizer *mockiTokenizer) {
 				tokenizer.EXPECT().
-					DecodeToken("refresh").
+					DecodeToken(mock.Anything, "refresh").
 					Return(&models.Claims{
 						UserID: "user1",
 					}, nil)
@@ -308,7 +308,7 @@ func (s *ServiceTestSuite) TestRefresh() {
 			if tt.setup != nil {
 				tt.setup(repo, tokenizer)
 			}
-			auth := NewAuth(tokenizer, repo)
+			auth := NewAuth(tokenizer, repo, bcrypt.MinCost)
 			_, err := auth.Refresh(context.Background(), tt.refreshReq)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ожидалась ошибка: %v, получено: %v", tt.wantErr, err)
