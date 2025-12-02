@@ -1,0 +1,20 @@
+router:
+  address: 0.0.0.0
+  port: 8080
+broker:
+  url: ""
+  streams:
+    something:
+      name: SMTHING
+      subjects:
+        - "smthing.created"
+      max_age: 24h
+postgres:
+  host: db
+  port: 5432
+  user: postgres
+  password: postgres
+  db: gateway
+  timeout: 5s
+grpc:
+  address: "auth:8081"

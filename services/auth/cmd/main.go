@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"os"
 
 	"observability/opentelemetry"
 	"proto"
@@ -22,6 +23,11 @@ import (
 	"config"
 )
 
+const (
+	defaultConfigPath = "./cmd/config/cfg.yaml"
+	configPathKey     = "CONFIG_PATH"
+)
+
 type Config struct {
 	Repository repository.Config `yaml:"repository" env:"REPOSITORY"`
 	Redis      storeredis.Config `yaml:"redis" env:"REDIS"`
@@ -32,7 +38,11 @@ type Config struct {
 }
 
 func main() {
-	cfg := config.MustParseConfig[Config]("./cmd/config/cfg.yaml")
+	cfgPath := os.Getenv(configPathKey)
+	if cfgPath == "" {
+		cfgPath = defaultConfigPath
+	}
+	cfg := config.MustParseConfig[Config](cfgPath)
 
 	ctx := context.Background()
 

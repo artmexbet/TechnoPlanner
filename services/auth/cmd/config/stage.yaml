@@ -1,0 +1,18 @@
+repository:
+  refresh_token_ttl: 720h # 30 days
+  access_token_ttl: 1h    # 1 hour
+redis:
+  addr: "redis:6379"
+  password: "redis"
+  db: 0
+  user: "redis"
+  pool_size: 10
+postgres:
+  host: "db"
+  port: 5432
+  user: "postgres"
+  pass: "postgres"
+  db_name: "auth"
+  ssl_mode: "disable"
+jwt_secret: "very_very_very_secret_jwt_secret"
+port: "8081"

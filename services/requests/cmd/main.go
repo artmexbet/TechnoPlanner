@@ -18,13 +18,22 @@ import (
 	"config"
 )
 
+const (
+	defaultConfigPath = "configs/config.yaml"
+	configPathKey     = "CONFIG_PATH"
+)
+
 type Config struct {
 	Nats     *wrapnats.Config `yaml:"nats" env-prefix:"NATS_"`
 	Postgres *config.Postgres `yaml:"postgres" env-prefix:"POSTGRES_"`
 }
 
 func main() {
-	cfg := config.MustParseConfig[Config]("configs/config.yaml")
+	cfgPath := os.Getenv(configPathKey)
+	if cfgPath == "" {
+		cfgPath = defaultConfigPath
+	}
+	cfg := config.MustParseConfig[Config](cfgPath)
 	ctx := context.Background()
 
 	conn, err := nats.Connect(cfg.Nats.URL)

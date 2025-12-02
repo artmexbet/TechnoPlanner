@@ -7,10 +7,10 @@ services:
       - "8222:8222"
       - "6222:6222"
     networks:
-      - tech
+      - tech-stage
 
   db:
-    image: postgres:latest
+    image: postgres:17-alpine3.22
     ports:
       - "5433:5432"
     environment:
@@ -21,8 +21,9 @@ services:
       - ".env"
     volumes:
       - indie_data:/var/lib/postgresql/data
+      - ./deploy/init-db:/docker-entrypoint-initdb.d
     networks:
-      - tech
+      - tech-stage
 
   redis:
     image: redis:8.2.2-alpine
@@ -58,6 +59,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - tech-stage
 
   jaeger:
     image: cr.jaegertracing.io/jaegertracing/jaeger
@@ -68,7 +71,28 @@ services:
       - "9411:9411"
       - "5778:5778"
     networks:
-      - tech
+      - tech-stage
+
+  migrator:
+    build:
+      context: ./migrator
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      AUTH_DB: auth
+      GATEWAY_DB: gateway
+      REQUESTS_DB: requests
+    volumes:
+      - ../services/auth/migrations:/migrations/auth:ro
+      - ../services/gateway/migrations:/migrations/gateway:ro
+      - ../services/requests/migrations:/migrations/requests:ro
+    networks:
+      - tech-stage
 
   auth:
     build:
@@ -76,14 +100,19 @@ services:
       dockerfile: ./deploy/build/Dockerfile
       args:
         service_name: auth
+    environment:
+      CONFIG_PATH: ./stage.yaml
+    volumes:
+      - ../services/auth/cmd/config/stage.yaml:/app/stage.yaml:ro
     ports:
       - "8081:8081"
     depends_on:
       - db
       - redis
       - broker
+      - migrator
     networks:
-      - tech
+      - tech-stage
 
   gateway:
     build:
@@ -91,16 +120,21 @@ services:
       dockerfile: ./deploy/build/Dockerfile
       args:
         service_name: gateway
+    environment:
+      CONFIG_PATH: ./stage.yaml
+    volumes:
+      - ../services/gateway/cmd/config/stage.yaml:/app/stage.yaml:ro
     ports:
       - "8080:8080"
     depends_on:
       - auth
       - broker
+      - migrator
     networks:
-      - tech
+      - tech-stage
 
 networks:
-  tech:
+  tech-stage:
 
 volumes:
   indie_data:

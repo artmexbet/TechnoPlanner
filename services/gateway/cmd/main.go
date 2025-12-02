@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log/slog"
+	"os"
 
 	"observability/opentelemetry"
 
@@ -18,6 +19,11 @@ import (
 	"config"
 )
 
+const (
+	defaultConfigPath = "./cmd/config/cfg.yaml"
+	configPathKey     = "CONFIG_PATH"
+)
+
 type Config struct {
 	Router   router.Config             `yaml:"router" env:"ROUTER"`
 	Broker   broker.Config             `yaml:"broker" env:"BROKER"`
@@ -26,7 +32,11 @@ type Config struct {
 }
 
 func main() {
-	cfg := config.MustParseConfig[Config]("./cmd/config/cfg.yaml")
+	cfgPath := os.Getenv(configPathKey)
+	if cfgPath == "" {
+		cfgPath = defaultConfigPath
+	}
+	cfg := config.MustParseConfig[Config](cfgPath)
 
 	ctx := context.Background()
 
