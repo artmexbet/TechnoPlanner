@@ -42,12 +42,11 @@ func (d *DB) ListRequests(ctx context.Context, responsibleID *uuid.UUID) ([]doma
 	ctx, cancel := d.withTimeout(ctx)
 	defer cancel()
 
-	target := uuid.Nil
-	if responsibleID != nil {
-		target = *responsibleID
+	if responsibleID == nil {
+		return nil, fmt.Errorf("ListRequests: responsibleID is required")
 	}
 
-	rows, err := d.q.ListRequests(ctx, target)
+	rows, err := d.q.ListRequests(ctx, responsibleID)
 	if err != nil {
 		return nil, fmt.Errorf("ListRequests: %w", err)
 	}

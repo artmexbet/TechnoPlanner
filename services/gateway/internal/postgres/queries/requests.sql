@@ -10,7 +10,7 @@ RETURNING *;
 SELECT *
 FROM requests
 WHERE deleted_at IS NULL
-  AND ($1::UUID = '00000000-0000-0000-0000-000000000000' OR responsible_user_id = $1)
+  AND responsible_user_id = $1
 ORDER BY created_at DESC;
 
 -- name: GetRequestByID :one

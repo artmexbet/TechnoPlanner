@@ -10,7 +10,7 @@ CREATE TYPE request_status AS ENUM (
 
 CREATE TABLE IF NOT EXISTS requests
 (
-    id                  UUID PRIMARY KEY,
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     telegram_user_info  jsonb,
     request_text        TEXT,
     status              request_status              NOT NULL DEFAULT 'pending',

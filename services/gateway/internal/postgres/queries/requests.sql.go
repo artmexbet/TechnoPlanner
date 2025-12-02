@@ -78,12 +78,12 @@ const ListRequests = `-- name: ListRequests :many
 SELECT id, telegram_user_info, request_text, status, schedule_time, end_time, address, responsible_user_id, created_at, updated_at, deleted_at, created_by, updated_by
 FROM requests
 WHERE deleted_at IS NULL
-  AND ($1::UUID = '00000000-0000-0000-0000-000000000000' OR responsible_user_id = $1)
+  AND responsible_user_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListRequests(ctx context.Context, dollar_1 uuid.UUID) ([]Request, error) {
-	rows, err := q.db.Query(ctx, ListRequests, dollar_1)
+func (q *Queries) ListRequests(ctx context.Context, responsibleUserID *uuid.UUID) ([]Request, error) {
+	rows, err := q.db.Query(ctx, ListRequests, responsibleUserID)
 	if err != nil {
 		return nil, err
 	}

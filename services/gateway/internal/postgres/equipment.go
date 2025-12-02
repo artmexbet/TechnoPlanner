@@ -112,7 +112,7 @@ func (d *DB) ListEquipment(ctx context.Context) ([]domain.Equipment, error) {
 
 	result := make([]domain.Equipment, 0, len(rows))
 	for _, row := range rows {
-		item, err := d.getEquipmentWithCategories(ctx, row.ID)
+		item, err := d.getEquipmentWithCategories(ctx, row.ID) //todo:optimize with single batch query
 		if err != nil {
 			return nil, err
 		}
