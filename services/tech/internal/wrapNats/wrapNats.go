@@ -16,6 +16,9 @@ type ITechService interface {
 	DeleteTechnic(ctx context.Context, techID uuid.UUID) error
 	UpdateTechnic(ctx context.Context, technic domain.Technic) (domain.Technic, error)
 	GetTechnicByID(ctx context.Context, techID uuid.UUID) (domain.Technic, error)
+}
+
+type ICategoryService interface {
 	GetTechnicByCategory(ctx context.Context, categoryID uuid.UUID) ([]domain.Technic, error)
 	AddCategory(ctx context.Context, categoryName string) (domain.TechnicCategory, error)
 	UpdateCategoryName(ctx context.Context, category domain.TechnicCategory) (domain.TechnicCategory, error)
@@ -34,15 +37,17 @@ type NatsWrapper struct {
 	cfg       *Config
 	validator *validator.Validate
 
-	techService ITechService
+	techService     ITechService
+	categoryService ICategoryService
 }
 
-func New(cfg *Config, conn *nats.Conn, techService ITechService) (*NatsWrapper, error) {
+func New(cfg *Config, conn *nats.Conn, techService ITechService, categoryService ICategoryService) (*NatsWrapper, error) {
 	return &NatsWrapper{
-		conn:        conn,
-		validator:   validator.New(validator.WithRequiredStructEnabled()),
-		cfg:         cfg,
-		techService: techService,
+		conn:            conn,
+		validator:       validator.New(validator.WithRequiredStructEnabled()),
+		cfg:             cfg,
+		techService:     techService,
+		categoryService: categoryService,
 	}, nil
 }
 
@@ -227,7 +232,7 @@ func (w *NatsWrapper) handleCategoryGetTech(msg *nats.Msg) {
 		return
 	}
 
-	respData, err := w.techService.GetTechnicByCategory(ctx, req.ID)
+	respData, err := w.categoryService.GetTechnicByCategory(ctx, req.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "error creating request", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -257,7 +262,7 @@ func (w *NatsWrapper) handleAddCategory(msg *nats.Msg) {
 		return
 	}
 
-	createdReq, err := w.techService.AddCategory(ctx, req.Name)
+	createdReq, err := w.categoryService.AddCategory(ctx, req.Name)
 	if err != nil {
 		slog.ErrorContext(ctx, "error creating request", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -294,7 +299,7 @@ func (w *NatsWrapper) handleDeleteCategory(msg *nats.Msg) {
 		return
 	}
 
-	err = w.techService.DeleteCategory(ctx, req.ID)
+	err = w.categoryService.DeleteCategory(ctx, req.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "error creating request", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -324,7 +329,7 @@ func (w *NatsWrapper) handleUpdateCategory(msg *nats.Msg) {
 		return
 	}
 
-	createdReq, err := w.techService.UpdateCategoryName(ctx, domain.TechnicCategory{ID: req.ID, Name: req.Name})
+	createdReq, err := w.categoryService.UpdateCategoryName(ctx, domain.TechnicCategory{ID: req.ID, Name: req.Name})
 	if err != nil {
 		slog.ErrorContext(ctx, "error creating request", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -348,7 +353,7 @@ func (w *NatsWrapper) handleGetAllCategories(msg *nats.Msg) {
 	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
 	defer cancel()
 
-	respData, err := w.techService.GetAllCategories(ctx)
+	respData, err := w.categoryService.GetAllCategories(ctx)
 	if err != nil {
 		slog.ErrorContext(ctx, "error creating request", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
