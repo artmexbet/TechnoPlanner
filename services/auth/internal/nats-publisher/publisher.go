@@ -5,9 +5,9 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"auth/internal/models"
+	"github.com/artmexbet/TechnoPlanner/libs/config"
 
-	"config"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
 )
 
 type Publisher struct {

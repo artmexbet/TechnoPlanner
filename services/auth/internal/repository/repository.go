@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"auth/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
 )
 
 type Config struct {

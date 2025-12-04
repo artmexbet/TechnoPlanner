@@ -1,4 +1,4 @@
-module config
+module github.com/artmexbet/TechnoPlanner/libs/config
 
 go 1.25.1
 

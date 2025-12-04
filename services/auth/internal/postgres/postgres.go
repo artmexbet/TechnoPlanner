@@ -7,9 +7,9 @@ import (
 	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"auth/internal/postgres/queries"
+	"github.com/artmexbet/TechnoPlanner/libs/config"
 
-	"config"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/postgres/queries"
 )
 
 //go:generate sqlc generate -f ./queries/sqlc.yaml

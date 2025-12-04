@@ -9,15 +9,15 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel"
-	"observability/opentelemetry"
 
-	"requests/internal/postgres"
-	"requests/internal/repository"
-	"requests/internal/service/equipment"
-	"requests/internal/service/request"
-	"requests/internal/wrapnats"
+	"github.com/artmexbet/TechnoPlanner/libs/config"
+	"github.com/artmexbet/TechnoPlanner/libs/observability/opentelemetry"
 
-	"config"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/postgres"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/repository"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/service/equipment"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/service/request"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/wrapnats"
 )
 
 const (

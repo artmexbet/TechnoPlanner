@@ -2,20 +2,19 @@ package main
 
 import (
 	"context"
-	"gateway/internal/subscriber"
 	"log/slog"
 	"os"
 
-	"observability/opentelemetry"
-
 	"go.opentelemetry.io/otel"
 
-	"gateway/internal/postgres"
-	"gateway/internal/router"
-	"gateway/internal/service"
-	"gateway/internal/storage"
+	"github.com/artmexbet/TechnoPlanner/libs/config"
+	"github.com/artmexbet/TechnoPlanner/libs/observability/opentelemetry"
 
-	"config"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/postgres"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/service"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/storage"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/subscriber"
 )
 
 const (

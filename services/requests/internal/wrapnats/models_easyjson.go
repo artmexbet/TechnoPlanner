@@ -4,10 +4,10 @@ package wrapnats
 
 import (
 	json "encoding/json"
+	domain "github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
-	domain "requests/internal/domain"
 )
 
 // suppress unused package warning

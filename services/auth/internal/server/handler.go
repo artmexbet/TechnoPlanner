@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"proto"
+	"github.com/artmexbet/TechnoPlanner/libs/proto"
 
-	"auth/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
 )
 
 type authService interface {

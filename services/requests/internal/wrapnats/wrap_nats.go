@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 
-	"requests/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
 type iRequestService interface {

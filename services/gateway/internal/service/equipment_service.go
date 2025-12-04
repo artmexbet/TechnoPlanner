@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"gateway/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
 // EquipmentStorage defines storage contract for equipment CRUD operations.

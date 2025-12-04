@@ -62,12 +62,8 @@ formatters:
       sections:
         - standard # встроенные пакеты
         - default # внешние пакеты
-        - prefix(gateway) # внутренние пакеты
-        - prefix(requests) # внутренние пакеты
-        - prefix(auth) # внутренние пакеты
-        - prefix(broker) # внутренние пакеты
-        - prefix(config) # внутренние пакеты
-        - prefix(utills) # внутренние пакеты
+        - prefix(github.com/artmexbet/TechnoPlanner/libs) # внутренние либы
+        - prefix(github.com/artmexbet/TechnoPlanner/services) # внутренние сервисы
       custom-order: true
 
 

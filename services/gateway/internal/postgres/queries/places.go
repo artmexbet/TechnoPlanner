@@ -1,6 +1,6 @@
 package queries
 
-import "gateway/internal/domain"
+import "github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 
 func (p Place) ToDomain() domain.Place {
 	return domain.Place{

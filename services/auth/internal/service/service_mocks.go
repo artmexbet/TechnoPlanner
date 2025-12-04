@@ -5,9 +5,9 @@
 package service
 
 import (
-	"auth/internal/models"
 	"context"
 
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -277,8 +277,8 @@ func (_m *mockiRepository) EXPECT() *mockiRepository_Expecter {
 }
 
 // CreateUser provides a mock function for the type mockiRepository
-func (_mock *mockiRepository) CreateUser(ctx context.Context, username string, email string, passwordHash string) (models.User, error) {
-	ret := _mock.Called(ctx, username, email, passwordHash)
+func (_mock *mockiRepository) CreateUser(ctx context.Context, username string, email string, passwordHash string, roleID int32) (models.User, error) {
+	ret := _mock.Called(ctx, username, email, passwordHash, roleID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateUser")
@@ -286,16 +286,16 @@ func (_mock *mockiRepository) CreateUser(ctx context.Context, username string, e
 
 	var r0 models.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) (models.User, error)); ok {
-		return returnFunc(ctx, username, email, passwordHash)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string, int32) (models.User, error)); ok {
+		return returnFunc(ctx, username, email, passwordHash, roleID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) models.User); ok {
-		r0 = returnFunc(ctx, username, email, passwordHash)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string, int32) models.User); ok {
+		r0 = returnFunc(ctx, username, email, passwordHash, roleID)
 	} else {
 		r0 = ret.Get(0).(models.User)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
-		r1 = returnFunc(ctx, username, email, passwordHash)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, string, int32) error); ok {
+		r1 = returnFunc(ctx, username, email, passwordHash, roleID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -312,11 +312,12 @@ type mockiRepository_CreateUser_Call struct {
 //   - username string
 //   - email string
 //   - passwordHash string
-func (_e *mockiRepository_Expecter) CreateUser(ctx interface{}, username interface{}, email interface{}, passwordHash interface{}) *mockiRepository_CreateUser_Call {
-	return &mockiRepository_CreateUser_Call{Call: _e.mock.On("CreateUser", ctx, username, email, passwordHash)}
+//   - roleID int32
+func (_e *mockiRepository_Expecter) CreateUser(ctx interface{}, username interface{}, email interface{}, passwordHash interface{}, roleID interface{}) *mockiRepository_CreateUser_Call {
+	return &mockiRepository_CreateUser_Call{Call: _e.mock.On("CreateUser", ctx, username, email, passwordHash, roleID)}
 }
 
-func (_c *mockiRepository_CreateUser_Call) Run(run func(ctx context.Context, username string, email string, passwordHash string)) *mockiRepository_CreateUser_Call {
+func (_c *mockiRepository_CreateUser_Call) Run(run func(ctx context.Context, username string, email string, passwordHash string, roleID int32)) *mockiRepository_CreateUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -334,11 +335,16 @@ func (_c *mockiRepository_CreateUser_Call) Run(run func(ctx context.Context, use
 		if args[3] != nil {
 			arg3 = args[3].(string)
 		}
+		var arg4 int32
+		if args[4] != nil {
+			arg4 = args[4].(int32)
+		}
 		run(
 			arg0,
 			arg1,
 			arg2,
 			arg3,
+			arg4,
 		)
 	})
 	return _c
@@ -349,7 +355,7 @@ func (_c *mockiRepository_CreateUser_Call) Return(user models.User, err error) *
 	return _c
 }
 
-func (_c *mockiRepository_CreateUser_Call) RunAndReturn(run func(ctx context.Context, username string, email string, passwordHash string) (models.User, error)) *mockiRepository_CreateUser_Call {
+func (_c *mockiRepository_CreateUser_Call) RunAndReturn(run func(ctx context.Context, username string, email string, passwordHash string, roleID int32) (models.User, error)) *mockiRepository_CreateUser_Call {
 	_c.Call.Return(run)
 	return _c
 }

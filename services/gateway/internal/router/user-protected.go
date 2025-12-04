@@ -3,8 +3,8 @@ package router
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"gateway/internal/models"
-	"gateway/internal/router/middlwares"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router/middlwares"
 )
 
 func (r *Router) InitProtectedUserRoutes() *Router {

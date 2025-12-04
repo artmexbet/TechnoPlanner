@@ -7,11 +7,10 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"gateway/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/libs/broker"
+	"github.com/artmexbet/TechnoPlanner/libs/config"
 
-	"broker"
-
-	"config"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
 type iRepository interface {

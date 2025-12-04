@@ -7,9 +7,10 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"proto"
 
-	"gateway/internal/models"
+	"github.com/artmexbet/TechnoPlanner/libs/proto"
+
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
 )
 
 type AuthServiceConfig struct {

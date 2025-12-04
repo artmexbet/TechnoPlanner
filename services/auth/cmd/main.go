@@ -7,21 +7,20 @@ import (
 	"net"
 	"os"
 
-	"observability/opentelemetry"
-	"proto"
-
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
 
-	natsPublisher "auth/internal/nats-publisher"
-	"auth/internal/postgres"
-	"auth/internal/repository"
-	"auth/internal/server"
-	"auth/internal/service"
-	"auth/internal/storeredis"
+	"github.com/artmexbet/TechnoPlanner/libs/config"
+	"github.com/artmexbet/TechnoPlanner/libs/observability/opentelemetry"
+	"github.com/artmexbet/TechnoPlanner/libs/proto"
 
-	"config"
+	natsPublisher "github.com/artmexbet/TechnoPlanner/services/auth/internal/nats-publisher"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/postgres"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/repository"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/server"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/service"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/storeredis"
 )
 
 const (
