@@ -33,3 +33,12 @@ type Trace struct {
 	Endpoint string `yaml:"endpoint" env:"TRACE_ENDPOINT"`
 	Insecure bool   `yaml:"insecure" env:"TRACE_INSECURE" env-default:"true"`
 }
+
+type NATSConfig struct {
+	Host string `yaml:"host" env:"HOST"`
+	Port int    `yaml:"port" env:"PORT"`
+}
+
+func (cfg NATSConfig) URL() string {
+	return fmt.Sprintf("nats://%s:%d", cfg.Host, cfg.Port)
+}

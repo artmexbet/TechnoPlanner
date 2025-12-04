@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:generate easyjson models.go
+
 type Place struct {
 	ID          uuid.UUID
 	Name        string
@@ -16,16 +18,17 @@ type Place struct {
 	UpdatedAt   time.Time
 }
 
+//easyjson:json
 type User struct {
-	ID           uuid.UUID
-	Username     string
-	Email        string
-	PasswordHash string
-	RoleID       int32
-	Role         *Role
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	DeletedAt    *time.Time
+	ID           uuid.UUID  `json:"id"`
+	Username     string     `json:"username"`
+	Email        string     `json:"email"`
+	PasswordHash string     `json:"-"`
+	RoleID       int32      `json:"role_id"`
+	Role         *Role      `json:"role,omitempty"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
+	DeletedAt    *time.Time `json:"-"`
 }
 
 type Equipment struct {

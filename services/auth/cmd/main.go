@@ -16,7 +16,6 @@ import (
 	"observability/opentelemetry"
 	"proto"
 
-	_config "auth/internal/config"
 	"auth/internal/postgres"
 	"auth/internal/repository"
 	"auth/internal/server"
@@ -30,10 +29,10 @@ const (
 )
 
 type Config struct {
-	Repository repository.Config  `yaml:"repository" env:"REPOSITORY"`
-	Redis      storeredis.Config  `yaml:"redis" env:"REDIS"`
-	Postgres   postgres.Config    `yaml:"postgres" env:"POSTGRES"`
-	Publisher  _config.NATSConfig `yaml:"publisher" env:"PUBLISHER"`
+	Repository repository.Config `yaml:"repository" env:"REPOSITORY"`
+	Redis      storeredis.Config `yaml:"redis" env:"REDIS"`
+	Postgres   config.Postgres   `yaml:"postgres" env:"POSTGRES"`
+	Publisher  config.NATSConfig `yaml:"publisher" env:"PUBLISHER"`
 
 	Traces config.Trace `yaml:"trace" env-prefix:"TRACE_"`
 

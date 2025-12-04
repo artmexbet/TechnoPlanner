@@ -2,13 +2,10 @@ package natspublisher
 
 import (
 	"auth/internal/models"
+	"config"
 	"fmt"
 
 	"github.com/nats-io/nats.go"
-)
-
-const (
-	porterCreatedSubject = "events.user.created"
 )
 
 type Publisher struct {
@@ -35,5 +32,5 @@ func (p *Publisher) PublishUserCreated(user models.User) error {
 	if err != nil {
 		return fmt.Errorf("error marshalling user created event: %w", err)
 	}
-	return p.conn.Publish(porterCreatedSubject, data)
+	return p.conn.Publish(config.SubjectUserCreated, data)
 }

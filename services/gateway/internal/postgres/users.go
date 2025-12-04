@@ -41,15 +41,30 @@ func (d *DB) GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 	return mapUser(row), nil
 }
 
+func (d *DB) CreateUser(ctx context.Context, user domain.User) error {
+	ctx, cancel := d.withTimeout(ctx)
+	defer cancel()
+
+	_, err := d.q.CreateUser(ctx, queries.CreateUserParams{
+		Username: user.Username,
+		Email:    user.Email,
+		RoleID:   user.RoleID,
+	})
+	if err != nil {
+		return fmt.Errorf("CreateUser: %w", err)
+	}
+
+	return nil
+}
+
 func mapUser(row queries.User) domain.User {
 	return domain.User{
-		ID:           row.ID,
-		Username:     row.Username,
-		Email:        row.Email,
-		PasswordHash: row.PasswordHash,
-		RoleID:       row.RoleID,
-		CreatedAt:    row.CreatedAt,
-		UpdatedAt:    row.UpdatedAt,
-		DeletedAt:    row.DeletedAt,
+		ID:        row.ID,
+		Username:  row.Username,
+		Email:     row.Email,
+		RoleID:    row.RoleID,
+		CreatedAt: row.CreatedAt,
+		UpdatedAt: row.UpdatedAt,
+		DeletedAt: row.DeletedAt,
 	}
 }
