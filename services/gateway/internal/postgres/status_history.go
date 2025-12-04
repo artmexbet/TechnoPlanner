@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
 	"gateway/internal/domain"
 	"gateway/internal/postgres/queries"
@@ -32,7 +34,7 @@ func (d *DB) ListRequestStatusHistory(ctx context.Context, requestID uuid.UUID) 
 	defer cancel()
 
 	rows, err := d.q.ListRequestStatusHistory(ctx, requestID)
-	if err != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, fmt.Errorf("ListRequestStatusHistory: %w", err)
 	}
 

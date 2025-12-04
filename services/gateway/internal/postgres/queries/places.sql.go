@@ -9,7 +9,7 @@ import (
 	"context"
 )
 
-const AddPlace = `-- name: AddPlace :one
+const addPlace = `-- name: AddPlace :one
 INSERT INTO places (name, description, latitude, longitude)
 VALUES ($1, $2, $3, $4)
 RETURNING id, name, description, latitude, longitude, created_at, updated_at
@@ -23,7 +23,7 @@ type AddPlaceParams struct {
 }
 
 func (q *Queries) AddPlace(ctx context.Context, arg AddPlaceParams) (Place, error) {
-	row := q.db.QueryRow(ctx, AddPlace,
+	row := q.db.QueryRow(ctx, addPlace,
 		arg.Name,
 		arg.Description,
 		arg.Latitude,
@@ -42,13 +42,13 @@ func (q *Queries) AddPlace(ctx context.Context, arg AddPlaceParams) (Place, erro
 	return i, err
 }
 
-const GetPlaces = `-- name: GetPlaces :many
+const getPlaces = `-- name: GetPlaces :many
 SELECT id, name, description, latitude, longitude, created_at, updated_at FROM places
 ORDER BY created_at DESC
 `
 
 func (q *Queries) GetPlaces(ctx context.Context) ([]Place, error) {
-	rows, err := q.db.Query(ctx, GetPlaces)
+	rows, err := q.db.Query(ctx, getPlaces)
 	if err != nil {
 		return nil, err
 	}

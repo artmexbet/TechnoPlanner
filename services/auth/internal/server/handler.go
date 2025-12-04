@@ -12,6 +12,7 @@ import (
 type authService interface {
 	Login(ctx context.Context, loginRequest models.LoginRequest) (models.TokenPair, error)
 	Register(ctx context.Context, req models.RegisterRequest) (models.User, error)
+	RegisterPorter(ctx context.Context, req models.RegisterRequest) (models.User, error)
 	ValidateToken(ctx context.Context, token string) (models.TokenValidateResult, error)
 	Refresh(ctx context.Context, req models.TokenRefreshRequest) (models.TokenPair, error)
 	Logout(ctx context.Context, token string) error
@@ -40,6 +41,17 @@ func (h *Handler) Register(ctx context.Context, in *proto.RegisterRequest) (*pro
 	u, err := h.svc.Register(ctx, *models.UserRegisterFromProto(in))
 	if err != nil {
 		return nil, fmt.Errorf("register: %w", err)
+	}
+	resp := &proto.RegisterResponse{
+		UserId: u.ID.String(),
+	}
+	return resp, nil
+}
+
+func (h *Handler) RegisterPorter(ctx context.Context, in *proto.RegisterRequest) (*proto.RegisterResponse, error) {
+	u, err := h.svc.RegisterPorter(ctx, *models.UserRegisterFromProto(in))
+	if err != nil {
+		return nil, fmt.Errorf("register porter: %w", err)
 	}
 	resp := &proto.RegisterResponse{
 		UserId: u.ID.String(),

@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
 	"gateway/internal/domain"
 	"gateway/internal/postgres/queries"
@@ -58,7 +60,7 @@ func (d *DB) ListEquipmentCategories(ctx context.Context) ([]domain.EquipmentCat
 	defer cancel()
 
 	rows, err := d.q.ListEquipmentCategories(ctx)
-	if err != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, fmt.Errorf("ListEquipmentCategories: %w", err)
 	}
 

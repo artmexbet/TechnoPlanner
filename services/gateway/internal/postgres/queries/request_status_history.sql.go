@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const InsertRequestStatusHistory = `-- name: InsertRequestStatusHistory :one
+const insertRequestStatusHistory = `-- name: InsertRequestStatusHistory :one
 INSERT INTO request_status_history (request_id, status, comment, changed_by)
 VALUES ($1, $2, $3, $4)
 RETURNING id, request_id, status, comment, changed_by, changed_at
@@ -25,7 +25,7 @@ type InsertRequestStatusHistoryParams struct {
 }
 
 func (q *Queries) InsertRequestStatusHistory(ctx context.Context, arg InsertRequestStatusHistoryParams) (RequestStatusHistory, error) {
-	row := q.db.QueryRow(ctx, InsertRequestStatusHistory,
+	row := q.db.QueryRow(ctx, insertRequestStatusHistory,
 		arg.RequestID,
 		arg.Status,
 		arg.Comment,
@@ -43,7 +43,7 @@ func (q *Queries) InsertRequestStatusHistory(ctx context.Context, arg InsertRequ
 	return i, err
 }
 
-const ListRequestStatusHistory = `-- name: ListRequestStatusHistory :many
+const listRequestStatusHistory = `-- name: ListRequestStatusHistory :many
 SELECT id, request_id, status, comment, changed_by, changed_at
 FROM request_status_history
 WHERE request_id = $1
@@ -51,7 +51,7 @@ ORDER BY changed_at DESC
 `
 
 func (q *Queries) ListRequestStatusHistory(ctx context.Context, requestID uuid.UUID) ([]RequestStatusHistory, error) {
-	rows, err := q.db.Query(ctx, ListRequestStatusHistory, requestID)
+	rows, err := q.db.Query(ctx, listRequestStatusHistory, requestID)
 	if err != nil {
 		return nil, err
 	}

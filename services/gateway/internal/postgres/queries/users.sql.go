@@ -11,23 +11,23 @@ import (
 	"github.com/google/uuid"
 )
 
-const DeleteUser = `-- name: DeleteUser :exec
+const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, DeleteUser, id)
+	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
 
-const GetUserByID = `-- name: GetUserByID :one
+const getUserByID = `-- name: GetUserByID :one
 SELECT id, username, email, password_hash, role_id, created_at, updated_at, deleted_at FROM users
 WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
-	row := q.db.QueryRow(ctx, GetUserByID, id)
+	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -42,14 +42,14 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 	return i, err
 }
 
-const ListPorters = `-- name: ListPorters :many
+const listPorters = `-- name: ListPorters :many
 SELECT id, username, email, password_hash, role_id, created_at, updated_at, deleted_at FROM users
 WHERE role_id = $1 AND deleted_at IS NULL
 ORDER BY created_at DESC
 `
 
 func (q *Queries) ListPorters(ctx context.Context, roleID int32) ([]User, error) {
-	rows, err := q.db.Query(ctx, ListPorters, roleID)
+	rows, err := q.db.Query(ctx, listPorters, roleID)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (q *Queries) ListPorters(ctx context.Context, roleID int32) ([]User, error)
 	return items, nil
 }
 
-const ListUsers = `-- name: ListUsers :many
+const listUsers = `-- name: ListUsers :many
 SELECT id, username, email, password_hash, role_id, created_at, updated_at, deleted_at FROM users
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
@@ -89,7 +89,7 @@ type ListUsersParams struct {
 }
 
 func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, ListUsers, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 	return items, nil
 }
 
-const UpdateUser = `-- name: UpdateUser :one
+const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET username = $2, email = $3, password_hash = $4, role_id = $5, updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
@@ -133,7 +133,7 @@ type UpdateUserParams struct {
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, UpdateUser,
+	row := q.db.QueryRow(ctx, updateUser,
 		arg.ID,
 		arg.Username,
 		arg.Email,

@@ -40,6 +40,7 @@ type iAuthSvcConnector interface {
 type iPorterService interface {
 	List(ctx context.Context) ([]domain.User, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
+	Create(ctx context.Context, username, email, password string) (string, error)
 }
 
 type iEquipmentService interface {
@@ -159,6 +160,7 @@ func (r *Router) InitPorterRoutes() *Router {
 	group := r.r.Group("/api/v1/porters")
 	group.Use(middlwares.CheckJWTMiddleware(r.authSvc))
 	group.Get("/", r.listPorters())
+	group.Post("/", r.createPorter())
 	group.Get(":id", r.getPorter())
 	return r
 }
@@ -193,6 +195,24 @@ func (r *Router) getPorter() fiber.Handler {
 	}
 }
 
+func (r *Router) createPorter() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var req models.PorterCreateRequest
+		if err := c.BodyParser(&req); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
+		}
+		if err := r.validator.Struct(req); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
+		}
+		ctx := r.userContext(c)
+		userID, err := r.porterSvc.Create(ctx, req.Username, req.Email, req.Password)
+		if err != nil {
+			return handleServiceError(c, err)
+		}
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"id": userID})
+	}
+}
+
 func (r *Router) InitEquipmentRoutes() *Router {
 	group := r.r.Group("/api/v1/equipment")
 	group.Use(middlwares.CheckJWTMiddleware(r.authSvc))
@@ -221,7 +241,7 @@ func (r *Router) listEquipment() fiber.Handler {
 		for _, eq := range items {
 			resp = append(resp, toEquipmentResponse(eq))
 		}
-		return c.Status(fiber.StatusOK).JSON(resp)
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"items": resp})
 	}
 }
 

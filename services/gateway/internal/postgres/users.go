@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
 	"gateway/internal/domain"
 	"gateway/internal/postgres/queries"
@@ -15,7 +17,7 @@ func (d *DB) ListPorters(ctx context.Context, roleID int32) ([]domain.User, erro
 	defer cancel()
 
 	rows, err := d.q.ListPorters(ctx, roleID)
-	if err != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, fmt.Errorf("ListPorters: %w", err)
 	}
 

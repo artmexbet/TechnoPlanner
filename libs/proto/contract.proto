@@ -7,6 +7,7 @@ option go_package = "/;proto";
 service Auth {
   rpc Login(LoginRequest) returns (TokenPair);
   rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc RegisterPorter(RegisterRequest) returns (RegisterResponse);
   rpc Refresh(RefreshRequest) returns (TokenPair);
   rpc Validate(TokenRequest) returns (ValidateResponse);
   rpc Logout(TokenRequest) returns (Empty);
