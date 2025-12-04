@@ -1,11 +1,13 @@
 package natspublisher
 
 import (
-	"auth/internal/models"
-	"config"
 	"fmt"
 
 	"github.com/nats-io/nats.go"
+
+	"auth/internal/models"
+
+	"config"
 )
 
 type Publisher struct {
@@ -30,7 +32,7 @@ func (p *Publisher) Close() {
 func (p *Publisher) PublishUserCreated(user models.User) error {
 	data, err := user.MarshalJSON()
 	if err != nil {
-		return fmt.Errorf("error marshalling user created event: %w", err)
+		return fmt.Errorf("error marshaling user created event: %w", err)
 	}
 	return p.conn.Publish(config.SubjectUserCreated, data)
 }

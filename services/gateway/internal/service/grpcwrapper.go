@@ -4,11 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"proto"
-
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"proto"
 
 	"gateway/internal/models"
 )

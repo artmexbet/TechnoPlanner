@@ -3,10 +3,10 @@ package models
 import (
 	"time"
 
+	"proto"
+
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-
-	"proto"
 )
 
 //go:generate easyjson user.go

@@ -1,14 +1,17 @@
 package subscriber
 
 import (
-	"broker"
-	"config"
 	"context"
 	"fmt"
-	"gateway/internal/domain"
 	"log/slog"
 
 	"github.com/nats-io/nats.go"
+
+	"gateway/internal/domain"
+
+	"broker"
+
+	"config"
 )
 
 type iRepository interface {
@@ -31,6 +34,11 @@ func New(cfg config.NATSConfig, repo iRepository) (*Subscriber, error) {
 }
 
 func (s *Subscriber) Close() {
+	for _, sub := range s.subs {
+		if err := sub.Unsubscribe(); err != nil {
+			slog.Error("error unsubscribing from subject", "subject", sub.Subject, "error", err)
+		}
+	}
 	s.nc.Close()
 }
 

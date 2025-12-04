@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"config"
 	"context"
 	"fmt"
 
@@ -9,6 +8,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"auth/internal/postgres/queries"
+
+	"config"
 )
 
 //go:generate sqlc generate -f ./queries/sqlc.yaml

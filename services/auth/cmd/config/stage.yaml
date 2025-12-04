@@ -11,7 +11,7 @@ postgres:
   host: "db"
   port: 5432
   user: "postgres"
-  pass: "postgres"
+  password: "postgres"
   db_name: "auth"
   ssl_mode: "disable"
 trace:

@@ -1,26 +1,27 @@
 package main
 
 import (
-	natsPublisher "auth/internal/nats-publisher"
 	"context"
 	"fmt"
 	"log/slog"
 	"net"
 	"os"
 
+	"observability/opentelemetry"
+	"proto"
+
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
 
-	"config"
-	"observability/opentelemetry"
-	"proto"
-
+	natsPublisher "auth/internal/nats-publisher"
 	"auth/internal/postgres"
 	"auth/internal/repository"
 	"auth/internal/server"
 	"auth/internal/service"
 	"auth/internal/storeredis"
+
+	"config"
 )
 
 const (
@@ -29,10 +30,10 @@ const (
 )
 
 type Config struct {
-	Repository repository.Config `yaml:"repository" env:"REPOSITORY"`
-	Redis      storeredis.Config `yaml:"redis" env:"REDIS"`
-	Postgres   config.Postgres   `yaml:"postgres" env:"POSTGRES"`
-	Publisher  config.NATSConfig `yaml:"publisher" env:"PUBLISHER"`
+	Repository repository.Config `yaml:"repository" env-prefix:"REPOSITORY_"`
+	Redis      storeredis.Config `yaml:"redis" env-prefix:"REDIS_"`
+	Postgres   config.Postgres   `yaml:"postgres" env-prefix:"POSTGRES_"`
+	Publisher  config.NATSConfig `yaml:"publisher" env-prefix:"PUBLISHER_"`
 
 	Traces config.Trace `yaml:"trace" env-prefix:"TRACE_"`
 
@@ -47,6 +48,7 @@ func main() {
 		cfgPath = defaultConfigPath
 	}
 	cfg := config.MustParseConfig[Config](cfgPath)
+	slog.Info("loaded config", "config", cfg)
 
 	ctx := context.Background()
 
