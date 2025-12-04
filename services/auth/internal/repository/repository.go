@@ -31,18 +31,24 @@ type iPostgres interface {
 	CreateUser(ctx context.Context, username, email, passwordHash string, roleID int32) (models.User, error)
 }
 
+type iPublisher interface {
+	PublishUserCreated(user models.User) error
+}
+
 type Repository struct {
-	r iRedis
-	p iPostgres
+	r         iRedis
+	p         iPostgres
+	publisher iPublisher
 
 	refreshTokenTTL time.Duration
 	accessTokenTTL  time.Duration
 }
 
-func New(cfg Config, r iRedis, p iPostgres) (*Repository, error) {
+func New(cfg Config, r iRedis, p iPostgres, publisher iPublisher) (*Repository, error) {
 	return &Repository{
 		r:               r,
 		p:               p,
+		publisher:       publisher,
 		refreshTokenTTL: cfg.RefreshTokenTTL,
 		accessTokenTTL:  cfg.AccessTokenTTL,
 	}, nil
@@ -74,7 +80,15 @@ func (r *Repository) GetUserByUsername(ctx context.Context, username string) (mo
 }
 
 func (r *Repository) CreateUser(ctx context.Context, username, email, passwordHash string, roleID int32) (models.User, error) {
-	return r.p.CreateUser(ctx, username, email, passwordHash, roleID)
+	u, err := r.p.CreateUser(ctx, username, email, passwordHash, roleID)
+	if err != nil {
+		return models.User{}, fmt.Errorf("create user: %w", err)
+	}
+
+	if err = r.publisher.PublishUserCreated(u); err != nil {
+		return models.User{}, fmt.Errorf("publish user created: %w", err)
+	}
+	return u, nil
 }
 
 func (r *Repository) DeleteSession(ctx context.Context, sessionID, userID string) error {
