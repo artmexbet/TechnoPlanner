@@ -6,10 +6,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"auth/internal/models"
-	"auth/internal/postgres/queries"
+	"github.com/artmexbet/TechnoPlanner/libs/utills/pointer"
 
-	"utills/pointer"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/postgres/queries"
 )
 
 func (p *Postgres) FindUserByID(ctx context.Context, id uuid.UUID) (models.User, error) {

@@ -10,7 +10,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 
-	"auth/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
 )
 
 const (

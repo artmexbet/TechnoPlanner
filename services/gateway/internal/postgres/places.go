@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"gateway/internal/domain"
-	"gateway/internal/postgres/queries"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/postgres/queries"
 )
 
 func (d *DB) AddPlace(ctx context.Context, place domain.Place) (domain.Place, error) {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"requests/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
 const (

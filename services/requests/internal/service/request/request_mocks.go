@@ -6,8 +6,8 @@ package request
 
 import (
 	"context"
-	"requests/internal/domain"
 
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )

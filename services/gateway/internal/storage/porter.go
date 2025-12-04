@@ -5,12 +5,13 @@ import (
 
 	"github.com/google/uuid"
 
-	"gateway/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
 type porterRepository interface {
 	ListPorters(ctx context.Context, roleID int32) ([]domain.User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
+	CreateUser(ctx context.Context, user domain.User) error
 }
 
 type PorterStorage struct {
@@ -27,4 +28,8 @@ func (s *PorterStorage) List(ctx context.Context, roleID int32) ([]domain.User, 
 
 func (s *PorterStorage) Get(ctx context.Context, id uuid.UUID) (domain.User, error) {
 	return s.repo.GetUserByID(ctx, id)
+}
+
+func (s *PorterStorage) Create(ctx context.Context, user domain.User) error {
+	return s.repo.CreateUser(ctx, user)
 }

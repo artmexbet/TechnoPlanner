@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"requests/internal/domain"
-	"requests/internal/postgres/queries"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/postgres/queries"
 )
 
 func (p *Postgres) GetEquipmentByRequestID(ctx context.Context, requestID uuid.UUID) ([]domain.Equipment, error) {

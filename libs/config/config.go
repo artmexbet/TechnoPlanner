@@ -16,12 +16,12 @@ func MustParseConfig[T any](configPath string) T {
 }
 
 type Postgres struct {
-	Host     string `yaml:"host" env:"POSTGRES_HOST" env-default:"localhost"`
-	Port     int    `yaml:"port" env:"POSTGRES_PORT" env-default:"5432"`
-	User     string `yaml:"user" env:"POSTGRES_USER" env-default:"postgres"`
-	Password string `yaml:"password" env:"POSTGRES_PASSWORD" env-default:"password"`
-	DBName   string `yaml:"dbname" env:"POSTGRES_DB" env-default:"requests"`
-	SSLMode  string `yaml:"sslmode" env:"POSTGRES_SSLMODE" env-default:"disable"`
+	Host     string `yaml:"host" env:"HOST" env-default:"localhost"`
+	Port     int    `yaml:"port" env:"PORT" env-default:"5432"`
+	User     string `yaml:"user" env:"USER" env-default:"postgres"`
+	Password string `yaml:"password" env:"PASSWORD" env-default:"postgres"`
+	DBName   string `yaml:"db_name" env:"DB"`
+	SSLMode  string `yaml:"sslmode" env:"SSLMODE" env-default:"disable"`
 }
 
 func (pg Postgres) DSN() string {
@@ -32,4 +32,13 @@ func (pg Postgres) DSN() string {
 type Trace struct {
 	Endpoint string `yaml:"endpoint" env:"TRACE_ENDPOINT"`
 	Insecure bool   `yaml:"insecure" env:"TRACE_INSECURE" env-default:"true"`
+}
+
+type NATSConfig struct {
+	Host string `yaml:"host" env:"HOST" env-default:"localhost"`
+	Port int    `yaml:"port" env:"PORT" env-default:"4222"`
+}
+
+func (cfg NATSConfig) URL() string {
+	return fmt.Sprintf("nats://%s:%d", cfg.Host, cfg.Port)
 }

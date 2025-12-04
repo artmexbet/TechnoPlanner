@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mailru/easyjson"
 
-	"gateway/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
 )
 
 func (r *Router) InitUserRoutes() *Router {

@@ -3,7 +3,7 @@ package wrapnats
 import (
 	"github.com/google/uuid"
 
-	"requests/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
 //go:generate easyjson -all models.go

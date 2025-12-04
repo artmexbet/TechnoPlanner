@@ -18,10 +18,10 @@ import (
 	slogfiber "github.com/samber/slog-fiber"
 	"go.opentelemetry.io/otel/trace"
 
-	"gateway/internal/domain"
-	"gateway/internal/models"
-	"gateway/internal/router/middlwares"
-	"gateway/internal/service"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router/middlwares"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/service"
 )
 
 type iUserService interface {

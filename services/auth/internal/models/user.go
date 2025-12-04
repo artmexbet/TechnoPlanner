@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 
-	"proto"
+	"github.com/artmexbet/TechnoPlanner/libs/proto"
 )
 
 //go:generate easyjson user.go

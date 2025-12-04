@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
-	"requests/internal/domain"
-	"requests/internal/postgres/queries"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/postgres/queries"
 )
 
 func (p *Postgres) GetUserByTelegramID(ctx context.Context, telegramID int64) (domain.User, error) {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"gateway/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
 func (d *DB) ListEquipmentForRequest(ctx context.Context, requestID uuid.UUID) ([]domain.RequestEquipment, error) {

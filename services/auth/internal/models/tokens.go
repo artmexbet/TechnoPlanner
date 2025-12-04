@@ -2,7 +2,8 @@ package models
 
 import (
 	"github.com/golang-jwt/jwt/v5"
-	"proto"
+
+	"github.com/artmexbet/TechnoPlanner/libs/proto"
 )
 
 type TokenState int32
