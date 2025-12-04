@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"proto"
+
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"proto"
 
 	"gateway/internal/models"
 )
@@ -65,6 +66,18 @@ func (g *GRPCWrapper) Register(ctx context.Context, username, password, email st
 	})
 	if err != nil {
 		return "", fmt.Errorf("grpc register error: %w", err)
+	}
+	return u.UserId, nil
+}
+
+func (g *GRPCWrapper) RegisterPorter(ctx context.Context, username, password, email string) (string, error) {
+	u, err := g.client.RegisterPorter(ctx, &proto.RegisterRequest{
+		Username: username,
+		Password: password,
+		Email:    email,
+	})
+	if err != nil {
+		return "", fmt.Errorf("grpc register porter error: %w", err)
 	}
 	return u.UserId, nil
 }

@@ -550,10 +550,11 @@ const file_contract_proto_rawDesc = "" +
 	"TokenState\x12\t\n" +
 	"\x05VALID\x10\x00\x12\v\n" +
 	"\aEXPIRED\x10\x01\x12\v\n" +
-	"\aINVALID\x10\x022\xb2\x02\n" +
+	"\aINVALID\x10\x022\xf3\x02\n" +
 	"\x04Auth\x12,\n" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x0f.auth.TokenPair\x129\n" +
-	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x120\n" +
+	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x12?\n" +
+	"\x0eRegisterPorter\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x120\n" +
 	"\aRefresh\x12\x14.auth.RefreshRequest\x1a\x0f.auth.TokenPair\x126\n" +
 	"\bValidate\x12\x12.auth.TokenRequest\x1a\x16.auth.ValidateResponse\x12)\n" +
 	"\x06Logout\x12\x12.auth.TokenRequest\x1a\v.auth.Empty\x12,\n" +
@@ -589,18 +590,20 @@ var file_contract_proto_depIdxs = []int32{
 	5, // 1: auth.RefreshRequest.pair:type_name -> auth.TokenPair
 	4, // 2: auth.Auth.Login:input_type -> auth.LoginRequest
 	7, // 3: auth.Auth.Register:input_type -> auth.RegisterRequest
-	6, // 4: auth.Auth.Refresh:input_type -> auth.RefreshRequest
-	2, // 5: auth.Auth.Validate:input_type -> auth.TokenRequest
-	2, // 6: auth.Auth.Logout:input_type -> auth.TokenRequest
-	2, // 7: auth.Auth.LogoutAll:input_type -> auth.TokenRequest
-	5, // 8: auth.Auth.Login:output_type -> auth.TokenPair
-	8, // 9: auth.Auth.Register:output_type -> auth.RegisterResponse
-	5, // 10: auth.Auth.Refresh:output_type -> auth.TokenPair
-	3, // 11: auth.Auth.Validate:output_type -> auth.ValidateResponse
-	1, // 12: auth.Auth.Logout:output_type -> auth.Empty
-	1, // 13: auth.Auth.LogoutAll:output_type -> auth.Empty
-	8, // [8:14] is the sub-list for method output_type
-	2, // [2:8] is the sub-list for method input_type
+	7, // 4: auth.Auth.RegisterPorter:input_type -> auth.RegisterRequest
+	6, // 5: auth.Auth.Refresh:input_type -> auth.RefreshRequest
+	2, // 6: auth.Auth.Validate:input_type -> auth.TokenRequest
+	2, // 7: auth.Auth.Logout:input_type -> auth.TokenRequest
+	2, // 8: auth.Auth.LogoutAll:input_type -> auth.TokenRequest
+	5, // 9: auth.Auth.Login:output_type -> auth.TokenPair
+	8, // 10: auth.Auth.Register:output_type -> auth.RegisterResponse
+	8, // 11: auth.Auth.RegisterPorter:output_type -> auth.RegisterResponse
+	5, // 12: auth.Auth.Refresh:output_type -> auth.TokenPair
+	3, // 13: auth.Auth.Validate:output_type -> auth.ValidateResponse
+	1, // 14: auth.Auth.Logout:output_type -> auth.Empty
+	1, // 15: auth.Auth.LogoutAll:output_type -> auth.Empty
+	9, // [9:16] is the sub-list for method output_type
+	2, // [2:9] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
 	2, // [2:2] is the sub-list for extension extendee
 	0, // [0:2] is the sub-list for field type_name

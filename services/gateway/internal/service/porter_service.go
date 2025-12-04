@@ -13,16 +13,24 @@ type PorterStorage interface {
 	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
 }
 
+type AuthServiceConnector interface {
+	RegisterPorter(ctx context.Context, username, password, email string) (string, error)
+}
+
 const porterRoleID int32 = 2
 
 var PorterRoleID int32 = porterRoleID
 
 type PorterService struct {
 	storage PorterStorage
+	authSvc AuthServiceConnector
 }
 
-func NewPorterService(storage PorterStorage) *PorterService {
-	return &PorterService{storage: storage}
+func NewPorterService(storage PorterStorage, authSvc AuthServiceConnector) *PorterService {
+	return &PorterService{
+		storage: storage,
+		authSvc: authSvc,
+	}
 }
 
 func (s *PorterService) List(ctx context.Context) ([]domain.User, error) {
@@ -44,4 +52,16 @@ func (s *PorterService) Get(ctx context.Context, id uuid.UUID) (domain.User, err
 		return domain.User{}, ErrNotFound
 	}
 	return user, nil
+}
+
+func (s *PorterService) Create(ctx context.Context, username, email, password string) (string, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return "", err
+	}
+	// Вызываем auth service для регистрации нового porter'а
+	userID, err := s.authSvc.RegisterPorter(ctx, username, password, email)
+	if err != nil {
+		return "", err
+	}
+	return userID, nil
 }

@@ -11,14 +11,14 @@ import (
 	"github.com/google/uuid"
 )
 
-const ListEquipmentForRequest = `-- name: ListEquipmentForRequest :many
+const listEquipmentForRequest = `-- name: ListEquipmentForRequest :many
 SELECT request_id, equipment_id, quantity, created_at, updated_at
 FROM equipment_to_requests
 WHERE request_id = $1
 `
 
 func (q *Queries) ListEquipmentForRequest(ctx context.Context, requestID uuid.UUID) ([]EquipmentToRequest, error) {
-	rows, err := q.db.Query(ctx, ListEquipmentForRequest, requestID)
+	rows, err := q.db.Query(ctx, listEquipmentForRequest, requestID)
 	if err != nil {
 		return nil, err
 	}

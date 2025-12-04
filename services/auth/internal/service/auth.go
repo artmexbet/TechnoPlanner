@@ -17,7 +17,7 @@ type iTokenizer interface {
 type iRepository interface {
 	GetUserByUsername(ctx context.Context, username string) (models.User, error)
 	StoreToken(ctx context.Context, session *models.Session, refreshToken string) error
-	CreateUser(ctx context.Context, username, email, passwordHash string) (models.User, error)
+	CreateUser(ctx context.Context, username, email, passwordHash string, roleID int32) (models.User, error)
 	GetSessionByRefreshToken(ctx context.Context, refreshToken string) (*models.Session, error)
 	DeleteSession(ctx context.Context, sessionID, userID string) error
 	DeleteAllUserSessions(ctx context.Context, userID string) error
@@ -71,7 +71,21 @@ func (a *Auth) Register(ctx context.Context, req models.RegisterRequest) (models
 	if err != nil {
 		return models.User{}, fmt.Errorf("failed to hash password: %w", err)
 	}
-	u, err := a.repository.CreateUser(ctx, req.Username, req.Email, string(h))
+	const adminRoleID int32 = 1
+	u, err := a.repository.CreateUser(ctx, req.Username, req.Email, string(h), adminRoleID)
+	if err != nil {
+		return models.User{}, fmt.Errorf("failed to create user: %w", err)
+	}
+	return u, nil
+}
+
+func (a *Auth) RegisterPorter(ctx context.Context, req models.RegisterRequest) (models.User, error) {
+	h, err := req.HashPassword(a.tokenCost)
+	if err != nil {
+		return models.User{}, fmt.Errorf("failed to hash password: %w", err)
+	}
+	const porterRoleID int32 = 2
+	u, err := a.repository.CreateUser(ctx, req.Username, req.Email, string(h), porterRoleID)
 	if err != nil {
 		return models.User{}, fmt.Errorf("failed to create user: %w", err)
 	}

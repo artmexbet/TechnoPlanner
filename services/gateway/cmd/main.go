@@ -5,8 +5,9 @@ import (
 	"log/slog"
 	"os"
 
-	"go.opentelemetry.io/otel"
 	"observability/opentelemetry"
+
+	"go.opentelemetry.io/otel"
 
 	"gateway/internal/postgres"
 	"gateway/internal/router"
@@ -68,17 +69,18 @@ func main() {
 
 	store := storage.NewStorage(_postgres, nil) // TODO: inject publisher
 
-	userSvc := service.NewUserService(store)
-	porterSvc := service.NewPorterService(store.Porters)
-	equipmentSvc := service.NewEquipmentService(store.Equipment)
-	categorySvc := service.NewCategoryService(store.Categories)
-	requestSvc := service.NewRequestService(store.Requests)
-	historySvc := service.NewRequestHistoryService(store.StatusHistory)
 	authSvc, err := service.NewGRPCWrapper(cfg.GRPC)
 	if err != nil {
 		panic(err)
 	}
 	defer authSvc.Close() //nolint:errcheck
+
+	userSvc := service.NewUserService(store)
+	porterSvc := service.NewPorterService(store.Porters, authSvc)
+	equipmentSvc := service.NewEquipmentService(store.Equipment)
+	categorySvc := service.NewCategoryService(store.Categories)
+	requestSvc := service.NewRequestService(store.Requests)
+	historySvc := service.NewRequestHistoryService(store.StatusHistory)
 
 	r := router.NewRouter(cfg.Router, userSvc, authSvc, porterSvc, equipmentSvc, categorySvc, requestSvc, historySvc).
 		InitMiddlewares(tracer).

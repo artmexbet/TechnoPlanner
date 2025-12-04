@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const AssignResponsible = `-- name: AssignResponsible :one
+const assignResponsible = `-- name: AssignResponsible :one
 UPDATE requests
 SET responsible_user_id = $2,
     updated_at = CURRENT_TIMESTAMP,
@@ -27,7 +27,7 @@ type AssignResponsibleParams struct {
 }
 
 func (q *Queries) AssignResponsible(ctx context.Context, arg AssignResponsibleParams) (Request, error) {
-	row := q.db.QueryRow(ctx, AssignResponsible, arg.ID, arg.ResponsibleUserID, arg.UpdatedBy)
+	row := q.db.QueryRow(ctx, assignResponsible, arg.ID, arg.ResponsibleUserID, arg.UpdatedBy)
 	var i Request
 	err := row.Scan(
 		&i.ID,
@@ -47,14 +47,14 @@ func (q *Queries) AssignResponsible(ctx context.Context, arg AssignResponsiblePa
 	return i, err
 }
 
-const GetRequestByID = `-- name: GetRequestByID :one
+const getRequestByID = `-- name: GetRequestByID :one
 SELECT id, telegram_user_info, request_text, status, schedule_time, end_time, address, responsible_user_id, created_at, updated_at, deleted_at, created_by, updated_by
 FROM requests
 WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetRequestByID(ctx context.Context, id uuid.UUID) (Request, error) {
-	row := q.db.QueryRow(ctx, GetRequestByID, id)
+	row := q.db.QueryRow(ctx, getRequestByID, id)
 	var i Request
 	err := row.Scan(
 		&i.ID,
@@ -74,7 +74,7 @@ func (q *Queries) GetRequestByID(ctx context.Context, id uuid.UUID) (Request, er
 	return i, err
 }
 
-const ListRequests = `-- name: ListRequests :many
+const listRequests = `-- name: ListRequests :many
 SELECT id, telegram_user_info, request_text, status, schedule_time, end_time, address, responsible_user_id, created_at, updated_at, deleted_at, created_by, updated_by
 FROM requests
 WHERE deleted_at IS NULL
@@ -83,7 +83,7 @@ ORDER BY created_at DESC
 `
 
 func (q *Queries) ListRequests(ctx context.Context, responsibleUserID *uuid.UUID) ([]Request, error) {
-	rows, err := q.db.Query(ctx, ListRequests, responsibleUserID)
+	rows, err := q.db.Query(ctx, listRequests, responsibleUserID)
 	if err != nil {
 		return nil, err
 	}
