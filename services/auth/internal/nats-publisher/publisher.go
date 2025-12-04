@@ -1,4 +1,4 @@
-package natsPublisher
+package natspublisher
 
 import (
 	"auth/internal/models"
