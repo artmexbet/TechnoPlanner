@@ -1,6 +1,7 @@
 package main
 
 import (
+	natsPublisher "auth/internal/nats-publisher"
 	"context"
 	"fmt"
 	"log/slog"
@@ -10,16 +11,17 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
+
+	"config"
 	"observability/opentelemetry"
 	"proto"
 
+	_config "auth/internal/config"
 	"auth/internal/postgres"
 	"auth/internal/repository"
 	"auth/internal/server"
 	"auth/internal/service"
 	"auth/internal/storeredis"
-
-	"config"
 )
 
 const (
@@ -28,9 +30,10 @@ const (
 )
 
 type Config struct {
-	Repository repository.Config `yaml:"repository" env:"REPOSITORY"`
-	Redis      storeredis.Config `yaml:"redis" env:"REDIS"`
-	Postgres   postgres.Config   `yaml:"postgres" env:"POSTGRES"`
+	Repository repository.Config  `yaml:"repository" env:"REPOSITORY"`
+	Redis      storeredis.Config  `yaml:"redis" env:"REDIS"`
+	Postgres   postgres.Config    `yaml:"postgres" env:"POSTGRES"`
+	Publisher  _config.NATSConfig `yaml:"publisher" env:"PUBLISHER"`
 
 	Traces config.Trace `yaml:"trace" env-prefix:"TRACE_"`
 
@@ -67,12 +70,21 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer pg.Close()
+
 	redisClient, err := storeredis.New(cfg.Redis, tracer)
 	if err != nil {
 		panic(err)
 	}
+	defer redisClient.Close() //nolint:errcheck
 
-	repo, err := repository.New(cfg.Repository, redisClient, pg)
+	publisher, err := natsPublisher.NewPublisher(cfg.Publisher.Host, cfg.Publisher.Port)
+	if err != nil {
+		panic(err)
+	}
+	defer publisher.Close()
+
+	repo, err := repository.New(cfg.Repository, redisClient, pg, publisher)
 	if err != nil {
 		panic(err)
 	}
