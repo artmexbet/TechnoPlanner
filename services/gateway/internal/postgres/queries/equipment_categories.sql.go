@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const CreateEquipmentCategory = `-- name: CreateEquipmentCategory :one
+const createEquipmentCategory = `-- name: CreateEquipmentCategory :one
 INSERT INTO equipment_categories (name, description, created_by, updated_by)
 VALUES ($1, $2, $3, $3)
 RETURNING id, name, description, created_at, updated_at, deleted_at, created_by, updated_by
@@ -24,7 +24,7 @@ type CreateEquipmentCategoryParams struct {
 }
 
 func (q *Queries) CreateEquipmentCategory(ctx context.Context, arg CreateEquipmentCategoryParams) (EquipmentCategory, error) {
-	row := q.db.QueryRow(ctx, CreateEquipmentCategory, arg.Name, arg.Description, arg.CreatedBy)
+	row := q.db.QueryRow(ctx, createEquipmentCategory, arg.Name, arg.Description, arg.CreatedBy)
 	var i EquipmentCategory
 	err := row.Scan(
 		&i.ID,
@@ -39,7 +39,7 @@ func (q *Queries) CreateEquipmentCategory(ctx context.Context, arg CreateEquipme
 	return i, err
 }
 
-const ListEquipmentCategories = `-- name: ListEquipmentCategories :many
+const listEquipmentCategories = `-- name: ListEquipmentCategories :many
 SELECT id, name, description, created_at, updated_at, deleted_at, created_by, updated_by
 FROM equipment_categories
 WHERE deleted_at IS NULL
@@ -47,7 +47,7 @@ ORDER BY created_at DESC
 `
 
 func (q *Queries) ListEquipmentCategories(ctx context.Context) ([]EquipmentCategory, error) {
-	rows, err := q.db.Query(ctx, ListEquipmentCategories)
+	rows, err := q.db.Query(ctx, listEquipmentCategories)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (q *Queries) ListEquipmentCategories(ctx context.Context) ([]EquipmentCateg
 	return items, nil
 }
 
-const SoftDeleteEquipmentCategory = `-- name: SoftDeleteEquipmentCategory :exec
+const softDeleteEquipmentCategory = `-- name: SoftDeleteEquipmentCategory :exec
 UPDATE equipment_categories
 SET deleted_at = CURRENT_TIMESTAMP,
     updated_by = $2
@@ -88,11 +88,11 @@ type SoftDeleteEquipmentCategoryParams struct {
 }
 
 func (q *Queries) SoftDeleteEquipmentCategory(ctx context.Context, arg SoftDeleteEquipmentCategoryParams) error {
-	_, err := q.db.Exec(ctx, SoftDeleteEquipmentCategory, arg.ID, arg.UpdatedBy)
+	_, err := q.db.Exec(ctx, softDeleteEquipmentCategory, arg.ID, arg.UpdatedBy)
 	return err
 }
 
-const UpdateEquipmentCategory = `-- name: UpdateEquipmentCategory :one
+const updateEquipmentCategory = `-- name: UpdateEquipmentCategory :one
 UPDATE equipment_categories
 SET name = $2,
     description = $3,
@@ -110,7 +110,7 @@ type UpdateEquipmentCategoryParams struct {
 }
 
 func (q *Queries) UpdateEquipmentCategory(ctx context.Context, arg UpdateEquipmentCategoryParams) (EquipmentCategory, error) {
-	row := q.db.QueryRow(ctx, UpdateEquipmentCategory,
+	row := q.db.QueryRow(ctx, updateEquipmentCategory,
 		arg.ID,
 		arg.Name,
 		arg.Description,

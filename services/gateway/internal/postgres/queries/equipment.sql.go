@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const CreateEquipment = `-- name: CreateEquipment :one
+const createEquipment = `-- name: CreateEquipment :one
 INSERT INTO equipment (name, description, quantity, created_by, updated_by)
 VALUES ($1, $2, $3, $4, $4)
 RETURNING id, name, description, quantity, created_at, updated_at, deleted_at, created_by, updated_by
@@ -25,7 +25,7 @@ type CreateEquipmentParams struct {
 }
 
 func (q *Queries) CreateEquipment(ctx context.Context, arg CreateEquipmentParams) (Equipment, error) {
-	row := q.db.QueryRow(ctx, CreateEquipment,
+	row := q.db.QueryRow(ctx, createEquipment,
 		arg.Name,
 		arg.Description,
 		arg.Quantity,
@@ -46,14 +46,14 @@ func (q *Queries) CreateEquipment(ctx context.Context, arg CreateEquipmentParams
 	return i, err
 }
 
-const GetEquipmentByID = `-- name: GetEquipmentByID :one
+const getEquipmentByID = `-- name: GetEquipmentByID :one
 SELECT id, name, description, quantity, created_at, updated_at, deleted_at, created_by, updated_by
 FROM equipment
 WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetEquipmentByID(ctx context.Context, id int32) (Equipment, error) {
-	row := q.db.QueryRow(ctx, GetEquipmentByID, id)
+	row := q.db.QueryRow(ctx, getEquipmentByID, id)
 	var i Equipment
 	err := row.Scan(
 		&i.ID,
@@ -69,7 +69,7 @@ func (q *Queries) GetEquipmentByID(ctx context.Context, id int32) (Equipment, er
 	return i, err
 }
 
-const ListEquipment = `-- name: ListEquipment :many
+const listEquipment = `-- name: ListEquipment :many
 SELECT id, name, description, quantity, created_at, updated_at, deleted_at, created_by, updated_by
 FROM equipment
 WHERE deleted_at IS NULL
@@ -77,7 +77,7 @@ ORDER BY created_at DESC
 `
 
 func (q *Queries) ListEquipment(ctx context.Context) ([]Equipment, error) {
-	rows, err := q.db.Query(ctx, ListEquipment)
+	rows, err := q.db.Query(ctx, listEquipment)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (q *Queries) ListEquipment(ctx context.Context) ([]Equipment, error) {
 	return items, nil
 }
 
-const SoftDeleteEquipment = `-- name: SoftDeleteEquipment :exec
+const softDeleteEquipment = `-- name: SoftDeleteEquipment :exec
 UPDATE equipment
 SET deleted_at = CURRENT_TIMESTAMP,
     updated_by = $2
@@ -119,11 +119,11 @@ type SoftDeleteEquipmentParams struct {
 }
 
 func (q *Queries) SoftDeleteEquipment(ctx context.Context, arg SoftDeleteEquipmentParams) error {
-	_, err := q.db.Exec(ctx, SoftDeleteEquipment, arg.ID, arg.UpdatedBy)
+	_, err := q.db.Exec(ctx, softDeleteEquipment, arg.ID, arg.UpdatedBy)
 	return err
 }
 
-const UpdateEquipment = `-- name: UpdateEquipment :one
+const updateEquipment = `-- name: UpdateEquipment :one
 UPDATE equipment
 SET name = $2,
     description = $3,
@@ -143,7 +143,7 @@ type UpdateEquipmentParams struct {
 }
 
 func (q *Queries) UpdateEquipment(ctx context.Context, arg UpdateEquipmentParams) (Equipment, error) {
-	row := q.db.QueryRow(ctx, UpdateEquipment,
+	row := q.db.QueryRow(ctx, updateEquipment,
 		arg.ID,
 		arg.Name,
 		arg.Description,

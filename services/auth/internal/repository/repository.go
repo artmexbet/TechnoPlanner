@@ -73,9 +73,8 @@ func (r *Repository) GetUserByUsername(ctx context.Context, username string) (mo
 	return r.p.FindUserByUsername(ctx, username)
 }
 
-func (r *Repository) CreateUser(ctx context.Context, username, email, passwordHash string) (models.User, error) {
-	const defaultRoleID int32 = 1
-	return r.p.CreateUser(ctx, username, email, passwordHash, defaultRoleID)
+func (r *Repository) CreateUser(ctx context.Context, username, email, passwordHash string, roleID int32) (models.User, error) {
+	return r.p.CreateUser(ctx, username, email, passwordHash, roleID)
 }
 
 func (r *Repository) DeleteSession(ctx context.Context, sessionID, userID string) error {

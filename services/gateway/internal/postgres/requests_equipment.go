@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"database/sql/driver"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -14,7 +16,7 @@ func (d *DB) ListEquipmentForRequest(ctx context.Context, requestID uuid.UUID) (
 	defer cancel()
 
 	rows, err := d.q.ListEquipmentForRequest(ctx, requestID)
-	if err != nil {
+	if err != nil && !errors.Is(err, driver.ErrBadConn) {
 		return nil, fmt.Errorf("ListEquipmentForRequest: %w", err)
 	}
 

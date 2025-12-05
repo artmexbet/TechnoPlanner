@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -106,14 +107,14 @@ func (d *DB) ListEquipment(ctx context.Context) ([]domain.Equipment, error) {
 	defer cancel()
 
 	rows, err := d.q.ListEquipment(ctx)
-	if err != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, fmt.Errorf("ListEquipment: %w", err)
 	}
 
 	result := make([]domain.Equipment, 0, len(rows))
 	for _, row := range rows {
 		item, err := d.getEquipmentWithCategories(ctx, row.ID) //todo:optimize with single batch query
-		if err != nil {
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return nil, err
 		}
 		result = append(result, item)

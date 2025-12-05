@@ -9,17 +9,17 @@ import (
 	"context"
 )
 
-const ClearEquipmentCategories = `-- name: ClearEquipmentCategories :exec
+const clearEquipmentCategories = `-- name: ClearEquipmentCategories :exec
 DELETE FROM equipment_category_links
 WHERE equipment_id = $1
 `
 
 func (q *Queries) ClearEquipmentCategories(ctx context.Context, equipmentID int32) error {
-	_, err := q.db.Exec(ctx, ClearEquipmentCategories, equipmentID)
+	_, err := q.db.Exec(ctx, clearEquipmentCategories, equipmentID)
 	return err
 }
 
-const ListCategoriesForEquipment = `-- name: ListCategoriesForEquipment :many
+const listCategoriesForEquipment = `-- name: ListCategoriesForEquipment :many
 SELECT c.id, c.name, c.description, c.created_at, c.updated_at, c.deleted_at, c.created_by, c.updated_by
 FROM equipment_categories c
          JOIN equipment_category_links l ON c.id = l.category_id
@@ -27,7 +27,7 @@ WHERE l.equipment_id = $1 AND c.deleted_at IS NULL
 `
 
 func (q *Queries) ListCategoriesForEquipment(ctx context.Context, equipmentID int32) ([]EquipmentCategory, error) {
-	rows, err := q.db.Query(ctx, ListCategoriesForEquipment, equipmentID)
+	rows, err := q.db.Query(ctx, listCategoriesForEquipment, equipmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (q *Queries) ListCategoriesForEquipment(ctx context.Context, equipmentID in
 	return items, nil
 }
 
-const UpsertEquipmentCategories = `-- name: UpsertEquipmentCategories :exec
+const upsertEquipmentCategories = `-- name: UpsertEquipmentCategories :exec
 INSERT INTO equipment_category_links (equipment_id, category_id)
 VALUES ($1, UNNEST($2::INT[]))
 ON CONFLICT (equipment_id, category_id) DO NOTHING
@@ -67,6 +67,6 @@ type UpsertEquipmentCategoriesParams struct {
 }
 
 func (q *Queries) UpsertEquipmentCategories(ctx context.Context, arg UpsertEquipmentCategoriesParams) error {
-	_, err := q.db.Exec(ctx, UpsertEquipmentCategories, arg.EquipmentID, arg.Column2)
+	_, err := q.db.Exec(ctx, upsertEquipmentCategories, arg.EquipmentID, arg.Column2)
 	return err
 }
