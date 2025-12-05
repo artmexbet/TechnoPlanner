@@ -20,7 +20,7 @@ func NewPublisher(host string, port int) (*Publisher, error) {
 		nats.Name("auth-service-publisher"),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error connecting to nats: %s", err)
+		return nil, fmt.Errorf("error connecting to nats: %w", err)
 	}
 	return &Publisher{conn: nc}, nil
 }
@@ -34,5 +34,8 @@ func (p *Publisher) PublishUserCreated(user models.User) error {
 	if err != nil {
 		return fmt.Errorf("error marshaling user created event: %w", err)
 	}
-	return p.conn.Publish(config.SubjectUserCreated, data)
+	if err = p.conn.Publish(config.SubjectUserCreated, data); err != nil {
+		return fmt.Errorf("error publishing user created event: %w", err)
+	}
+	return nil
 }

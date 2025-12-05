@@ -19,7 +19,7 @@ import (
 // NewOTLPGRPCExporter создает OTLP gRPC exporter.
 // endpoint — хост:порт collector'а (по умолчанию "localhost:4317").
 // insecureConn — если true, будет использовано небезопасное соединение (без TLS).
-func NewOTLPGRPCExporter(ctx context.Context, endpoint string, insecureConn bool) (*otlptrace.Exporter, error) {
+func NewOTLPGRPCExporter(ctx context.Context, _ string, _ bool) (*otlptrace.Exporter, error) {
 	exp, err := otlptracegrpc.New(ctx, otlptracegrpc.WithDialOption(grpc.WithTransportCredentials(insecure.NewCredentials())), otlptracegrpc.WithInsecure())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create OTLP gRPC exporter: %w", err)
