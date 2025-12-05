@@ -12,16 +12,16 @@ import (
 )
 
 type ITechService interface {
-	AddTechnic(ctx context.Context, technic domain.Technic) (domain.Technic, error)
+	AddTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error)
 	DeleteTechnic(ctx context.Context, techID uuid.UUID) error
-	UpdateTechnic(ctx context.Context, technic domain.Technic) (domain.Technic, error)
-	GetTechnicByID(ctx context.Context, techID uuid.UUID) (domain.Technic, error)
+	UpdateTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error)
+	GetTechnicByID(ctx context.Context, techID uuid.UUID) (*domain.Technic, error)
 }
 
 type ICategoryService interface {
 	GetTechnicByCategory(ctx context.Context, categoryID uuid.UUID) ([]domain.Technic, error)
-	AddCategory(ctx context.Context, categoryName string) (domain.TechnicCategory, error)
-	UpdateCategoryName(ctx context.Context, category domain.TechnicCategory) (domain.TechnicCategory, error)
+	AddCategory(ctx context.Context, categoryName string) (*domain.TechnicCategory, error)
+	UpdateCategoryName(ctx context.Context, category domain.TechnicCategory) (*domain.TechnicCategory, error)
 	DeleteCategory(ctx context.Context, categoryID uuid.UUID) error
 	GetAllCategories(ctx context.Context) ([]domain.TechnicCategory, error)
 }
