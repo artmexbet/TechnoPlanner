@@ -23,6 +23,6 @@ WHERE role_id = $1 AND deleted_at IS NULL
 ORDER BY created_at DESC;
 
 -- name: CreateUser :one
-INSERT INTO users (username, email, role_id)
-VALUES ($1, $2, $3)
+INSERT INTO users (id, username, email, role_id)
+VALUES ($1, $2, $3, $4)
 RETURNING *;

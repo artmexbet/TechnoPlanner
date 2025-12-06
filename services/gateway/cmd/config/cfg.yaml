@@ -2,7 +2,7 @@ router:
   address: 0.0.0.0
   port: 8080
 broker:
-  host: "broker"
+  host: "localhost"
   port: "4222"
 postgres:
   host: localhost

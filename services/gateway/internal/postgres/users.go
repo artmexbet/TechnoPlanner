@@ -46,6 +46,7 @@ func (d *DB) CreateUser(ctx context.Context, user domain.User) error {
 	defer cancel()
 
 	_, err := d.q.CreateUser(ctx, queries.CreateUserParams{
+		ID:       user.ID,
 		Username: user.Username,
 		Email:    user.Email,
 		RoleID:   user.RoleID,
