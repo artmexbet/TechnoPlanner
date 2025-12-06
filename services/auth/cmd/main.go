@@ -78,7 +78,7 @@ func main() {
 	}
 	defer redisClient.Close() //nolint:errcheck
 
-	publisher, err := natsPublisher.NewPublisher(cfg.Publisher.Host, cfg.Publisher.Port)
+	publisher, err := natsPublisher.NewPublisher(cfg.Publisher)
 	if err != nil {
 		panic(err)
 	}

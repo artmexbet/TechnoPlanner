@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
@@ -17,11 +18,13 @@ func MustParseConfig[T any](configPath string) T {
 
 type Postgres struct {
 	Host     string `yaml:"host" env:"HOST" env-default:"localhost"`
-	Port     int    `yaml:"port" env:"PORT" env-default:"5432"`
+	Port     string `yaml:"port" env:"PORT" env-default:"5432"`
 	User     string `yaml:"user" env:"USER" env-default:"postgres"`
 	Password string `yaml:"password" env:"PASSWORD" env-default:"postgres"`
 	DBName   string `yaml:"db_name" env:"DB"`
 	SSLMode  string `yaml:"sslmode" env:"SSLMODE" env-default:"disable"`
+
+	Timeout time.Duration `yaml:"timeout" env:"TIMEOUT" env-default:"10s"`
 }
 
 func (pg Postgres) DSN() string {
@@ -36,9 +39,9 @@ type Trace struct {
 
 type NATSConfig struct {
 	Host string `yaml:"host" env:"HOST" env-default:"localhost"`
-	Port int    `yaml:"port" env:"PORT" env-default:"4222"`
+	Port string `yaml:"port" env:"PORT" env-default:"4222"`
 }
 
 func (cfg NATSConfig) URL() string {
-	return fmt.Sprintf("nats://%s:%d", cfg.Host, cfg.Port)
+	return fmt.Sprintf("nats://%s:%s", cfg.Host, cfg.Port)
 }

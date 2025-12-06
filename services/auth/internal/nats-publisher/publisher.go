@@ -14,9 +14,9 @@ type Publisher struct {
 	conn *nats.Conn
 }
 
-func NewPublisher(host string, port int) (*Publisher, error) {
+func NewPublisher(cfg config.NATSConfig) (*Publisher, error) {
 	nc, err := nats.Connect(
-		fmt.Sprintf("nats://%s:%d", host, port),
+		cfg.URL(),
 		nats.Name("auth-service-publisher"),
 	)
 	if err != nil {

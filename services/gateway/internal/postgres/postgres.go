@@ -3,8 +3,8 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"time"
 
+	"github.com/artmexbet/TechnoPlanner/libs/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/postgres/queries"
@@ -12,26 +12,16 @@ import (
 
 //go:generate sqlc generate -f ./queries/sqlc.yaml
 
-type Config struct {
-	User string `yaml:"user" env:"USER"`
-	Pass string `yaml:"password" env:"PASSWORD"`
-	Host string `yaml:"host" env:"HOST"`
-	Port string `yaml:"port" env:"PORT"`
-	Db   string `yaml:"db" env:"DB"`
-
-	Timeout time.Duration `yaml:"timeout" env:"TIMEOUT"`
-}
-
 type DB struct {
-	cfg Config
+	cfg config.Postgres
 	p   *pgxpool.Pool
 	q   *queries.Queries
 }
 
-func New(ctx context.Context, cfg Config) (*DB, error) {
+func New(ctx context.Context, cfg config.Postgres) (*DB, error) {
 	pool, err := pgxpool.New(
 		ctx,
-		fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.User, cfg.Pass, cfg.Host, cfg.Port, cfg.Db),
+		fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DBName),
 	)
 	if err != nil {
 		return nil, err

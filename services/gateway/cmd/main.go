@@ -25,7 +25,7 @@ const (
 type Config struct {
 	Router   router.Config             `yaml:"router" env:"ROUTER"`
 	Broker   config.NATSConfig         `yaml:"broker" env:"BROKER"`
-	Postgres postgres.Config           `yaml:"postgres" env:"POSTGRES"`
+	Postgres config.Postgres           `yaml:"postgres" env:"POSTGRES"`
 	GRPC     service.AuthServiceConfig `yaml:"grpc" env:"GRPC"`
 	Trace    config.Trace              `yaml:"trace" env:"TRACE"`
 }
