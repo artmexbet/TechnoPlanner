@@ -41,10 +41,10 @@ type TokenValidationResponse struct {
 }
 
 type TokenRefreshRequest struct {
-	Pair      TokenPair `json:"pair"`
-	DeviceID  string    `json:"-" validate:"-"`
-	UserAgent string    `json:"-" validate:"-"`
-	IP        string    `json:"-" validate:"-"`
+	TokenPair
+	DeviceID  string `json:"-" validate:"-"`
+	UserAgent string `json:"-" validate:"-"`
+	IP        string `json:"-" validate:"-"`
 }
 
 type ErrorResponse struct {

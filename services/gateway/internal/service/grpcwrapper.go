@@ -99,8 +99,8 @@ func (g *GRPCWrapper) ValidateToken(ctx context.Context, token string) (models.T
 func (g *GRPCWrapper) Refresh(ctx context.Context, req models.TokenRefreshRequest) (models.TokenPair, error) {
 	resp, err := g.client.Refresh(ctx, &proto.RefreshRequest{
 		Pair: &proto.TokenPair{
-			Token:        req.Pair.AccessToken,
-			RefreshToken: req.Pair.RefreshToken,
+			Token:        req.AccessToken,
+			RefreshToken: req.RefreshToken,
 		},
 		DeviceId:  req.DeviceID,
 		UserAgent: req.UserAgent,

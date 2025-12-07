@@ -91,7 +91,7 @@ func (r *Router) LoginUser() fiber.Handler {
 func (r *Router) RefreshToken() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		var req models.TokenRefreshRequest
-		err := easyjson.Unmarshal(ctx.Body(), &req)
+		err := req.UnmarshalJSON(ctx.Body())
 		if err != nil {
 			return ctx.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
 				Error:   "invalid request body",

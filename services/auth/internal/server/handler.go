@@ -74,10 +74,10 @@ func (h *Handler) Validate(ctx context.Context, in *proto.TokenRequest) (*proto.
 
 func (h *Handler) Refresh(ctx context.Context, in *proto.RefreshRequest) (*proto.TokenPair, error) {
 	pair, err := h.svc.Refresh(ctx, models.TokenRefreshRequest{
-		Pair:      models.TokenPairFromProto(in.GetPair()),
-		DeviceID:  in.GetDeviceId(),
-		UserAgent: in.GetUserAgent(),
-		IP:        in.GetIpAddress(),
+		Pair:      models.TokenPairFromProto(in.Pair),
+		DeviceID:  in.DeviceId,
+		UserAgent: in.UserAgent,
+		IP:        in.IpAddress,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("refresh token: %w", err)
