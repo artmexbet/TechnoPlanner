@@ -215,14 +215,15 @@ func (r *Router) createPorter() fiber.Handler {
 
 func (r *Router) InitEquipmentRoutes() *Router {
 	group := r.r.Group("/api/v1/equipment")
+	group.Use(middlwares.CheckJWTMiddleware(r.authSvc))
 
 	cat := group.Group("/categories")
+
 	cat.Get("/", r.listCategories())
 	cat.Post("/", r.createCategory())
 	cat.Put(":id", r.updateCategory())
 	cat.Delete(":id", r.deleteCategory())
 
-	group.Use(middlwares.CheckJWTMiddleware(r.authSvc))
 	group.Get("/", r.listEquipment())
 	group.Post("/", r.createEquipment())
 	group.Get(":id", r.getEquipment())
