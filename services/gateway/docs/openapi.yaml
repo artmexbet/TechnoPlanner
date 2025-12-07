@@ -555,11 +555,7 @@ components:
         refresh_token:
           type: string
     TokenRefreshRequest:
-      type: object
-      properties:
-        pair:
-          $ref: '#/components/schemas/TokenPair'
-      required: [pair]
+      $ref: '#/components/schemas/TokenPair'
     PorterResponse:
       type: object
       properties:
