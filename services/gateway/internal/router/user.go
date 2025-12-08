@@ -3,12 +3,12 @@ package router
 import (
 	"log/slog"
 
-	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router/middlwares"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/mailru/easyjson"
 
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router/middlwares"
 )
 
 func (r *Router) InitUserRoutes() *Router {

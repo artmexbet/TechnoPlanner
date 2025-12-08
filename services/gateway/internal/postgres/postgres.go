@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/artmexbet/TechnoPlanner/libs/config"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/artmexbet/TechnoPlanner/libs/config"
 
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/postgres/queries"
 )

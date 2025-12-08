@@ -5,11 +5,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
-)
+	"github.com/artmexbet/TechnoPlanner/libs/config"
 
-const (
-	requestStatusChangedSubject = "requests.status.changed"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
 type requestHistoryRepository interface {
@@ -31,7 +29,7 @@ func (s *RequestHistoryStorage) Add(ctx context.Context, entry domain.RequestSta
 	if err != nil {
 		return domain.RequestStatusHistory{}, err
 	}
-	if err := s.publish(ctx, requestStatusChangedSubject, created); err != nil {
+	if err := s.publish(ctx, config.SubjectRequestStatusChanged, created); err != nil {
 		return domain.RequestStatusHistory{}, err
 	}
 	return created, nil
