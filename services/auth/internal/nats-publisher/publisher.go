@@ -3,10 +3,10 @@ package natspublisher
 import (
 	"fmt"
 
-	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 	"github.com/nats-io/nats.go"
 
 	"github.com/artmexbet/TechnoPlanner/libs/config"
+	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 
 	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
 )

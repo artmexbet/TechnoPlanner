@@ -3,8 +3,9 @@ package storage
 import (
 	"context"
 
-	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 	"github.com/google/uuid"
+
+	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )

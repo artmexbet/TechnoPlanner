@@ -83,7 +83,7 @@ func (n *NATS) PublishWithContext(ctx context.Context, subject string, data []by
 		n.propagator.Inject(ctx, natsHeaderCarrier(msg.Header))
 	}
 
-	return n.Conn.PublishMsg(msg)
+	return n.PublishMsg(msg)
 }
 
 // RequestWithContext отправляет запрос с контекстом и ожидает ответ
@@ -98,7 +98,7 @@ func (n *NATS) RequestWithContext(ctx context.Context, subject string, data []by
 		n.propagator.Inject(ctx, natsHeaderCarrier(msg.Header))
 	}
 
-	return n.Conn.RequestMsgWithContext(ctx, msg)
+	return n.RequestMsgWithContext(ctx, msg)
 }
 
 func Connect(url string, options ...nats.Option) (*NATS, error) {

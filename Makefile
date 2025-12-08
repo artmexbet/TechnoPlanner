@@ -11,8 +11,7 @@ migrate-up:
 GOLANGCI_IMAGE=golangci/golangci-lint
 
 lint:
-	docker run --rm -v $(ROOT_DIR):/app -w /app $(GOLANGCI_IMAGE) golangci-lint run
-
+	golangci-lint.exe run --fix .\services\gateway\... .\services\auth\... .\services\requests\... .\libs\broker\... .\libs\config\... .\libs\observability\...
 lint-fix:
 	docker run --rm -v $(ROOT_DIR):/app -w /app $(GOLANGCI_IMAGE) golangci-lint run --fix
 

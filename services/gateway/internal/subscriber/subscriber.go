@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 	"github.com/nats-io/nats.go"
 
 	"github.com/artmexbet/TechnoPlanner/libs/broker"
 	"github.com/artmexbet/TechnoPlanner/libs/broker/middleware"
 	"github.com/artmexbet/TechnoPlanner/libs/config"
+	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
