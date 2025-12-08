@@ -3,9 +3,8 @@ package storage
 import (
 	"context"
 
+	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 	"github.com/google/uuid"
-
-	"github.com/artmexbet/TechnoPlanner/libs/config"
 
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
@@ -35,7 +34,7 @@ func (s *RequestStorage) AssignResponsible(ctx context.Context, requestID uuid.U
 		ResponsibleID *uuid.UUID `json:"responsible_id,omitempty"`
 		UpdatedBy     *uuid.UUID `json:"updated_by,omitempty"`
 	}{RequestID: requestID, ResponsibleID: responsibleID, UpdatedBy: userID}
-	if err := s.publish(ctx, config.SubjectRequestAssigned, payload); err != nil {
+	if err := s.publish(ctx, subjects.RequestAssigned, payload); err != nil {
 		return domain.Request{}, err
 	}
 	return req, nil

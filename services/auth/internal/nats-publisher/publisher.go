@@ -3,6 +3,7 @@ package natspublisher
 import (
 	"fmt"
 
+	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 	"github.com/nats-io/nats.go"
 
 	"github.com/artmexbet/TechnoPlanner/libs/config"
@@ -34,7 +35,7 @@ func (p *Publisher) PublishUserCreated(user models.User) error {
 	if err != nil {
 		return fmt.Errorf("error marshaling user created event: %w", err)
 	}
-	if err = p.conn.Publish(config.SubjectUserCreated, data); err != nil {
+	if err = p.conn.Publish(subjects.UserCreated, data); err != nil {
 		return fmt.Errorf("error publishing user created event: %w", err)
 	}
 	return nil

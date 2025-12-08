@@ -3,9 +3,8 @@ package storage
 import (
 	"context"
 
+	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 	"github.com/google/uuid"
-
-	"github.com/artmexbet/TechnoPlanner/libs/config"
 
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
@@ -31,7 +30,7 @@ func (s *CategoryStorage) Create(ctx context.Context, cat domain.EquipmentCatego
 	if err != nil {
 		return domain.EquipmentCategory{}, err
 	}
-	if err := s.publish(ctx, config.SubjectCategoryCreated, created); err != nil {
+	if err := s.publish(ctx, subjects.CategoryCreated, created); err != nil {
 		return domain.EquipmentCategory{}, err
 	}
 	return created, nil
@@ -42,7 +41,7 @@ func (s *CategoryStorage) Update(ctx context.Context, cat domain.EquipmentCatego
 	if err != nil {
 		return domain.EquipmentCategory{}, err
 	}
-	if err := s.publish(ctx, config.SubjectCategoryUpdated, updated); err != nil {
+	if err := s.publish(ctx, subjects.CategoryUpdated, updated); err != nil {
 		return domain.EquipmentCategory{}, err
 	}
 	return updated, nil
@@ -60,7 +59,7 @@ func (s *CategoryStorage) SoftDelete(ctx context.Context, id int32, userID *uuid
 		ID        int32      `json:"id"`
 		DeletedBy *uuid.UUID `json:"deleted_by,omitempty"`
 	}{ID: id, DeletedBy: userID}
-	return s.publish(ctx, config.SubjectCategoryDeleted, payload)
+	return s.publish(ctx, subjects.CategoryDeleted, payload)
 }
 
 func (s *CategoryStorage) publish(ctx context.Context, subject string, payload interface{}) error {

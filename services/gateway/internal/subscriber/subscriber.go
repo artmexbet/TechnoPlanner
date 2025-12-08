@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 	"github.com/nats-io/nats.go"
 
 	"github.com/artmexbet/TechnoPlanner/libs/broker"
@@ -56,7 +57,7 @@ func (s *Subscriber) Init() error {
 }
 
 func (s *Subscriber) subscribeUserCreated() error {
-	sub, err := s.nc.Subscribe(config.SubjectUserCreated, func(msg *broker.Msg) error {
+	sub, err := s.nc.Subscribe(subjects.UserCreated, func(msg *broker.Msg) error {
 		var user domain.User
 		if err := user.UnmarshalJSON(msg.Data); err != nil {
 			return fmt.Errorf("error unmarshalling user data: %w", err)
@@ -69,7 +70,7 @@ func (s *Subscriber) subscribeUserCreated() error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("error subscribing to %s: %w", config.SubjectUserCreated, err)
+		return fmt.Errorf("error subscribing to %s: %w", subjects.UserCreated, err)
 	}
 	s.subs = append(s.subs, sub)
 	return nil
