@@ -54,6 +54,11 @@ func (s *PorterService) Get(ctx context.Context, id uuid.UUID) (domain.User, err
 	return user, nil
 }
 
+// GetCurrentUser returns user by ID without role check (for /me endpoint)
+func (s *PorterService) GetCurrentUser(ctx context.Context, id uuid.UUID) (domain.User, error) {
+	return s.storage.Get(ctx, id)
+}
+
 func (s *PorterService) Create(ctx context.Context, username, email, password string) (string, error) {
 	if err := requireAdmin(ctx); err != nil {
 		return "", err

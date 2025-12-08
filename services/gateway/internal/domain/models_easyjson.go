@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonD2b7633eDecodeGatewayInternalDomain(in *jlexer.Lexer, out *User) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerServicesGatewayInternalDomain(in *jlexer.Lexer, out *User) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -65,7 +65,7 @@ func easyjsonD2b7633eDecodeGatewayInternalDomain(in *jlexer.Lexer, out *User) {
 				if out.Role == nil {
 					out.Role = new(Role)
 				}
-				easyjsonD2b7633eDecodeGatewayInternalDomain1(in, out.Role)
+				easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerServicesGatewayInternalDomain1(in, out.Role)
 			}
 		case "created_at":
 			if in.IsNull() {
@@ -93,7 +93,7 @@ func easyjsonD2b7633eDecodeGatewayInternalDomain(in *jlexer.Lexer, out *User) {
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGatewayInternalDomain(out *jwriter.Writer, in User) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerServicesGatewayInternalDomain(out *jwriter.Writer, in User) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -120,7 +120,7 @@ func easyjsonD2b7633eEncodeGatewayInternalDomain(out *jwriter.Writer, in User) {
 	if in.Role != nil {
 		const prefix string = ",\"role\":"
 		out.RawString(prefix)
-		easyjsonD2b7633eEncodeGatewayInternalDomain1(out, *in.Role)
+		easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerServicesGatewayInternalDomain1(out, *in.Role)
 	}
 	{
 		const prefix string = ",\"created_at\":"
@@ -138,27 +138,27 @@ func easyjsonD2b7633eEncodeGatewayInternalDomain(out *jwriter.Writer, in User) {
 // MarshalJSON supports json.Marshaler interface
 func (v User) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGatewayInternalDomain(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerServicesGatewayInternalDomain(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v User) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGatewayInternalDomain(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerServicesGatewayInternalDomain(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *User) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGatewayInternalDomain(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerServicesGatewayInternalDomain(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *User) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGatewayInternalDomain(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerServicesGatewayInternalDomain(l, v)
 }
-func easyjsonD2b7633eDecodeGatewayInternalDomain1(in *jlexer.Lexer, out *Role) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerServicesGatewayInternalDomain1(in *jlexer.Lexer, out *Role) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -224,7 +224,7 @@ func easyjsonD2b7633eDecodeGatewayInternalDomain1(in *jlexer.Lexer, out *Role) {
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGatewayInternalDomain1(out *jwriter.Writer, in Role) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerServicesGatewayInternalDomain1(out *jwriter.Writer, in Role) {
 	out.RawByte('{')
 	first := true
 	_ = first

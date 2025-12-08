@@ -40,6 +40,7 @@ type iAuthSvcConnector interface {
 type iPorterService interface {
 	List(ctx context.Context) ([]domain.User, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
+	GetCurrentUser(ctx context.Context, id uuid.UUID) (domain.User, error)
 	Create(ctx context.Context, username, email, password string) (string, error)
 }
 
@@ -275,6 +276,10 @@ func (r *Router) createEquipment() fiber.Handler {
 			Name:        req.Name,
 			Description: req.Description,
 			Quantity:    req.Quantity,
+			Categories:  make([]domain.EquipmentCategory, 0, len(req.CategoryIDs)),
+		}
+		for _, catID := range req.CategoryIDs {
+			eq.Categories = append(eq.Categories, domain.EquipmentCategory{ID: catID})
 		}
 		ctx := r.userContext(c)
 		created, err := r.equipmentSvc.Create(ctx, eq)
@@ -303,6 +308,10 @@ func (r *Router) updateEquipment() fiber.Handler {
 			Name:        req.Name,
 			Description: req.Description,
 			Quantity:    req.Quantity,
+			Categories:  make([]domain.EquipmentCategory, 0, len(req.CategoryIDs)),
+		}
+		for _, cID := range req.CategoryIDs {
+			eq.Categories = append(eq.Categories, domain.EquipmentCategory{ID: cID})
 		}
 		ctx := r.userContext(c)
 		updated, err := r.equipmentSvc.Update(ctx, eq)
