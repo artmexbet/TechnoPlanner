@@ -82,36 +82,30 @@ func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 }
 
 func (w *NatsWrapper) handleCreateRequest(msg *broker.Msg) error {
-	ctx, cancel := context.WithTimeout(msg.Context(), w.cfg.RequestTimeout)
-	defer cancel()
-
+	ctx := msg.Context()
 	var req requestCreate
 	err := req.UnmarshalJSON(msg.Data)
 	if err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling create request", "error", err)
-		_ = respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
-		return err
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
 	}
 
 	if err = w.validator.Struct(req); err != nil {
 		slog.ErrorContext(ctx, "validation error", "error", err)
-		_ = respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
-		return err
+		return respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
 	}
 
 	domainReq := req.ToDomain()
 	createdReq, err := w.reqService.Add(ctx, domainReq)
 	if err != nil {
 		slog.ErrorContext(ctx, "error creating request", "error", err)
-		_ = respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
-		return err
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
 	respData, err := createdReq.MarshalJSON()
 	if err != nil {
 		slog.ErrorContext(ctx, "error marshaling response", "error", err)
-		_ = respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
-		return err
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
 	err = respondSuccess(msg.Msg, "success", respData)
@@ -123,8 +117,7 @@ func (w *NatsWrapper) handleCreateRequest(msg *broker.Msg) error {
 }
 
 func (w *NatsWrapper) handleUpdateStatus(msg *broker.Msg) error {
-	ctx, cancel := context.WithTimeout(msg.Context(), w.cfg.RequestTimeout)
-	defer cancel()
+	ctx := msg.Context()
 
 	var req requestUpdateStatus
 	err := req.UnmarshalJSON(msg.Data)
@@ -163,8 +156,7 @@ func (w *NatsWrapper) handleUpdateStatus(msg *broker.Msg) error {
 }
 
 func (w *NatsWrapper) handleGetRequest(msg *broker.Msg) error {
-	ctx, cancel := context.WithTimeout(msg.Context(), w.cfg.RequestTimeout)
-	defer cancel()
+	ctx := msg.Context()
 
 	var req requestByID
 	err := req.UnmarshalJSON(msg.Data)
@@ -196,8 +188,7 @@ func (w *NatsWrapper) handleGetRequest(msg *broker.Msg) error {
 }
 
 func (w *NatsWrapper) handleListRequests(msg *broker.Msg) error {
-	ctx, cancel := context.WithTimeout(msg.Context(), w.cfg.RequestTimeout)
-	defer cancel()
+	ctx := msg.Context()
 
 	var req requestList
 	err := req.UnmarshalJSON(msg.Data)
@@ -230,8 +221,7 @@ func (w *NatsWrapper) handleListRequests(msg *broker.Msg) error {
 }
 
 func (w *NatsWrapper) handleCancelRequest(msg *broker.Msg) error {
-	ctx, cancel := context.WithTimeout(msg.Context(), w.cfg.RequestTimeout)
-	defer cancel()
+	ctx := msg.Context()
 
 	var req requestByID
 	err := req.UnmarshalJSON(msg.Data)
@@ -263,8 +253,7 @@ func (w *NatsWrapper) handleCancelRequest(msg *broker.Msg) error {
 }
 
 func (w *NatsWrapper) handleCancelRequestFromService(msg *broker.Msg) error {
-	ctx, cancel := context.WithTimeout(msg.Context(), w.cfg.RequestTimeout)
-	defer cancel()
+	ctx := msg.Context()
 
 	var req requestByID
 	err := req.UnmarshalJSON(msg.Data)
@@ -289,8 +278,7 @@ func (w *NatsWrapper) handleCancelRequestFromService(msg *broker.Msg) error {
 }
 
 func (w *NatsWrapper) handleAddEquipment(msg *broker.Msg) error {
-	ctx, cancel := context.WithTimeout(msg.Context(), w.cfg.RequestTimeout)
-	defer cancel()
+	ctx := msg.Context()
 
 	var req addEquipment
 	err := req.UnmarshalJSON(msg.Data)

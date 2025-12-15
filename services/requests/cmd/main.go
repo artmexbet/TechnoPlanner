@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	defaultConfigPath = "configs/config.yaml"
+	defaultConfigPath = "./cmd/config/config.yaml"
 	configPathKey     = "CONFIG_PATH"
 )
 
@@ -65,6 +65,7 @@ func main() {
 	conn.Use(middleware.NewLoggingMiddleware(true))
 	conn.Use(middleware.NewRecoveryMiddleware())
 	conn.Use(middleware.NewRequestIDMiddleware())
+	conn.Use(middleware.NewTimeoutMiddleware(cfg.Nats.RequestTimeout))
 
 	pool, err := pgxpool.New(ctx, cfg.Postgres.DSN())
 	if err != nil {

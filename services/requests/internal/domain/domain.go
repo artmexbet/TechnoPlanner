@@ -36,15 +36,17 @@ func (s *StatusType) Set(value interface{}) error {
 }
 
 type Request struct {
-	ID           uuid.UUID   `json:"id"`
-	RequestText  *string     `json:"request_text"`
-	Status       StatusType  `json:"status"`
-	Equipments   []Equipment `json:"equipments"`
-	Issuer       User        `json:"issuer"`
-	ScheduleTime string      `json:"schedule_time"`
-	Address      string      `json:"address"`
-	CreatedAt    time.Time   `json:"created_at"`
-	UpdatedAt    time.Time   `json:"updated_at"`
+	ID              uuid.UUID   `json:"id"`
+	RequestText     *string     `json:"request_text"`
+	Status          StatusType  `json:"status"`
+	Equipments      []Equipment `json:"equipments"`
+	EquipmentString *string     `json:"-"`
+	Issuer          User        `json:"issuer"`
+	ScheduleTime    string      `json:"schedule_time"`
+	EndTime         time.Time   `json:"-"`
+	Address         string      `json:"address"`
+	CreatedAt       time.Time   `json:"created_at"`
+	UpdatedAt       time.Time   `json:"updated_at"`
 }
 
 type User struct {

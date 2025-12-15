@@ -82,7 +82,7 @@ func (b *AddEquipmentBatchResults) Close() error {
 const AssignEquipmentToRequest = `-- name: AssignEquipmentToRequest :batchone
 INSERT INTO equipment_to_requests (equipment_id, request_id, quantity)
 VALUES ($1, $2, $3)
-RETURNING id, request_id, equipment_id, quantity, created_at, updated_at
+RETURNING request_id, equipment_id, quantity, created_at, updated_at
 `
 
 type AssignEquipmentToRequestBatchResults struct {
@@ -123,7 +123,6 @@ func (b *AssignEquipmentToRequestBatchResults) QueryRow(f func(int, EquipmentToR
 		}
 		row := b.br.QueryRow()
 		err := row.Scan(
-			&i.ID,
 			&i.RequestID,
 			&i.EquipmentID,
 			&i.Quantity,

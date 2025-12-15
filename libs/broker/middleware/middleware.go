@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -81,6 +82,17 @@ func NewRequestIDMiddleware(cfg ...RequestIDConfig) broker.Middleware {
 			id := _cfg.Generator(msg)
 			msg.SetContext(context.WithValue(msg.Context(), _cfg.RequestIDKey, id))
 			slog.Debug("Adding request ID to context", "subject", msg.Subject)
+			return next(msg)
+		}
+	}
+}
+
+func NewTimeoutMiddleware(timeout time.Duration) broker.Middleware {
+	return func(next broker.MsgHandler) broker.MsgHandler {
+		return func(msg *broker.Msg) error {
+			ctx, cancel := context.WithTimeout(msg.Context(), timeout)
+			defer cancel()
+			msg.SetContext(ctx)
 			return next(msg)
 		}
 	}
