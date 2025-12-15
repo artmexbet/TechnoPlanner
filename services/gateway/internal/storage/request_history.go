@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/artmexbet/TechnoPlanner/libs/config"
+	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
@@ -29,7 +29,7 @@ func (s *RequestHistoryStorage) Add(ctx context.Context, entry domain.RequestSta
 	if err != nil {
 		return domain.RequestStatusHistory{}, err
 	}
-	if err := s.publish(ctx, config.SubjectRequestStatusChanged, created); err != nil {
+	if err := s.publish(ctx, subjects.RequestStatusChanged, created); err != nil {
 		return domain.RequestStatusHistory{}, err
 	}
 	return created, nil

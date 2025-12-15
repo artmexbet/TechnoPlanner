@@ -28,7 +28,7 @@ type Postgres struct {
 }
 
 func (pg Postgres) DSN() string {
-	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		pg.Host, pg.Port, pg.User, pg.Password, pg.DBName, pg.SSLMode)
 }
 

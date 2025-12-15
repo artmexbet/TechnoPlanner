@@ -10,6 +10,8 @@ import (
 	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel"
 
+	"github.com/artmexbet/TechnoPlanner/libs/broker"
+	"github.com/artmexbet/TechnoPlanner/libs/broker/middleware"
 	"github.com/artmexbet/TechnoPlanner/libs/config"
 	"github.com/artmexbet/TechnoPlanner/libs/observability/opentelemetry"
 
@@ -54,10 +56,15 @@ func main() {
 	// Настраиваем propagator для передачи trace context между сервисами
 	otel.SetTextMapPropagator(opentelemetry.NewPropagator()) //todo: use traces later
 
-	conn, err := nats.Connect(cfg.Nats.URL)
+	conn, err := broker.Connect(cfg.Nats.URL, nats.Name("Requests Service"))
 	if err != nil {
 		panic(err)
 	}
+
+	// Apply middlewares
+	conn.Use(middleware.NewLoggingMiddleware(true))
+	conn.Use(middleware.NewRecoveryMiddleware())
+	conn.Use(middleware.NewRequestIDMiddleware())
 
 	pool, err := pgxpool.New(ctx, cfg.Postgres.DSN())
 	if err != nil {
