@@ -18,10 +18,10 @@ import (
 	slogfiber "github.com/samber/slog-fiber"
 	"go.opentelemetry.io/otel/trace"
 
-	"gateway/internal/domain"
-	"gateway/internal/models"
-	"gateway/internal/router/middlwares"
-	"gateway/internal/service"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router/middlwares"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/service"
 )
 
 type iUserService interface {
@@ -40,6 +40,7 @@ type iAuthSvcConnector interface {
 type iPorterService interface {
 	List(ctx context.Context) ([]domain.User, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
+	GetCurrentUser(ctx context.Context, id uuid.UUID) (domain.User, error)
 	Create(ctx context.Context, username, email, password string) (string, error)
 }
 
@@ -216,17 +217,19 @@ func (r *Router) createPorter() fiber.Handler {
 func (r *Router) InitEquipmentRoutes() *Router {
 	group := r.r.Group("/api/v1/equipment")
 	group.Use(middlwares.CheckJWTMiddleware(r.authSvc))
+
+	cat := group.Group("/categories")
+
+	cat.Get("/", r.listCategories())
+	cat.Post("/", r.createCategory())
+	cat.Put(":id", r.updateCategory())
+	cat.Delete(":id", r.deleteCategory())
+
 	group.Get("/", r.listEquipment())
 	group.Post("/", r.createEquipment())
 	group.Get(":id", r.getEquipment())
 	group.Put(":id", r.updateEquipment())
 	group.Delete(":id", r.deleteEquipment())
-
-	cat := group.Group("/categories")
-	cat.Get("/", r.listCategories())
-	cat.Post("/", r.createCategory())
-	cat.Put(":id", r.updateCategory())
-	cat.Delete(":id", r.deleteCategory())
 	return r
 }
 
@@ -273,6 +276,10 @@ func (r *Router) createEquipment() fiber.Handler {
 			Name:        req.Name,
 			Description: req.Description,
 			Quantity:    req.Quantity,
+			Categories:  make([]domain.EquipmentCategory, 0, len(req.CategoryIDs)),
+		}
+		for _, catID := range req.CategoryIDs {
+			eq.Categories = append(eq.Categories, domain.EquipmentCategory{ID: catID})
 		}
 		ctx := r.userContext(c)
 		created, err := r.equipmentSvc.Create(ctx, eq)
@@ -301,6 +308,10 @@ func (r *Router) updateEquipment() fiber.Handler {
 			Name:        req.Name,
 			Description: req.Description,
 			Quantity:    req.Quantity,
+			Categories:  make([]domain.EquipmentCategory, 0, len(req.CategoryIDs)),
+		}
+		for _, cID := range req.CategoryIDs {
+			eq.Categories = append(eq.Categories, domain.EquipmentCategory{ID: cID})
 		}
 		ctx := r.userContext(c)
 		updated, err := r.equipmentSvc.Update(ctx, eq)

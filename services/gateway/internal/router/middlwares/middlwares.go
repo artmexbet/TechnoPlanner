@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"gateway/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
 )
 
 const (

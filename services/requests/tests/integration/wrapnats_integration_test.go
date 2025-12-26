@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 	"log/slog"
-	"requests/internal/domain"
 	"testing"
 	"time"
 
-	"requests/internal/wrapnats"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/wrapnats"
 
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"

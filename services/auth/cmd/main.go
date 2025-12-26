@@ -10,16 +10,17 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
-	"observability/opentelemetry"
-	"proto"
 
-	"auth/internal/postgres"
-	"auth/internal/repository"
-	"auth/internal/server"
-	"auth/internal/service"
-	"auth/internal/storeredis"
+	"github.com/artmexbet/TechnoPlanner/libs/config"
+	"github.com/artmexbet/TechnoPlanner/libs/observability/opentelemetry"
+	"github.com/artmexbet/TechnoPlanner/libs/proto"
 
-	"config"
+	natsPublisher "github.com/artmexbet/TechnoPlanner/services/auth/internal/nats-publisher"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/postgres"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/repository"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/server"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/service"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/storeredis"
 )
 
 const (
@@ -28,9 +29,10 @@ const (
 )
 
 type Config struct {
-	Repository repository.Config `yaml:"repository" env:"REPOSITORY"`
-	Redis      storeredis.Config `yaml:"redis" env:"REDIS"`
-	Postgres   postgres.Config   `yaml:"postgres" env:"POSTGRES"`
+	Repository repository.Config `yaml:"repository" env-prefix:"REPOSITORY_"`
+	Redis      storeredis.Config `yaml:"redis" env-prefix:"REDIS_"`
+	Postgres   config.Postgres   `yaml:"postgres" env-prefix:"POSTGRES_"`
+	Publisher  config.NATSConfig `yaml:"publisher" env-prefix:"PUBLISHER_"`
 
 	Traces config.Trace `yaml:"trace" env-prefix:"TRACE_"`
 
@@ -45,6 +47,7 @@ func main() {
 		cfgPath = defaultConfigPath
 	}
 	cfg := config.MustParseConfig[Config](cfgPath)
+	slog.Info("loaded config", "config", cfg)
 
 	ctx := context.Background()
 
@@ -67,12 +70,21 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer pg.Close()
+
 	redisClient, err := storeredis.New(cfg.Redis, tracer)
 	if err != nil {
 		panic(err)
 	}
+	defer redisClient.Close() //nolint:errcheck
 
-	repo, err := repository.New(cfg.Repository, redisClient, pg)
+	publisher, err := natsPublisher.NewPublisher(cfg.Publisher)
+	if err != nil {
+		panic(err)
+	}
+	defer publisher.Close()
+
+	repo, err := repository.New(cfg.Repository, redisClient, pg, publisher)
 	if err != nil {
 		panic(err)
 	}

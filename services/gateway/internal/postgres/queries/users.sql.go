@@ -11,6 +11,39 @@ import (
 	"github.com/google/uuid"
 )
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (id, username, email, role_id)
+VALUES ($1, $2, $3, $4)
+RETURNING id, username, email, role_id, created_at, updated_at, deleted_at
+`
+
+type CreateUserParams struct {
+	ID       uuid.UUID
+	Username string
+	Email    string
+	RoleID   int32
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createUser,
+		arg.ID,
+		arg.Username,
+		arg.Email,
+		arg.RoleID,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.RoleID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1
@@ -22,7 +55,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, username, email, password_hash, role_id, created_at, updated_at, deleted_at FROM users
+SELECT id, username, email, role_id, created_at, updated_at, deleted_at FROM users
 WHERE id = $1
 `
 
@@ -33,7 +66,6 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.ID,
 		&i.Username,
 		&i.Email,
-		&i.PasswordHash,
 		&i.RoleID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -43,7 +75,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const listPorters = `-- name: ListPorters :many
-SELECT id, username, email, password_hash, role_id, created_at, updated_at, deleted_at FROM users
+SELECT id, username, email, role_id, created_at, updated_at, deleted_at FROM users
 WHERE role_id = $1 AND deleted_at IS NULL
 ORDER BY created_at DESC
 `
@@ -61,7 +93,6 @@ func (q *Queries) ListPorters(ctx context.Context, roleID int32) ([]User, error)
 			&i.ID,
 			&i.Username,
 			&i.Email,
-			&i.PasswordHash,
 			&i.RoleID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -78,7 +109,7 @@ func (q *Queries) ListPorters(ctx context.Context, roleID int32) ([]User, error)
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, username, email, password_hash, role_id, created_at, updated_at, deleted_at FROM users
+SELECT id, username, email, role_id, created_at, updated_at, deleted_at FROM users
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
@@ -101,7 +132,6 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 			&i.ID,
 			&i.Username,
 			&i.Email,
-			&i.PasswordHash,
 			&i.RoleID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -119,17 +149,16 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET username = $2, email = $3, password_hash = $4, role_id = $5, updated_at = CURRENT_TIMESTAMP
+SET username = $2, email = $3, role_id = $4, updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, username, email, password_hash, role_id, created_at, updated_at, deleted_at
+RETURNING id, username, email, role_id, created_at, updated_at, deleted_at
 `
 
 type UpdateUserParams struct {
-	ID           uuid.UUID
-	Username     string
-	Email        string
-	PasswordHash string
-	RoleID       int32
+	ID       uuid.UUID
+	Username string
+	Email    string
+	RoleID   int32
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
@@ -137,7 +166,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.ID,
 		arg.Username,
 		arg.Email,
-		arg.PasswordHash,
 		arg.RoleID,
 	)
 	var i User
@@ -145,7 +173,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.ID,
 		&i.Username,
 		&i.Email,
-		&i.PasswordHash,
 		&i.RoleID,
 		&i.CreatedAt,
 		&i.UpdatedAt,

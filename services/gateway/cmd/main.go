@@ -5,18 +5,16 @@ import (
 	"log/slog"
 	"os"
 
-	"observability/opentelemetry"
-
 	"go.opentelemetry.io/otel"
 
-	"gateway/internal/postgres"
-	"gateway/internal/router"
-	"gateway/internal/service"
-	"gateway/internal/storage"
+	"github.com/artmexbet/TechnoPlanner/libs/config"
+	"github.com/artmexbet/TechnoPlanner/libs/observability/opentelemetry"
 
-	"broker"
-
-	"config"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/postgres"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/service"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/storage"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/subscriber"
 )
 
 const (
@@ -26,8 +24,8 @@ const (
 
 type Config struct {
 	Router   router.Config             `yaml:"router" env:"ROUTER"`
-	Broker   broker.Config             `yaml:"broker" env:"BROKER"`
-	Postgres postgres.Config           `yaml:"postgres" env:"POSTGRES"`
+	Broker   config.NATSConfig         `yaml:"broker" env:"BROKER"`
+	Postgres config.Postgres           `yaml:"postgres" env:"POSTGRES"`
 	GRPC     service.AuthServiceConfig `yaml:"grpc" env:"GRPC"`
 	Trace    config.Trace              `yaml:"trace" env:"TRACE"`
 }
@@ -38,6 +36,7 @@ func main() {
 		cfgPath = defaultConfigPath
 	}
 	cfg := config.MustParseConfig[Config](cfgPath)
+	slog.Info("config", "config", cfg)
 
 	ctx := context.Background()
 
@@ -81,6 +80,19 @@ func main() {
 	categorySvc := service.NewCategoryService(store.Categories)
 	requestSvc := service.NewRequestService(store.Requests)
 	historySvc := service.NewRequestHistoryService(store.StatusHistory)
+
+	slog.Info("Starting subscriber service")
+
+	subs, err := subscriber.New(cfg.Broker, store.Porters)
+	if err != nil {
+		panic(err)
+	}
+	defer subs.Close()
+	slog.Info("Subscriber connected to NATS")
+
+	if err := subs.Init(); err != nil {
+		panic(err)
+	}
 
 	r := router.NewRouter(cfg.Router, userSvc, authSvc, porterSvc, equipmentSvc, categorySvc, requestSvc, historySvc).
 		InitMiddlewares(tracer).

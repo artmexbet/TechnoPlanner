@@ -8,15 +8,17 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
-	"gateway/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
 var testUserID = uuid.New()
 
 type PorterServiceSuite struct {
 	suite.Suite
-	storage *MockPorterStorage
-	svc     *PorterService
+	storage  *MockPorterStorage
+	authMock *MockAuthServiceConnector
+
+	svc *PorterService
 }
 
 func TestPorterServiceSuite(t *testing.T) {
@@ -25,7 +27,9 @@ func TestPorterServiceSuite(t *testing.T) {
 
 func (s *PorterServiceSuite) SetupTest() {
 	s.storage = NewMockPorterStorage(s.T())
-	s.svc = NewPorterService(s.storage)
+	s.authMock = NewMockAuthServiceConnector(s.T())
+
+	s.svc = NewPorterService(s.storage, s.authMock)
 }
 
 func (s *PorterServiceSuite) TestList() {

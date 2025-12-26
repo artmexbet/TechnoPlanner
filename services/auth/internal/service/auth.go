@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"auth/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
 )
 
 type iTokenizer interface {

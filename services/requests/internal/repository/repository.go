@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"requests/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
 type iPostgres interface {

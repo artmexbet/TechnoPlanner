@@ -1,9 +1,10 @@
 package wrapnats
 
 import (
+	"github.com/artmexbet/TechnoPlanner/libs/utills/pointer"
 	"github.com/google/uuid"
 
-	"requests/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
 //go:generate easyjson -all models.go
@@ -45,11 +46,13 @@ type equipmentInfo struct {
 }
 
 type requestCreate struct {
-	Text         *string         `json:"text" validate:"omitempty,max=1000"`
-	ScheduleTime string          `json:"schedule_time" validate:"required"`
-	TelegramID   int64           `json:"telegram_id" validate:"required"`
-	Equipments   []equipmentInfo `json:"equipments" validate:"required,dive"`
-	Address      string          `json:"address" validate:"required,max=1000"`
+	Text            *string         `json:"text" validate:"omitempty,max=1000"`
+	ScheduleTime    string          `json:"schedule_time" validate:"required"`
+	TelegramUserID  int64           `json:"user_id" validate:"required"`
+	Username        *string         `json:"user_name" validate:"omitempty,max=100"`
+	Equipments      []equipmentInfo `json:"equipments" validate:"omitempty,dive"`
+	EquipmentString *string         `json:"equipment_string" validate:"omitempty,max=2000"`
+	Address         string          `json:"address" validate:"required,max=1000"`
 }
 
 func (r *requestCreate) ToDomain() domain.Request {
@@ -58,9 +61,11 @@ func (r *requestCreate) ToDomain() domain.Request {
 		ScheduleTime: r.ScheduleTime,
 		Equipments:   make([]domain.Equipment, len(r.Equipments)),
 		Issuer: domain.User{
-			TelegramID: r.TelegramID,
+			TelegramID: r.TelegramUserID,
+			Username:   pointer.From(r.Username),
 		},
-		Address: r.Address,
+		Address:         r.Address,
+		EquipmentString: r.EquipmentString, //todo: разобраться с сохранением позже
 	}
 	for i, eq := range r.Equipments {
 		req.Equipments[i] = domain.Equipment{ID: eq.ID, Quantity: eq.Quantity}

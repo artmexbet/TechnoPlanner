@@ -4,9 +4,11 @@ import (
 	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/mailru/easyjson"
 
-	"gateway/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router/middlwares"
 )
 
 func (r *Router) InitUserRoutes() *Router {
@@ -15,6 +17,7 @@ func (r *Router) InitUserRoutes() *Router {
 	users.Post("/register", r.RegisterUser()) // user registration
 	users.Post("/login", r.LoginUser())       // user login
 	users.Post("/refresh", r.RefreshToken())  // token refresh
+	users.Get("/me", middlwares.CheckJWTMiddleware(r.authSvc), r.Me())
 
 	return r
 }
@@ -91,7 +94,7 @@ func (r *Router) LoginUser() fiber.Handler {
 func (r *Router) RefreshToken() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		var req models.TokenRefreshRequest
-		err := easyjson.Unmarshal(ctx.Body(), &req)
+		err := req.UnmarshalJSON(ctx.Body())
 		if err != nil {
 			return ctx.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
 				Error:   "invalid request body",
@@ -120,5 +123,38 @@ func (r *Router) RefreshToken() fiber.Handler {
 		}
 
 		return ctx.Status(fiber.StatusOK).JSON(tokens)
+	}
+}
+
+func (r *Router) Me() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userID, _ := c.Locals(middlwares.ContextUserIDKey).(string)
+		role, _ := c.Locals(middlwares.ContextUserRoleKey).(string)
+
+		if userID == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{
+				Error: "user not authenticated",
+			})
+		}
+
+		ctx := r.userContext(c)
+		id, err := uuid.Parse(userID)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
+				Error: "invalid user id",
+			})
+		}
+
+		user, err := r.porterSvc.GetCurrentUser(ctx, id)
+		if err != nil {
+			return handleServiceError(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(models.MeResponse{
+			ID:       user.ID.String(),
+			Username: user.Username,
+			Email:    user.Email,
+			Role:     role,
+		})
 	}
 }

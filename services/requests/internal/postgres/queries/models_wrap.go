@@ -1,7 +1,7 @@
 package queries
 
 import (
-	"requests/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
 func (t *RequestStatus) ToDomain() domain.StatusType {

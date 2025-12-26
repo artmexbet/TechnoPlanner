@@ -68,7 +68,6 @@ type Equipment struct {
 }
 
 type EquipmentToRequest struct {
-	ID          uuid.UUID
 	RequestID   uuid.UUID
 	EquipmentID int32
 	Quantity    int32
@@ -77,14 +76,16 @@ type EquipmentToRequest struct {
 }
 
 type Request struct {
-	ID             uuid.UUID
-	TelegramUserID uuid.UUID
-	RequestText    *string
-	Status         RequestStatus
-	ScheduleTime   string
-	Address        string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	ID              uuid.UUID
+	TelegramUserID  uuid.UUID
+	RequestText     *string
+	Status          RequestStatus
+	ScheduleTime    string
+	EndTime         time.Time
+	Address         string
+	ResponsibleInfo []byte
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
 }
 
 type TelegramUser struct {
