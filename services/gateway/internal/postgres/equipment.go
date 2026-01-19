@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
-	"gateway/internal/domain"
-	"gateway/internal/postgres/queries"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/postgres/queries"
 )
 
 func (d *DB) CreateEquipment(ctx context.Context, eq domain.Equipment) (domain.Equipment, error) {

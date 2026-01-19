@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"auth/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -131,8 +131,8 @@ func (s *ServiceTestSuite) TestRegister() {
 			},
 			setup: func(repo *mockiRepository) {
 				repo.EXPECT().
-					CreateUser(mock.Anything, "newuser", "new@user.com", mock.Anything).
-					Return(models.User{Username: "newuser", Email: "new@user.com"}, nil)
+					CreateUser(mock.Anything, "newuser", "new@user.com", mock.Anything, int32(1)).
+					Return(models.User{Username: "newuser", Email: "new@user.com", RoleID: 1}, nil)
 			},
 			wantErr: false,
 		},
@@ -145,7 +145,7 @@ func (s *ServiceTestSuite) TestRegister() {
 			},
 			setup: func(repo *mockiRepository) {
 				repo.EXPECT().
-					CreateUser(mock.Anything, "failuser", "fail@user.com", mock.Anything).
+					CreateUser(mock.Anything, "failuser", "fail@user.com", mock.Anything, int32(1)).
 					Return(models.User{}, errors.New("fail"))
 			},
 			wantErr: true,

@@ -5,13 +5,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"gateway/internal/domain"
-)
+	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 
-const (
-	equipmentCreatedSubject = "equipment.item.created"
-	equipmentUpdatedSubject = "equipment.item.updated"
-	equipmentDeletedSubject = "equipment.item.deleted"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
 type equipmentRepository interface {
@@ -36,7 +32,7 @@ func (s *EquipmentStorage) Create(ctx context.Context, eq domain.Equipment) (dom
 	if err != nil {
 		return domain.Equipment{}, err
 	}
-	if err := s.publish(ctx, equipmentCreatedSubject, created); err != nil {
+	if err := s.publish(ctx, subjects.EquipmentCreated, created); err != nil {
 		return domain.Equipment{}, err
 	}
 	return created, nil
@@ -47,7 +43,7 @@ func (s *EquipmentStorage) Update(ctx context.Context, eq domain.Equipment) (dom
 	if err != nil {
 		return domain.Equipment{}, err
 	}
-	if err := s.publish(ctx, equipmentUpdatedSubject, updated); err != nil {
+	if err := s.publish(ctx, subjects.EquipmentUpdated, updated); err != nil {
 		return domain.Equipment{}, err
 	}
 	return updated, nil
@@ -69,7 +65,7 @@ func (s *EquipmentStorage) SoftDelete(ctx context.Context, id int32, userID *uui
 		ID        int32      `json:"id"`
 		DeletedBy *uuid.UUID `json:"deleted_by,omitempty"`
 	}{ID: id, DeletedBy: userID}
-	return s.publish(ctx, equipmentDeletedSubject, payload)
+	return s.publish(ctx, subjects.EquipmentDeleted, payload)
 }
 
 func (s *EquipmentStorage) publish(ctx context.Context, subject string, payload interface{}) error {

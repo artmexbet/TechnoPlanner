@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"gateway/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
 type PorterStorage interface {
@@ -52,6 +52,11 @@ func (s *PorterService) Get(ctx context.Context, id uuid.UUID) (domain.User, err
 		return domain.User{}, ErrNotFound
 	}
 	return user, nil
+}
+
+// GetCurrentUser returns user by ID without role check (for /me endpoint)
+func (s *PorterService) GetCurrentUser(ctx context.Context, id uuid.UUID) (domain.User, error) {
+	return s.storage.Get(ctx, id)
 }
 
 func (s *PorterService) Create(ctx context.Context, username, email, password string) (string, error) {

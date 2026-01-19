@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"proto"
-
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"gateway/internal/models"
+	"github.com/artmexbet/TechnoPlanner/libs/proto"
+
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
 )
 
 type AuthServiceConfig struct {
@@ -99,8 +99,8 @@ func (g *GRPCWrapper) ValidateToken(ctx context.Context, token string) (models.T
 func (g *GRPCWrapper) Refresh(ctx context.Context, req models.TokenRefreshRequest) (models.TokenPair, error) {
 	resp, err := g.client.Refresh(ctx, &proto.RefreshRequest{
 		Pair: &proto.TokenPair{
-			Token:        req.Pair.AccessToken,
-			RefreshToken: req.Pair.RefreshToken,
+			Token:        req.AccessToken,
+			RefreshToken: req.RefreshToken,
 		},
 		DeviceId:  req.DeviceID,
 		UserAgent: req.UserAgent,

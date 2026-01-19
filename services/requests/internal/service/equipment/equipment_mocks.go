@@ -6,8 +6,8 @@ package equipment
 
 import (
 	"context"
-	"requests/internal/domain"
 
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 	mock "github.com/stretchr/testify/mock"
 )
 

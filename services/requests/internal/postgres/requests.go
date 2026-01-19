@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"requests/internal/domain"
-	"requests/internal/postgres/queries"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/postgres/queries"
 )
 
 // CreateRequest creates a new request along with its associated technics in a transaction.
@@ -30,6 +30,7 @@ func (p *Postgres) CreateRequest(ctx context.Context, req domain.Request) (*doma
 		RequestText:    req.RequestText,
 		ScheduleTime:   req.ScheduleTime,
 		Address:        req.Address,
+		EndTime:        req.EndTime,
 	}
 	createdReq, err := q.CreateRequest(ctx, params)
 	if err != nil {

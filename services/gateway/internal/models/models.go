@@ -30,8 +30,8 @@ type LoginRequest struct {
 
 //easyjson:json
 type TokenPair struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"access_token" validate:"required"`
+	RefreshToken string `json:"refresh_token" validate:"required"`
 }
 
 type TokenValidationResponse struct {
@@ -41,10 +41,10 @@ type TokenValidationResponse struct {
 }
 
 type TokenRefreshRequest struct {
-	Pair      TokenPair `json:"pair"`
-	DeviceID  string    `json:"-" validate:"-"`
-	UserAgent string    `json:"-" validate:"-"`
-	IP        string    `json:"-" validate:"-"`
+	TokenPair
+	DeviceID  string `json:"-" validate:"-"`
+	UserAgent string `json:"-" validate:"-"`
+	IP        string `json:"-" validate:"-"`
 }
 
 type ErrorResponse struct {
@@ -162,4 +162,11 @@ type PorterCreateRequest struct {
 	Username string `json:"username" validate:"required,min=3,max=30"`
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=6"`
+}
+
+type MeResponse struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
 }

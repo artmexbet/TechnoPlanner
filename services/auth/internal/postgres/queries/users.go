@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"auth/internal/models"
+	"github.com/artmexbet/TechnoPlanner/libs/utills/pointer"
 
-	"utills/pointer"
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
 )
 
 func (u *User) ToDomain() models.User {

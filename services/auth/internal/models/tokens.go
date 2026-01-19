@@ -2,7 +2,8 @@ package models
 
 import (
 	"github.com/golang-jwt/jwt/v5"
-	"proto"
+
+	"github.com/artmexbet/TechnoPlanner/libs/proto"
 )
 
 type TokenState int32
@@ -31,8 +32,8 @@ func (p *TokenPair) ToProto() *proto.TokenPair {
 
 func TokenPairFromProto(in *proto.TokenPair) TokenPair {
 	return TokenPair{
-		AccessToken:  in.GetToken(),
-		RefreshToken: in.GetRefreshToken(),
+		AccessToken:  in.Token,
+		RefreshToken: in.RefreshToken,
 	}
 }
 

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
-	"requests/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
 var errRepo = errors.New("repo error")

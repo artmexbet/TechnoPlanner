@@ -7,14 +7,15 @@ package queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 const CreateRequest = `-- name: CreateRequest :one
-INSERT INTO requests (telegram_user_id, request_text, schedule_time, address)
-VALUES ($1, $2, $3, $4)
-RETURNING id, telegram_user_id, request_text, status, schedule_time, address, created_at, updated_at
+INSERT INTO requests (telegram_user_id, request_text, schedule_time, address, end_time)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
 `
 
 type CreateRequestParams struct {
@@ -22,6 +23,7 @@ type CreateRequestParams struct {
 	RequestText    *string
 	ScheduleTime   string
 	Address        string
+	EndTime        time.Time
 }
 
 func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (Request, error) {
@@ -30,6 +32,7 @@ func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (R
 		arg.RequestText,
 		arg.ScheduleTime,
 		arg.Address,
+		arg.EndTime,
 	)
 	var i Request
 	err := row.Scan(
@@ -38,7 +41,9 @@ func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (R
 		&i.RequestText,
 		&i.Status,
 		&i.ScheduleTime,
+		&i.EndTime,
 		&i.Address,
+		&i.ResponsibleInfo,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -46,7 +51,7 @@ func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (R
 }
 
 const GetRequestByID = `-- name: GetRequestByID :one
-SELECT id, telegram_user_id, request_text, status, schedule_time, address, created_at, updated_at
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
 FROM requests
 WHERE id = $1
 `
@@ -60,7 +65,9 @@ func (q *Queries) GetRequestByID(ctx context.Context, id uuid.UUID) (Request, er
 		&i.RequestText,
 		&i.Status,
 		&i.ScheduleTime,
+		&i.EndTime,
 		&i.Address,
+		&i.ResponsibleInfo,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -68,7 +75,7 @@ func (q *Queries) GetRequestByID(ctx context.Context, id uuid.UUID) (Request, er
 }
 
 const GetRequestsByTelegramUserID = `-- name: GetRequestsByTelegramUserID :many
-SELECT id, telegram_user_id, request_text, status, schedule_time, address, created_at, updated_at
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
 FROM requests
 WHERE telegram_user_id = $1
 ORDER BY created_at DESC
@@ -96,7 +103,9 @@ func (q *Queries) GetRequestsByTelegramUserID(ctx context.Context, arg GetReques
 			&i.RequestText,
 			&i.Status,
 			&i.ScheduleTime,
+			&i.EndTime,
 			&i.Address,
+			&i.ResponsibleInfo,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -115,7 +124,7 @@ UPDATE requests
 SET status     = $2,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, telegram_user_id, request_text, status, schedule_time, address, created_at, updated_at
+RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
 `
 
 type UpdateRequestStatusParams struct {
@@ -132,7 +141,9 @@ func (q *Queries) UpdateRequestStatus(ctx context.Context, arg UpdateRequestStat
 		&i.RequestText,
 		&i.Status,
 		&i.ScheduleTime,
+		&i.EndTime,
 		&i.Address,
+		&i.ResponsibleInfo,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

@@ -111,6 +111,21 @@ paths:
                 $ref: '#/components/schemas/TokenPair'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/users/me:
+    get:
+      security:
+        - bearerAuth: []
+      tags: [auth, users]
+      summary: Get current user info
+      description: Returns information about the currently authenticated user
+      responses:
+        '200':
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
   /api/v1/users/logout:
     post:
       security:
@@ -555,11 +570,26 @@ components:
         refresh_token:
           type: string
     TokenRefreshRequest:
+      $ref: '#/components/schemas/TokenPair'
+    MeResponse:
       type: object
       properties:
-        pair:
-          $ref: '#/components/schemas/TokenPair'
-      required: [pair]
+        id:
+          type: string
+          format: uuid
+          description: User ID
+        username:
+          type: string
+          description: Username
+        email:
+          type: string
+          format: email
+          description: User email
+        role:
+          type: string
+          description: User role (admin or porter)
+          enum: [admin, porter]
+      required: [id, username, email, role]
     PorterResponse:
       type: object
       properties:

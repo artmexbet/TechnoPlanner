@@ -5,9 +5,13 @@ import (
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"proto"
+
+	"github.com/artmexbet/TechnoPlanner/libs/proto"
 )
 
+//go:generate easyjson user.go
+
+//easyjson:json
 type User struct {
 	ID           uuid.UUID `json:"id"`
 	Username     string    `json:"username"`

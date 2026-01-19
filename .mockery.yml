@@ -12,19 +12,19 @@ require-template-schema-exists: true
 template: testify
 template-schema: '{{.Template}}.schema.json'
 packages:
-  auth/internal/service:
+  github.com/artmexbet/TechnoPlanner/services/auth/internal/service:
     config:
       all: true
       include-auto-generated: false
-  requests/internal/service/request:
+  github.com/artmexbet/TechnoPlanner/services/requests/internal/service/request:
     config:
       include-auto-generated: false
       all: true
-  requests/internal/service/equipment:
+  github.com/artmexbet/TechnoPlanner/services/requests/internal/service/equipment:
     config:
       include-auto-generated: false
       all: true
-  gateway/internal/service:
+  github.com/artmexbet/TechnoPlanner/services/gateway/internal/service:
     config:
       include-auto-generated: false
       all: true

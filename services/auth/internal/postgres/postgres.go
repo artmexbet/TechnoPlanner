@@ -7,29 +7,21 @@ import (
 	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"auth/internal/postgres/queries"
+	"github.com/artmexbet/TechnoPlanner/libs/config"
+
+	"github.com/artmexbet/TechnoPlanner/services/auth/internal/postgres/queries"
 )
 
 //go:generate sqlc generate -f ./queries/sqlc.yaml
-
-type Config struct {
-	Host   string `yaml:"host" env:"HOST"`
-	Port   int    `yaml:"port" env:"PORT"`
-	User   string `yaml:"user" env:"USER"`
-	Pass   string `yaml:"pass" env:"PASS"`
-	DBName string `yaml:"db_name" env:"DB_NAME"`
-
-	SSLMode string `yaml:"sslmode" env:"SSLMODE"`
-}
 
 type Postgres struct {
 	pool *pgxpool.Pool
 	q    *queries.Queries
 }
 
-func New(ctx context.Context, cfg Config) (*Postgres, error) {
-	pgCfg, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
-		cfg.User, cfg.Pass,
+func New(ctx context.Context, cfg config.Postgres) (*Postgres, error) {
+	pgCfg, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.User, cfg.Password,
 		cfg.Host, cfg.Port,
 		cfg.DBName, cfg.SSLMode))
 	if err != nil {

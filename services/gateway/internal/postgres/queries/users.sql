@@ -1,6 +1,6 @@
 -- name: UpdateUser :one
 UPDATE users
-SET username = $2, email = $3, password_hash = $4, role_id = $5, updated_at = CURRENT_TIMESTAMP
+SET username = $2, email = $3, role_id = $4, updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;
 
@@ -21,3 +21,8 @@ WHERE id = $1;
 SELECT * FROM users
 WHERE role_id = $1 AND deleted_at IS NULL
 ORDER BY created_at DESC;
+
+-- name: CreateUser :one
+INSERT INTO users (id, username, email, role_id)
+VALUES ($1, $2, $3, $4)
+RETURNING *;
