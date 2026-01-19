@@ -21,7 +21,7 @@ func (p *Postgres) GetTechnicByCategory(ctx context.Context, categoryID uuid.UUI
 func (p *Postgres) AddCategory(ctx context.Context, categoryName string) (*domain.TechnicCategory, error) {
 	categoryID, err := p.q.AddCategory(ctx, categoryName)
 	if err != nil {
-		slog.Error("Tech: DB: GetTechnicByCategory", "error", err)
+		slog.Error("Tech: DB: AddCategory", "error", err)
 		return nil, err
 	}
 	category := domain.TechnicCategory{
@@ -33,7 +33,7 @@ func (p *Postgres) AddCategory(ctx context.Context, categoryName string) (*domai
 func (p *Postgres) UpdateCategoryName(ctx context.Context, category domain.TechnicCategory) (*domain.TechnicCategory, error) {
 	err := p.q.UpdateCategoryName(ctx, queries.UpdateCategoryNameParams{Name: category.Name, ID: category.ID})
 	if err != nil {
-		slog.Error("Tech: DB: GetTechnicByCategory", "error", err)
+		slog.Error("Tech: DB: UpdateCategoryName", "error", err)
 		return nil, err
 	}
 	return &category, nil
@@ -41,7 +41,7 @@ func (p *Postgres) UpdateCategoryName(ctx context.Context, category domain.Techn
 func (p *Postgres) DeleteCategory(ctx context.Context, categoryID uuid.UUID) error {
 	err := p.q.DeleteCategory(ctx, categoryID)
 	if err != nil {
-		slog.Error("Tech: DB: GetTechnicByCategory", "error", err)
+		slog.Error("Tech: DB: DeleteCategory", "error", err)
 		return err
 	}
 	return nil
@@ -49,7 +49,7 @@ func (p *Postgres) DeleteCategory(ctx context.Context, categoryID uuid.UUID) err
 func (p *Postgres) GetAllCategories(ctx context.Context) ([]domain.TechnicCategory, error) {
 	dbCategories, err := p.q.GetAllCategories(ctx)
 	if err != nil {
-		slog.Error("Tech: DB: GetTechnicByCategory", "error", err)
+		slog.Error("Tech: DB: GetAllCategories", "error", err)
 		return nil, err
 	}
 	domainCategories := queries.DBCategorySliceToDomain(dbCategories)
