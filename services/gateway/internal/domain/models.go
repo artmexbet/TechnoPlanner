@@ -113,3 +113,20 @@ func NewAuditFields(createdAt, updatedAt time.Time, createdBy, updatedBy *uuid.U
 		UpdatedBy: updatedBy,
 	}
 }
+
+//easyjson:json
+type Technic struct {
+	ID                        uuid.UUID         `json:"id"`
+	CategoryID                uuid.UUID         `json:"category_id"`
+	Name                      string            `json:"name"`
+	Description               string            `json:"description"`
+	AdditionalCharacteristics map[string]string `json:"additional_characteristics"`
+	CreatedAt                 time.Time         `json:"created_at,omitempty"`
+	UpdatedAt                 time.Time         `json:"updated_at,omitempty"`
+}
+
+//easyjson:json
+type TechnicCategory struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+}
