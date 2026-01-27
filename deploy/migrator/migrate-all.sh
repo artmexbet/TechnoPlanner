@@ -23,5 +23,6 @@ function run_migrations() {
 run_migrations "$AUTH_DB" "/migrations/auth"
 run_migrations "$GATEWAY_DB" "/migrations/gateway"
 run_migrations "$REQUESTS_DB" "/migrations/requests"
+run_migrations "$TECH_DB" "/migrations/tech"
 
 echo "Migrations completed"
