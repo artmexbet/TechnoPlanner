@@ -1,9 +1,0 @@
-CREATE TABLE IF NOT EXISTS equipment
-(
-    id          SERIAL PRIMARY KEY,
-    name        VARCHAR(255)             NOT NULL UNIQUE,
-    description TEXT,
-    quantity    INT                      NOT NULL DEFAULT 1,
-    created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
-);

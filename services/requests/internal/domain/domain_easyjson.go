@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson3e1fa5ecDecodeRequestsInternalDomain(in *jlexer.Lexer, out *User) {
+func easyjson3e1fa5ecDecodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain(in *jlexer.Lexer, out *User) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -97,7 +97,7 @@ func easyjson3e1fa5ecDecodeRequestsInternalDomain(in *jlexer.Lexer, out *User) {
 		in.Consumed()
 	}
 }
-func easyjson3e1fa5ecEncodeRequestsInternalDomain(out *jwriter.Writer, in User) {
+func easyjson3e1fa5ecEncodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain(out *jwriter.Writer, in User) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -152,27 +152,266 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain(out *jwriter.Writer, in User) 
 // MarshalJSON supports json.Marshaler interface
 func (v User) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson3e1fa5ecEncodeRequestsInternalDomain(&w, v)
+	easyjson3e1fa5ecEncodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v User) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson3e1fa5ecEncodeRequestsInternalDomain(w, v)
+	easyjson3e1fa5ecEncodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *User) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson3e1fa5ecDecodeRequestsInternalDomain(&r, v)
+	easyjson3e1fa5ecDecodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *User) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson3e1fa5ecDecodeRequestsInternalDomain(l, v)
+	easyjson3e1fa5ecDecodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain(l, v)
 }
-func easyjson3e1fa5ecDecodeRequestsInternalDomain1(in *jlexer.Lexer, out *Equipment) {
+func easyjson3e1fa5ecDecodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain1(in *jlexer.Lexer, out *Request) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		switch key {
+		case "id":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				if data := in.UnsafeBytes(); in.Ok() {
+					in.AddError((out.ID).UnmarshalText(data))
+				}
+			}
+		case "request_text":
+			if in.IsNull() {
+				in.Skip()
+				out.RequestText = nil
+			} else {
+				if out.RequestText == nil {
+					out.RequestText = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.RequestText = string(in.String())
+				}
+			}
+		case "status":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Status = StatusType(in.String())
+			}
+		case "equipments":
+			if in.IsNull() {
+				in.Skip()
+				out.Equipments = nil
+			} else {
+				in.Delim('[')
+				if out.Equipments == nil {
+					if !in.IsDelim(']') {
+						out.Equipments = make([]Equipment, 0, 0)
+					} else {
+						out.Equipments = []Equipment{}
+					}
+				} else {
+					out.Equipments = (out.Equipments)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v1 Equipment
+					if in.IsNull() {
+						in.Skip()
+					} else {
+						(v1).UnmarshalEasyJSON(in)
+					}
+					out.Equipments = append(out.Equipments, v1)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "equipment_string":
+			if in.IsNull() {
+				in.Skip()
+				out.EquipmentString = nil
+			} else {
+				if out.EquipmentString == nil {
+					out.EquipmentString = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.EquipmentString = string(in.String())
+				}
+			}
+		case "issuer":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Issuer).UnmarshalEasyJSON(in)
+			}
+		case "schedule_time":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.ScheduleTime = string(in.String())
+			}
+		case "end_time":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				if data := in.Raw(); in.Ok() {
+					in.AddError((out.EndTime).UnmarshalJSON(data))
+				}
+			}
+		case "address":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Address = string(in.String())
+			}
+		case "created_at":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				if data := in.Raw(); in.Ok() {
+					in.AddError((out.CreatedAt).UnmarshalJSON(data))
+				}
+			}
+		case "updated_at":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				if data := in.Raw(); in.Ok() {
+					in.AddError((out.UpdatedAt).UnmarshalJSON(data))
+				}
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson3e1fa5ecEncodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain1(out *jwriter.Writer, in Request) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.RawText((in.ID).MarshalText())
+	}
+	{
+		const prefix string = ",\"request_text\":"
+		out.RawString(prefix)
+		if in.RequestText == nil {
+			out.RawString("null")
+		} else {
+			out.String(string(*in.RequestText))
+		}
+	}
+	{
+		const prefix string = ",\"status\":"
+		out.RawString(prefix)
+		out.String(string(in.Status))
+	}
+	{
+		const prefix string = ",\"equipments\":"
+		out.RawString(prefix)
+		if in.Equipments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v2, v3 := range in.Equipments {
+				if v2 > 0 {
+					out.RawByte(',')
+				}
+				(v3).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"equipment_string\":"
+		out.RawString(prefix)
+		if in.EquipmentString == nil {
+			out.RawString("null")
+		} else {
+			out.String(string(*in.EquipmentString))
+		}
+	}
+	{
+		const prefix string = ",\"issuer\":"
+		out.RawString(prefix)
+		(in.Issuer).MarshalEasyJSON(out)
+	}
+	{
+		const prefix string = ",\"schedule_time\":"
+		out.RawString(prefix)
+		out.String(string(in.ScheduleTime))
+	}
+	{
+		const prefix string = ",\"end_time\":"
+		out.RawString(prefix)
+		out.Raw((in.EndTime).MarshalJSON())
+	}
+	{
+		const prefix string = ",\"address\":"
+		out.RawString(prefix)
+		out.String(string(in.Address))
+	}
+	{
+		const prefix string = ",\"created_at\":"
+		out.RawString(prefix)
+		out.Raw((in.CreatedAt).MarshalJSON())
+	}
+	{
+		const prefix string = ",\"updated_at\":"
+		out.RawString(prefix)
+		out.Raw((in.UpdatedAt).MarshalJSON())
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Request) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson3e1fa5ecEncodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain1(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Request) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson3e1fa5ecEncodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain1(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Request) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson3e1fa5ecDecodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain1(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Request) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson3e1fa5ecDecodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain1(l, v)
+}
+func easyjson3e1fa5ecDecodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain2(in *jlexer.Lexer, out *Equipment) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -244,7 +483,7 @@ func easyjson3e1fa5ecDecodeRequestsInternalDomain1(in *jlexer.Lexer, out *Equipm
 		in.Consumed()
 	}
 }
-func easyjson3e1fa5ecEncodeRequestsInternalDomain1(out *jwriter.Writer, in Equipment) {
+func easyjson3e1fa5ecEncodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain2(out *jwriter.Writer, in Equipment) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -288,226 +527,23 @@ func easyjson3e1fa5ecEncodeRequestsInternalDomain1(out *jwriter.Writer, in Equip
 // MarshalJSON supports json.Marshaler interface
 func (v Equipment) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson3e1fa5ecEncodeRequestsInternalDomain1(&w, v)
+	easyjson3e1fa5ecEncodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain2(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Equipment) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson3e1fa5ecEncodeRequestsInternalDomain1(w, v)
+	easyjson3e1fa5ecEncodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain2(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Equipment) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson3e1fa5ecDecodeRequestsInternalDomain1(&r, v)
+	easyjson3e1fa5ecDecodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain2(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Equipment) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson3e1fa5ecDecodeRequestsInternalDomain1(l, v)
-}
-func easyjson3e1fa5ecDecodeRequestsInternalDomain2(in *jlexer.Lexer, out *Request) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		switch key {
-		case "id":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ID).UnmarshalText(data))
-				}
-			}
-		case "request_text":
-			if in.IsNull() {
-				in.Skip()
-				out.RequestText = nil
-			} else {
-				if out.RequestText == nil {
-					out.RequestText = new(string)
-				}
-				if in.IsNull() {
-					in.Skip()
-				} else {
-					*out.RequestText = string(in.String())
-				}
-			}
-		case "status":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				out.Status = StatusType(in.String())
-			}
-		case "technics":
-			if in.IsNull() {
-				in.Skip()
-				out.Equipments = nil
-			} else {
-				in.Delim('[')
-				if out.Equipments == nil {
-					if !in.IsDelim(']') {
-						out.Equipments = make([]Equipment, 0, 0)
-					} else {
-						out.Equipments = []Equipment{}
-					}
-				} else {
-					out.Equipments = (out.Equipments)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v1 Equipment
-					if in.IsNull() {
-						in.Skip()
-					} else {
-						(v1).UnmarshalEasyJSON(in)
-					}
-					out.Equipments = append(out.Equipments, v1)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "issuer":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				(out.Issuer).UnmarshalEasyJSON(in)
-			}
-		case "schedule_time":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				out.ScheduleTime = string(in.String())
-			}
-		case "address":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				out.Address = string(in.String())
-			}
-		case "created_at":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				if data := in.Raw(); in.Ok() {
-					in.AddError((out.CreatedAt).UnmarshalJSON(data))
-				}
-			}
-		case "updated_at":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				if data := in.Raw(); in.Ok() {
-					in.AddError((out.UpdatedAt).UnmarshalJSON(data))
-				}
-			}
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson3e1fa5ecEncodeRequestsInternalDomain2(out *jwriter.Writer, in Request) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"id\":"
-		out.RawString(prefix[1:])
-		out.RawText((in.ID).MarshalText())
-	}
-	{
-		const prefix string = ",\"request_text\":"
-		out.RawString(prefix)
-		if in.RequestText == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.RequestText))
-		}
-	}
-	{
-		const prefix string = ",\"status\":"
-		out.RawString(prefix)
-		out.String(string(in.Status))
-	}
-	{
-		const prefix string = ",\"technics\":"
-		out.RawString(prefix)
-		if in.Equipments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v2, v3 := range in.Equipments {
-				if v2 > 0 {
-					out.RawByte(',')
-				}
-				(v3).MarshalEasyJSON(out)
-			}
-			out.RawByte(']')
-		}
-	}
-	{
-		const prefix string = ",\"issuer\":"
-		out.RawString(prefix)
-		(in.Issuer).MarshalEasyJSON(out)
-	}
-	{
-		const prefix string = ",\"schedule_time\":"
-		out.RawString(prefix)
-		out.String(string(in.ScheduleTime))
-	}
-	{
-		const prefix string = ",\"address\":"
-		out.RawString(prefix)
-		out.String(string(in.Address))
-	}
-	{
-		const prefix string = ",\"created_at\":"
-		out.RawString(prefix)
-		out.Raw((in.CreatedAt).MarshalJSON())
-	}
-	{
-		const prefix string = ",\"updated_at\":"
-		out.RawString(prefix)
-		out.Raw((in.UpdatedAt).MarshalJSON())
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v Request) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjson3e1fa5ecEncodeRequestsInternalDomain2(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v Request) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson3e1fa5ecEncodeRequestsInternalDomain2(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *Request) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjson3e1fa5ecDecodeRequestsInternalDomain2(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *Request) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson3e1fa5ecDecodeRequestsInternalDomain2(l, v)
+	easyjson3e1fa5ecDecodeGithubComArtmexbetTechnoPlannerServicesRequestsInternalDomain2(l, v)
 }

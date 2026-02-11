@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 
@@ -25,10 +26,16 @@ func (s *RequestHistoryService) Add(ctx context.Context, entry domain.RequestSta
 	if err := requireAdmin(ctx); err != nil {
 		return domain.RequestStatusHistory{}, err
 	}
+	if s.storage == nil {
+		return domain.RequestStatusHistory{}, errors.New("request history storage not implemented")
+	}
 	entry.ChangedBy = userIDFromCtx(ctx)
 	return s.storage.Add(ctx, entry)
 }
 
 func (s *RequestHistoryService) List(ctx context.Context, requestID uuid.UUID) ([]domain.RequestStatusHistory, error) {
+	if s.storage == nil {
+		return nil, errors.New("request history storage not implemented")
+	}
 	return s.storage.List(ctx, requestID)
 }

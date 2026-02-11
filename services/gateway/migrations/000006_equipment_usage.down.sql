@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS equipment_to_requests;

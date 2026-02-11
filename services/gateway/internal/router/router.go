@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/contrib/otelfiber/v2"
 	"github.com/gofiber/fiber/v2"
@@ -21,14 +22,13 @@ import (
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router/middlwares"
-	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/service"
 )
 
-type iUserService interface {
+type UserService interface {
 	// Define methods for user service operations
 }
 
-type iAuthSvcConnector interface {
+type AuthSvcConnector interface {
 	Login(ctx context.Context, req models.LoginRequest) (models.TokenPair, error)
 	Register(ctx context.Context, username, password, email string) (string, error)
 	ValidateToken(ctx context.Context, token string) (models.TokenValidationResponse, error)
@@ -37,14 +37,14 @@ type iAuthSvcConnector interface {
 	LogoutAll(ctx context.Context, token string) error
 }
 
-type iPorterService interface {
+type PorterService interface {
 	List(ctx context.Context) ([]domain.User, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
 	GetCurrentUser(ctx context.Context, id uuid.UUID) (domain.User, error)
 	Create(ctx context.Context, username, email, password string) (string, error)
 }
 
-type iEquipmentService interface {
+type EquipmentService interface {
 	Create(ctx context.Context, eq domain.Equipment) (domain.Equipment, error)
 	Update(ctx context.Context, eq domain.Equipment) (domain.Equipment, error)
 	Get(ctx context.Context, id int32) (domain.Equipment, error)
@@ -52,20 +52,20 @@ type iEquipmentService interface {
 	Delete(ctx context.Context, id int32) error
 }
 
-type iCategoryService interface {
+type CategoryService interface {
 	Create(ctx context.Context, cat domain.EquipmentCategory) (domain.EquipmentCategory, error)
 	Update(ctx context.Context, cat domain.EquipmentCategory) (domain.EquipmentCategory, error)
 	List(ctx context.Context) ([]domain.EquipmentCategory, error)
 	Delete(ctx context.Context, id int32) error
 }
 
-type iRequestService interface {
+type RequestService interface {
 	List(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.Request, error)
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID uuid.UUID) (domain.Request, error)
 }
 
-type iHistoryService interface {
+type HistoryService interface {
 	List(ctx context.Context, requestID uuid.UUID) ([]domain.RequestStatusHistory, error)
 	Add(ctx context.Context, entry domain.RequestStatusHistory) (domain.RequestStatusHistory, error)
 }
@@ -80,24 +80,24 @@ type Router struct {
 	validator *validator.Validate
 
 	cfg          Config
-	userSvc      iUserService
-	authSvc      iAuthSvcConnector
-	porterSvc    iPorterService
-	equipmentSvc iEquipmentService
-	categorySvc  iCategoryService
-	requestSvc   iRequestService
-	historySvc   iHistoryService
+	userSvc      UserService
+	authSvc      AuthSvcConnector
+	porterSvc    PorterService
+	equipmentSvc EquipmentService
+	categorySvc  CategoryService
+	requestSvc   RequestService
+	historySvc   HistoryService
 }
 
 func NewRouter(
 	cfg Config,
-	userSvc iUserService,
-	authSvc iAuthSvcConnector,
-	porterSvc iPorterService,
-	equipmentSvc iEquipmentService,
-	categorySvc iCategoryService,
-	requestSvc iRequestService,
-	historySvc iHistoryService,
+	userSvc UserService,
+	authSvc AuthSvcConnector,
+	porterSvc PorterService,
+	equipmentSvc EquipmentService,
+	categorySvc CategoryService,
+	requestSvc RequestService,
+	historySvc HistoryService,
 ) *Router {
 	return &Router{
 		r:            fiber.New(),
@@ -654,9 +654,9 @@ func toHistoryResponse(entry domain.RequestStatusHistory) models.RequestStatusHi
 
 func handleServiceError(c *fiber.Ctx, err error) error {
 	switch {
-	case errors.Is(err, service.ErrForbidden):
+	case errors.Is(err, domain.ErrForbidden):
 		return c.Status(fiber.StatusForbidden).JSON(models.ErrorResponse{Error: "forbidden"})
-	case errors.Is(err, service.ErrNotFound):
+	case errors.Is(err, domain.ErrNotFound):
 		return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{Error: "not found"})
 	default:
 		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Error: "internal error", Details: err.Error()})

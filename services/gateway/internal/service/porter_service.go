@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 
@@ -37,6 +38,9 @@ func (s *PorterService) List(ctx context.Context) ([]domain.User, error) {
 	if err := requireAdmin(ctx); err != nil {
 		return nil, err
 	}
+	if s.storage == nil {
+		return nil, errors.New("porter storage not implemented")
+	}
 	return s.storage.List(ctx, porterRoleID)
 }
 
@@ -44,18 +48,24 @@ func (s *PorterService) Get(ctx context.Context, id uuid.UUID) (domain.User, err
 	if err := requireAdmin(ctx); err != nil {
 		return domain.User{}, err
 	}
+	if s.storage == nil {
+		return domain.User{}, errors.New("porter storage not implemented")
+	}
 	user, err := s.storage.Get(ctx, id)
 	if err != nil {
 		return domain.User{}, err
 	}
 	if user.RoleID != porterRoleID {
-		return domain.User{}, ErrNotFound
+		return domain.User{}, domain.ErrNotFound
 	}
 	return user, nil
 }
 
 // GetCurrentUser returns user by ID without role check (for /me endpoint)
 func (s *PorterService) GetCurrentUser(ctx context.Context, id uuid.UUID) (domain.User, error) {
+	if s.storage == nil {
+		return domain.User{}, errors.New("porter storage not implemented")
+	}
 	return s.storage.Get(ctx, id)
 }
 

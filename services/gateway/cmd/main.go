@@ -5,16 +5,16 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel"
 
+	"github.com/artmexbet/TechnoPlanner/libs/broker"
 	"github.com/artmexbet/TechnoPlanner/libs/config"
 	"github.com/artmexbet/TechnoPlanner/libs/observability/opentelemetry"
 
-	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/postgres"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/client"
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router"
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/service"
-	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/storage"
-	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/subscriber"
 )
 
 const (
@@ -23,11 +23,10 @@ const (
 )
 
 type Config struct {
-	Router   router.Config             `yaml:"router" env:"ROUTER"`
-	Broker   config.NATSConfig         `yaml:"broker" env:"BROKER"`
-	Postgres config.Postgres           `yaml:"postgres" env:"POSTGRES"`
-	GRPC     service.AuthServiceConfig `yaml:"grpc" env:"GRPC"`
-	Trace    config.Trace              `yaml:"trace" env:"TRACE"`
+	Router router.Config             `yaml:"router" env:"ROUTER"`
+	Broker config.NATSConfig         `yaml:"broker" env:"BROKER"`
+	GRPC   service.AuthServiceConfig `yaml:"grpc" env:"GRPC"`
+	Trace  config.Trace              `yaml:"trace" env:"TRACE"`
 }
 
 func main() {
@@ -57,16 +56,16 @@ func main() {
 	otel.SetTextMapPropagator(opentelemetry.NewPropagator())
 	slog.Info("Starting otel connection")
 
-	//nats := broker.NewNATSBroker(cfg.Broker) // понадобится позже
-
-	_postgres, err := postgres.New(ctx, cfg.Postgres)
+	// Подключаемся к NATS
+	natsConn, err := broker.Connect(cfg.Broker.URL(), nats.Name("Gateway Service"))
 	if err != nil {
 		panic(err)
 	}
-	defer _postgres.Close()
-	slog.Info("Starting postgres connection")
+	defer natsConn.Close()
+	slog.Info("Connected to NATS")
 
-	store := storage.NewStorage(_postgres, nil) // TODO: inject publisher
+	// Создаем клиенты для сервисов через NATS Request-Reply
+	requestClient := client.NewRequestClient(natsConn)
 
 	authSvc, err := service.NewGRPCWrapper(cfg.GRPC)
 	if err != nil {
@@ -74,27 +73,18 @@ func main() {
 	}
 	defer authSvc.Close() //nolint:errcheck
 
-	userSvc := service.NewUserService(store)
-	porterSvc := service.NewPorterService(store.Porters, authSvc)
-	equipmentSvc := service.NewEquipmentService(store.Equipment)
-	categorySvc := service.NewCategoryService(store.Categories)
-	requestSvc := service.NewRequestService(store.Requests)
-	historySvc := service.NewRequestHistoryService(store.StatusHistory)
+	// Создаем клиенты для сервисов через NATS Request-Reply
+	userClient := client.NewUserClient(natsConn)
+	porterSvc := service.NewPorterService(userClient, authSvc)
+	equipmentClient := client.NewEquipmentClient(natsConn)
+	equipmentSvc := service.NewEquipmentService(equipmentClient)
+	categoryClient := client.NewCategoryClient(natsConn)
+	categorySvc := service.NewCategoryService(categoryClient)
+	requestSvc := service.NewRequestService(requestClient)
+	historyClient := client.NewHistoryClient(natsConn)
+	historySvc := service.NewRequestHistoryService(historyClient)
 
-	slog.Info("Starting subscriber service")
-
-	subs, err := subscriber.New(cfg.Broker, store.Porters)
-	if err != nil {
-		panic(err)
-	}
-	defer subs.Close()
-	slog.Info("Subscriber connected to NATS")
-
-	if err := subs.Init(); err != nil {
-		panic(err)
-	}
-
-	r := router.NewRouter(cfg.Router, userSvc, authSvc, porterSvc, equipmentSvc, categorySvc, requestSvc, historySvc).
+	r := router.NewRouter(cfg.Router, nil, authSvc, porterSvc, equipmentSvc, categorySvc, requestSvc, historySvc).
 		InitMiddlewares(tracer).
 		InitBaseRoutes().
 		InitUserRoutes().

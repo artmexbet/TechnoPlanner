@@ -68,6 +68,7 @@ require (
 replace (
 	github.com/artmexbet/TechnoPlanner/libs/broker => ../../libs/broker
 	github.com/artmexbet/TechnoPlanner/libs/config => ../../libs/config
+	github.com/artmexbet/TechnoPlanner/libs/dto => ../../libs/dto
 	github.com/artmexbet/TechnoPlanner/libs/observability => ../../libs/observability
 	github.com/artmexbet/TechnoPlanner/libs/proto => ../../libs/proto
 	github.com/artmexbet/TechnoPlanner/libs/utills => ../../libs/utills

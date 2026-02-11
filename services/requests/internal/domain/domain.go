@@ -40,10 +40,10 @@ type Request struct {
 	RequestText     *string     `json:"request_text"`
 	Status          StatusType  `json:"status"`
 	Equipments      []Equipment `json:"equipments"`
-	EquipmentString *string     `json:"-"`
+	EquipmentString *string     `json:"equipment_string"`
 	Issuer          User        `json:"issuer"`
 	ScheduleTime    string      `json:"schedule_time"`
-	EndTime         time.Time   `json:"-"`
+	EndTime         time.Time   `json:"end_time"`
 	Address         string      `json:"address"`
 	CreatedAt       time.Time   `json:"created_at"`
 	UpdatedAt       time.Time   `json:"updated_at"`

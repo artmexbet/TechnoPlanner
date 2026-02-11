@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
 type contextKey string
@@ -39,7 +41,7 @@ func userIDFromCtx(ctx context.Context) *uuid.UUID {
 
 func requireAdmin(ctx context.Context) error {
 	if roleFromCtx(ctx) != RoleAdmin {
-		return ErrForbidden
+		return domain.ErrForbidden
 	}
 	return nil
 }

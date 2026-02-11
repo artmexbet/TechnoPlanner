@@ -2,6 +2,7 @@ package wrapnats
 
 import (
 	"context"
+	"encoding/json"
 	"log/slog"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
-type iRequestService interface {
+type RequestService interface {
 	Add(ctx context.Context, newRequest domain.Request) (*domain.Request, error)
 	UpdateStatus(ctx context.Context, requestID uuid.UUID, status domain.StatusType) error
 	Get(ctx context.Context, requestID uuid.UUID) (*domain.Request, error)
@@ -23,7 +24,7 @@ type iRequestService interface {
 	Cancel(ctx context.Context, requestID uuid.UUID) error
 }
 
-type iEquipmentService interface {
+type EquipmentService interface {
 	Add(ctx context.Context, technics []domain.Equipment) error
 }
 
@@ -39,11 +40,11 @@ type NatsWrapper struct {
 	validator     *validator.Validate
 	subscriptions []*nats.Subscription
 
-	reqService iRequestService
-	eqService  iEquipmentService
+	reqService RequestService
+	eqService  EquipmentService
 }
 
-func New(cfg *Config, conn *broker.NATS, reqService iRequestService, eqService iEquipmentService) (*NatsWrapper, error) {
+func New(cfg *Config, conn *broker.NATS, reqService RequestService, eqService EquipmentService) (*NatsWrapper, error) {
 	return &NatsWrapper{
 		conn:       conn,
 		validator:  validator.New(validator.WithRequiredStructEnabled()),
@@ -69,6 +70,10 @@ func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 		subjects.SubjectBotRequestCancel:  w.handleCancelRequest,
 		subjects.GatewayRequestCanceled:   w.handleCancelRequestFromService,
 		subjects.ServiceEquipmentAdd:      w.handleAddEquipment,
+		// Gateway handlers
+		subjects.GatewayRequestList:              w.handleGatewayListRequests,
+		subjects.GatewayRequestGet:               w.handleGatewayGetRequest,
+		subjects.GatewayRequestAssignResponsible: w.handleGatewayAssignResponsible,
 	}
 
 	for subject, handler := range handlers {
@@ -307,4 +312,102 @@ func (w *NatsWrapper) handleAddEquipment(msg *broker.Msg) error {
 		return err
 	}
 	return nil
+}
+
+// Gateway handlers
+
+// gatewayListRequest запрос на получение списка заявок от gateway
+type gatewayListRequest struct {
+	ResponsibleID *string `json:"responsible_id,omitempty"`
+}
+
+// gatewayAssignRequest запрос на назначение ответственного
+type gatewayAssignRequest struct {
+	RequestID     string `json:"request_id" validate:"required,uuid4"`
+	ResponsibleID string `json:"responsible_id" validate:"required,uuid4"`
+}
+
+func (w *NatsWrapper) handleGatewayListRequests(msg *broker.Msg) error {
+	ctx := msg.Context()
+
+	var req gatewayListRequest
+	if err := json.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling gateway list request", "error", err)
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
+	}
+
+	var responsibleUUID uuid.UUID
+	if req.ResponsibleID != nil {
+		id, err := uuid.Parse(*req.ResponsibleID)
+		if err != nil {
+			slog.ErrorContext(ctx, "invalid responsible_id", "error", err)
+			return respondError(msg.Msg, "invalid responsible_id", err.Error(), statusBadRequest)
+		}
+		responsibleUUID = id
+	}
+
+	// TODO: добавить метод в сервис для получения списка по ответственному
+	// Пока возвращаем пустой список
+	_ = responsibleUUID
+	requests := make([]domain.Request, 0)
+
+	return respondSuccess(msg.Msg, "success", requests)
+}
+
+func (w *NatsWrapper) handleGatewayGetRequest(msg *broker.Msg) error {
+	ctx := msg.Context()
+
+	var req requestByID
+	if err := json.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling gateway get request", "error", err)
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
+	}
+
+	if err := w.validator.Struct(req); err != nil {
+		slog.ErrorContext(ctx, "validation error", "error", err)
+		return respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
+	}
+
+	reqDomain, err := w.reqService.Get(ctx, req.RequestID)
+	if err != nil {
+		// TODO: проверять на pgx.ErrNoRows или доменную ошибку not found
+		slog.ErrorContext(ctx, "error getting request", "error", err)
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
+	}
+
+	return respondSuccess(msg.Msg, "success", reqDomain)
+}
+
+func (w *NatsWrapper) handleGatewayAssignResponsible(msg *broker.Msg) error {
+	ctx := msg.Context()
+
+	var req gatewayAssignRequest
+	if err := json.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling gateway assign request", "error", err)
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
+	}
+
+	if err := w.validator.Struct(req); err != nil {
+		slog.ErrorContext(ctx, "validation error", "error", err)
+		return respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
+	}
+
+	requestID, err := uuid.Parse(req.RequestID)
+	if err != nil {
+		slog.ErrorContext(ctx, "invalid request_id", "error", err)
+		return respondError(msg.Msg, "invalid request_id", err.Error(), statusBadRequest)
+	}
+
+	responsibleID, err := uuid.Parse(req.ResponsibleID)
+	if err != nil {
+		slog.ErrorContext(ctx, "invalid responsible_id", "error", err)
+		return respondError(msg.Msg, "invalid responsible_id", err.Error(), statusBadRequest)
+	}
+
+	// TODO: добавить метод в сервис для назначения ответственного
+	// Пока возвращаем ошибку not implemented
+	_ = requestID
+	_ = responsibleID
+
+	return respondError(msg.Msg, "not implemented", "assign responsible not implemented", statusInternalServerError)
 }

@@ -8,6 +8,12 @@ import (
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
+// ErrForbidden deprecated: use domain.ErrForbidden
+var ErrForbidden = domain.ErrForbidden
+
+// ErrNotFound deprecated: use domain.ErrNotFound
+var ErrNotFound = domain.ErrNotFound
+
 type RequestStorage interface {
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID, userID *uuid.UUID) (domain.Request, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.Request, error)
