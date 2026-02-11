@@ -1,4 +1,4 @@
-go 1.25.1
+go 1.25.4
 
 use (
 	./libs/broker
@@ -9,4 +9,5 @@ use (
 	./services/auth
 	./services/gateway
 	./services/requests
+	./services/tech
 )
