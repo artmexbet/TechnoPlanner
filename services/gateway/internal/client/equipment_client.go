@@ -36,7 +36,7 @@ func (c *EquipmentClient) Create(ctx context.Context, eq domain.Equipment) (doma
 		req.CategoryIDs = append(req.CategoryIDs, cat.ID)
 	}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return domain.Equipment{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -81,7 +81,7 @@ func (c *EquipmentClient) Update(ctx context.Context, eq domain.Equipment) (doma
 		req.CategoryIDs = append(req.CategoryIDs, cat.ID)
 	}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return domain.Equipment{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -116,9 +116,9 @@ func (c *EquipmentClient) Update(ctx context.Context, eq domain.Equipment) (doma
 
 // Get получает оборудование по ID
 func (c *EquipmentClient) Get(ctx context.Context, id int32) (domain.Equipment, error) {
-	req := map[string]int32{"id": id}
+	req := dto.IDRequest{ID: id}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return domain.Equipment{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -185,12 +185,12 @@ func (c *EquipmentClient) List(ctx context.Context) ([]domain.Equipment, error) 
 
 // SoftDelete мягко удаляет оборудование
 func (c *EquipmentClient) SoftDelete(ctx context.Context, id int32, userID *uuid.UUID) error {
-	req := map[string]interface{}{
-		"id":      id,
-		"user_id": userID,
+	req := dto.SoftDeleteRequest{
+		ID:     id,
+		UserID: userID,
 	}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return fmt.Errorf("marshal request: %w", err)
 	}
@@ -238,26 +238,4 @@ func mapEquipmentFromDTO(eq dto.Equipment) domain.Equipment {
 			UpdatedBy: eq.Audit.UpdatedBy,
 		},
 	}
-}
-
-func mapCategoryFromDTO(cat dto.EquipmentCategory) domain.EquipmentCategory {
-	return domain.EquipmentCategory{
-		ID:          cat.ID,
-		Name:        cat.Name,
-		Description: cat.Description,
-		Audit: domain.AuditFields{
-			CreatedAt: cat.Audit.CreatedAt,
-			UpdatedAt: cat.Audit.UpdatedAt,
-			DeletedAt: cat.Audit.DeletedAt,
-			CreatedBy: cat.Audit.CreatedBy,
-			UpdatedBy: cat.Audit.UpdatedBy,
-		},
-	}
-}
-
-func derefString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
 }

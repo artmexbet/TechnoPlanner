@@ -14,7 +14,7 @@ type Config struct {
 	AccessTokenTTL  time.Duration `yaml:"access_token_ttl" env:"ACCESS_TOKEN_TTL"`
 }
 
-type iRedis interface {
+type Redis interface {
 	StoreSession(
 		ctx context.Context,
 		sessionID, userID, refreshToken string,
@@ -26,25 +26,25 @@ type iRedis interface {
 	GetUserSessions(ctx context.Context, userID string) ([][]byte, error)
 }
 
-type iPostgres interface {
+type Postgres interface {
 	FindUserByUsername(ctx context.Context, username string) (models.User, error)
 	CreateUser(ctx context.Context, username, email, passwordHash string, roleID int32) (models.User, error)
 }
 
-type iPublisher interface {
+type Publisher interface {
 	PublishUserCreated(user models.User) error
 }
 
 type Repository struct {
-	r         iRedis
-	p         iPostgres
-	publisher iPublisher
+	r         Redis
+	p         Postgres
+	publisher Publisher
 
 	refreshTokenTTL time.Duration
 	accessTokenTTL  time.Duration
 }
 
-func New(cfg Config, r iRedis, p iPostgres, publisher iPublisher) (*Repository, error) {
+func New(cfg Config, r Redis, p Postgres, publisher Publisher) (*Repository, error) {
 	return &Repository{
 		r:               r,
 		p:               p,

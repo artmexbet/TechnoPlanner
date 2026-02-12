@@ -2,6 +2,7 @@ package request
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -9,7 +10,7 @@ import (
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
-type iRepository interface {
+type Repository interface {
 	SaveTelegramUser(ctx context.Context, user domain.User) (domain.User, error)
 	CreateRequest(ctx context.Context, req domain.Request) (*domain.Request, error)
 	GetRequestsByUserID(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]domain.Request, error)
@@ -18,10 +19,10 @@ type iRepository interface {
 }
 
 type Service struct {
-	repository iRepository
+	repository Repository
 }
 
-func New(repository iRepository) *Service {
+func New(repository Repository) *Service {
 	return &Service{
 		repository: repository,
 	}
@@ -79,4 +80,16 @@ func (s *Service) UpdateStatus(ctx context.Context, requestID uuid.UUID, status 
 		return fmt.Errorf("update request status: %w", err)
 	}
 	return nil
+}
+
+// ListByResponsible возвращает список заявок по ответственному (заглушка)
+func (s *Service) ListByResponsible(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error) {
+	// TODO: implement
+	return nil, errors.New("not implemented")
+}
+
+// AssignResponsible назначает ответственного за заявку (заглушка)
+func (s *Service) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) (*domain.Request, error) {
+	// TODO: implement
+	return nil, errors.New("not implemented")
 }

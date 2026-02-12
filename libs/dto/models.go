@@ -8,6 +8,8 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:generate easyjson -all models.go
+
 // RequestStatus статус заявки
 type RequestStatus string
 
@@ -141,22 +143,22 @@ type Place struct {
 //
 //easyjson:json
 type RequestListRequest struct {
-	ResponsibleID *string `json:"responsible_id,omitempty"`
+	ResponsibleID *uuid.UUID `json:"responsible_id,omitempty"`
 }
 
 // RequestByIDRequest DTO запроса на получение заявки по ID
 //
 //easyjson:json
 type RequestByIDRequest struct {
-	RequestID string `json:"request_id"`
+	RequestID uuid.UUID `json:"request_id"`
 }
 
 // AssignResponsibleRequest DTO запроса на назначение ответственного
 //
 //easyjson:json
 type AssignResponsibleRequest struct {
-	RequestID     string `json:"request_id"`
-	ResponsibleID string `json:"responsible_id"`
+	RequestID     uuid.UUID  `json:"request_id"`
+	ResponsibleID *uuid.UUID `json:"responsible_id"`
 }
 
 // GatewayResponse стандартный ответ от сервисов

@@ -11,6 +11,7 @@ import (
 
 	"github.com/artmexbet/TechnoPlanner/libs/broker"
 	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
+	"github.com/artmexbet/TechnoPlanner/libs/dto"
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
@@ -24,38 +25,13 @@ func NewRequestClient(conn *broker.NATS) *RequestClient {
 	return &RequestClient{conn: conn}
 }
 
-// requestListRequest запрос на получение списка заявок
-type requestListRequest struct {
-	ResponsibleID *string `json:"responsible_id,omitempty"`
-}
-
-// requestByIDRequest запрос на получение заявки по ID
-type requestByIDRequest struct {
-	RequestID string `json:"request_id"`
-}
-
-// assignResponsibleRequest запрос на назначение ответственного
-type assignResponsibleRequest struct {
-	RequestID     string `json:"request_id"`
-	ResponsibleID string `json:"responsible_id"`
-}
-
-// gatewayRequestResponse стандартный ответ от сервисов
-type gatewayRequestResponse struct {
-	Success bool            `json:"success"`
-	Message string          `json:"message"`
-	Data    json.RawMessage `json:"data,omitempty"`
-}
-
 // List получает список заявок
 func (c *RequestClient) List(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error) {
-	req := requestListRequest{}
-	if responsibleID != nil {
-		id := responsibleID.String()
-		req.ResponsibleID = &id
+	req := dto.RequestListRequest{
+		ResponsibleID: responsibleID,
 	}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return nil, fmt.Errorf("marshal request: %w", err)
 	}
@@ -68,7 +44,7 @@ func (c *RequestClient) List(ctx context.Context, responsibleID *uuid.UUID) ([]d
 		return nil, fmt.Errorf("nats request: %w", err)
 	}
 
-	var resp gatewayRequestResponse
+	var resp dto.GatewayResponse
 	if err := json.Unmarshal(msg.Data, &resp); err != nil {
 		return nil, fmt.Errorf("unmarshal response: %w", err)
 	}
@@ -80,9 +56,14 @@ func (c *RequestClient) List(ctx context.Context, responsibleID *uuid.UUID) ([]d
 		return nil, fmt.Errorf("service error: %s", resp.Message)
 	}
 
-	var requests []domain.Request
-	if err := json.Unmarshal(resp.Data, &requests); err != nil {
+	var result []dto.Request
+	if err := json.Unmarshal(resp.Data, &result); err != nil {
 		return nil, fmt.Errorf("unmarshal requests: %w", err)
+	}
+
+	requests := make([]domain.Request, 0, len(result))
+	for _, r := range result {
+		requests = append(requests, mapRequestFromDTO(r))
 	}
 
 	return requests, nil
@@ -90,9 +71,9 @@ func (c *RequestClient) List(ctx context.Context, responsibleID *uuid.UUID) ([]d
 
 // Get получает заявку по ID
 func (c *RequestClient) Get(ctx context.Context, id uuid.UUID) (domain.Request, error) {
-	req := requestByIDRequest{RequestID: id.String()}
+	req := dto.RequestByIDRequest{RequestID: id}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return domain.Request{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -105,7 +86,7 @@ func (c *RequestClient) Get(ctx context.Context, id uuid.UUID) (domain.Request, 
 		return domain.Request{}, fmt.Errorf("nats request: %w", err)
 	}
 
-	var resp gatewayRequestResponse
+	var resp dto.GatewayResponse
 	if err := json.Unmarshal(msg.Data, &resp); err != nil {
 		return domain.Request{}, fmt.Errorf("unmarshal response: %w", err)
 	}
@@ -117,22 +98,24 @@ func (c *RequestClient) Get(ctx context.Context, id uuid.UUID) (domain.Request, 
 		return domain.Request{}, fmt.Errorf("service error: %s", resp.Message)
 	}
 
-	var request domain.Request
-	if err := json.Unmarshal(resp.Data, &request); err != nil {
+	var result dto.Request
+	if err := json.Unmarshal(resp.Data, &result); err != nil {
 		return domain.Request{}, fmt.Errorf("unmarshal request: %w", err)
 	}
 
-	return request, nil
+	return mapRequestFromDTO(result), nil
 }
 
 // AssignResponsible назначает ответственного за заявку
 func (c *RequestClient) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID, userID *uuid.UUID) (domain.Request, error) {
-	req := assignResponsibleRequest{
-		RequestID:     requestID.String(),
-		ResponsibleID: responsibleID.String(),
+	req := dto.AssignResponsibleRequest{
+		RequestID: requestID,
+	}
+	if responsibleID != nil {
+		req.ResponsibleID = responsibleID
 	}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return domain.Request{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -145,7 +128,7 @@ func (c *RequestClient) AssignResponsible(ctx context.Context, requestID uuid.UU
 		return domain.Request{}, fmt.Errorf("nats request: %w", err)
 	}
 
-	var resp gatewayRequestResponse
+	var resp dto.GatewayResponse
 	if err := json.Unmarshal(msg.Data, &resp); err != nil {
 		return domain.Request{}, fmt.Errorf("unmarshal response: %w", err)
 	}
@@ -157,10 +140,42 @@ func (c *RequestClient) AssignResponsible(ctx context.Context, requestID uuid.UU
 		return domain.Request{}, fmt.Errorf("service error: %s", resp.Message)
 	}
 
-	var request domain.Request
-	if err := json.Unmarshal(resp.Data, &request); err != nil {
+	var result dto.Request
+	if err := json.Unmarshal(resp.Data, &result); err != nil {
 		return domain.Request{}, fmt.Errorf("unmarshal request: %w", err)
 	}
 
-	return request, nil
+	return mapRequestFromDTO(result), nil
+}
+
+func mapRequestFromDTO(r dto.Request) domain.Request {
+	equip := make([]domain.RequestEquipment, 0, len(r.Equipment))
+	for _, eq := range r.Equipment {
+		equip = append(equip, domain.RequestEquipment{
+			RequestID:   eq.RequestID,
+			EquipmentID: eq.EquipmentID,
+			Quantity:    eq.Quantity,
+			CreatedAt:   eq.CreatedAt,
+			UpdatedAt:   eq.UpdatedAt,
+		})
+	}
+
+	return domain.Request{
+		ID:                r.ID,
+		TelegramUserInfo:  r.TelegramUserInfo,
+		RequestText:       r.RequestText,
+		Status:            domain.RequestStatus(r.Status),
+		ScheduleTime:      r.ScheduleTime,
+		EndTime:           r.EndTime,
+		Address:           r.Address,
+		ResponsibleUserID: r.ResponsibleUserID,
+		Equipment:         equip,
+		Audit: domain.AuditFields{
+			CreatedAt: r.Audit.CreatedAt,
+			UpdatedAt: r.Audit.UpdatedAt,
+			DeletedAt: r.Audit.DeletedAt,
+			CreatedBy: r.Audit.CreatedBy,
+			UpdatedBy: r.Audit.UpdatedBy,
+		},
+	}
 }

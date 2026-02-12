@@ -33,7 +33,7 @@ func (c *HistoryClient) Add(ctx context.Context, entry domain.RequestStatusHisto
 		Comment:   derefString(entry.Comment),
 	}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return domain.RequestStatusHistory{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -68,9 +68,9 @@ func (c *HistoryClient) Add(ctx context.Context, entry domain.RequestStatusHisto
 
 // List получает историю статусов по ID заявки
 func (c *HistoryClient) List(ctx context.Context, requestID uuid.UUID) ([]domain.RequestStatusHistory, error) {
-	req := map[string]string{"request_id": requestID.String()}
+	req := dto.RequestIDRequest{RequestID: requestID}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return nil, fmt.Errorf("marshal request: %w", err)
 	}

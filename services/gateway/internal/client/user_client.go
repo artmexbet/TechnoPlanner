@@ -32,9 +32,9 @@ func (c *UserClient) Get(ctx context.Context, id uuid.UUID) (domain.User, error)
 
 // List получает список портеров по roleID (для интерфейса PorterStorage)
 func (c *UserClient) List(ctx context.Context, roleID int32) ([]domain.User, error) {
-	req := map[string]int32{"role_id": roleID}
+	req := dto.RoleIDRequest{RoleID: roleID}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return nil, fmt.Errorf("marshal request: %w", err)
 	}
@@ -71,9 +71,9 @@ func (c *UserClient) List(ctx context.Context, roleID int32) ([]domain.User, err
 
 // GetUserByID получает пользователя по ID
 func (c *UserClient) GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error) {
-	req := map[string]string{"id": id.String()}
+	req := dto.UUIDRequest{ID: id}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return domain.User{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -114,7 +114,7 @@ func (c *UserClient) CreateUser(ctx context.Context, user domain.User) error {
 		RoleID:   user.RoleID,
 	}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return fmt.Errorf("marshal request: %w", err)
 	}

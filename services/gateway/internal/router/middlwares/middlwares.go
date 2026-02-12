@@ -13,11 +13,11 @@ const (
 	ContextUserRoleKey = "user_role"
 )
 
-type iAuthClient interface {
+type AuthClient interface {
 	ValidateToken(ctx context.Context, token string) (models.TokenValidationResponse, error)
 }
 
-func CheckJWTMiddleware(authClient iAuthClient) fiber.Handler {
+func CheckJWTMiddleware(authClient AuthClient) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		h := c.GetReqHeaders()["Authorization"]
 		if len(h) == 0 {

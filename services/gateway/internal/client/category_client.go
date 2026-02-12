@@ -32,7 +32,7 @@ func (c *CategoryClient) Create(ctx context.Context, cat domain.EquipmentCategor
 		Description: derefString(cat.Description),
 	}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return domain.EquipmentCategory{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -73,7 +73,7 @@ func (c *CategoryClient) Update(ctx context.Context, cat domain.EquipmentCategor
 		Description: derefString(cat.Description),
 	}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return domain.EquipmentCategory{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -140,12 +140,12 @@ func (c *CategoryClient) List(ctx context.Context) ([]domain.EquipmentCategory, 
 
 // SoftDelete мягко удаляет категорию
 func (c *CategoryClient) SoftDelete(ctx context.Context, id int32, userID *uuid.UUID) error {
-	req := map[string]interface{}{
-		"id":      id,
-		"user_id": userID,
+	req := dto.SoftDeleteRequest{
+		ID:     id,
+		UserID: userID,
 	}
 
-	data, err := json.Marshal(req)
+	data, err := req.MarshalJSON()
 	if err != nil {
 		return fmt.Errorf("marshal request: %w", err)
 	}
@@ -171,4 +171,19 @@ func (c *CategoryClient) SoftDelete(ctx context.Context, id int32, userID *uuid.
 	}
 
 	return nil
+}
+
+func mapCategoryFromDTO(cat dto.EquipmentCategory) domain.EquipmentCategory {
+	return domain.EquipmentCategory{
+		ID:          cat.ID,
+		Name:        cat.Name,
+		Description: cat.Description,
+		Audit: domain.AuditFields{
+			CreatedAt: cat.Audit.CreatedAt,
+			UpdatedAt: cat.Audit.UpdatedAt,
+			DeletedAt: cat.Audit.DeletedAt,
+			CreatedBy: cat.Audit.CreatedBy,
+			UpdatedBy: cat.Audit.UpdatedBy,
+		},
+	}
 }

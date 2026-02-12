@@ -9,7 +9,7 @@ import (
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
-type iPostgres interface {
+type Postgres interface {
 	CreateRequest(ctx context.Context, req domain.Request) (*domain.Request, error)
 	CreateEquipment(ctx context.Context, technics []domain.Equipment) error
 	GetRequestsByUserID(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]domain.Request, error)
@@ -23,7 +23,7 @@ type iPostgres interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 }
 
-type iPublisher interface {
+type Publisher interface {
 	PublishRequestCreated(req domain.Request) error
 	PublishRequestCanceled(req domain.Request) error
 	PublishUserAdded(user domain.User) error
@@ -32,11 +32,11 @@ type iPublisher interface {
 // Repository struct that interacts with the databases.
 // We will be in need of sending data to broker in the future, so having a repository wrapper is a good idea.
 type Repository struct {
-	pg        iPostgres
-	publisher iPublisher
+	pg        Postgres
+	publisher Publisher
 }
 
-func NewRepository(pg iPostgres, publisher iPublisher) *Repository {
+func NewRepository(pg Postgres, publisher Publisher) *Repository {
 	return &Repository{pg: pg, publisher: publisher}
 }
 

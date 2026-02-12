@@ -47,6 +47,20 @@ const (
 	GatewayHistoryList = "gateway.history.list"
 	GatewayHistoryAdd  = "gateway.history.add"
 
+	// Tech subjects
+	GatewayTechnicList          = "gateway.technic.list"
+	GatewayTechnicGet           = "gateway.technic.get"
+	GatewayTechnicCreate        = "gateway.technic.create"
+	GatewayTechnicUpdate        = "gateway.technic.update"
+	GatewayTechnicDelete        = "gateway.technic.delete"
+	GatewayTechnicGetByCategory = "gateway.technic.get.by_category"
+
+	GatewayTechnicCategoryList   = "gateway.technic_category.list"
+	GatewayTechnicCategoryGet    = "gateway.technic_category.get"
+	GatewayTechnicCategoryCreate = "gateway.technic_category.create"
+	GatewayTechnicCategoryUpdate = "gateway.technic_category.update"
+	GatewayTechnicCategoryDelete = "gateway.technic_category.delete"
+
 	ServiceRequestCreated  = "bot-svc.requests.created"
 	ServiceRequestCanceled = "bot-svc.requests.canceled"
 	ServiceUserAdded       = "bot-svc.users.added"

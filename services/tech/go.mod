@@ -3,11 +3,20 @@ module tech
 go 1.25.4
 
 require (
+	github.com/artmexbet/TechnoPlanner/libs/broker v0.0.0
+	github.com/artmexbet/TechnoPlanner/libs/config v0.0.0
+	github.com/artmexbet/TechnoPlanner/libs/dto v0.0.0
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/mailru/easyjson v0.9.1
 	github.com/nats-io/nats.go v1.47.0
+)
+
+replace (
+	github.com/artmexbet/TechnoPlanner/libs/broker => ../../libs/broker
+	github.com/artmexbet/TechnoPlanner/libs/config => ../../libs/config
+	github.com/artmexbet/TechnoPlanner/libs/dto => ../../libs/dto
 )
 
 require (

@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/artmexbet/TechnoPlanner/libs/broker"
+	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
+	"github.com/artmexbet/TechnoPlanner/libs/dto"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
-
-	"github.com/artmexbet/TechnoPlanner/libs/broker"
-	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
@@ -22,6 +22,10 @@ type RequestService interface {
 	Get(ctx context.Context, requestID uuid.UUID) (*domain.Request, error)
 	List(ctx context.Context, user domain.User, limit, offset int32) ([]domain.Request, error)
 	Cancel(ctx context.Context, requestID uuid.UUID) error
+	// Gateway methods
+
+	ListByResponsible(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)
+	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) (*domain.Request, error)
 }
 
 type EquipmentService interface {
@@ -63,6 +67,7 @@ func (w *NatsWrapper) Close() {
 
 func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 	handlers := map[string]broker.MsgHandler{
+		// Bot handlers
 		subjects.SubjectBotRequestCreated: w.handleCreateRequest,
 		subjects.RequestStatusChanged:     w.handleUpdateStatus,
 		subjects.SubjectBotRequestGet:     w.handleGetRequest,
@@ -86,10 +91,12 @@ func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 	return w
 }
 
+// Bot handlers
+
 func (w *NatsWrapper) handleCreateRequest(msg *broker.Msg) error {
 	ctx := msg.Context()
-	var req requestCreate
-	err := req.UnmarshalJSON(msg.Data)
+	var req dto.RequestCreateRequest
+	err := json.Unmarshal(msg.Data, &req)
 	if err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling create request", "error", err)
 		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
@@ -100,175 +107,119 @@ func (w *NatsWrapper) handleCreateRequest(msg *broker.Msg) error {
 		return respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
 	}
 
-	domainReq := req.ToDomain()
+	domainReq := mapRequestCreateToDomain(req)
 	createdReq, err := w.reqService.Add(ctx, domainReq)
 	if err != nil {
 		slog.ErrorContext(ctx, "error creating request", "error", err)
 		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
-	respData, err := createdReq.MarshalJSON()
+	respDTO := mapRequestToDTO(*createdReq)
+	respData, err := json.Marshal(respDTO)
 	if err != nil {
 		slog.ErrorContext(ctx, "error marshaling response", "error", err)
 		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
-	err = respondSuccess(msg.Msg, "success", respData)
-	if err != nil {
-		slog.ErrorContext(ctx, "error sending response", "error", err)
-		return err
-	}
-	return nil
+	return respondSuccess(msg.Msg, "success", respData)
 }
 
 func (w *NatsWrapper) handleUpdateStatus(msg *broker.Msg) error {
 	ctx := msg.Context()
 
-	var req requestUpdateStatus
-	err := req.UnmarshalJSON(msg.Data)
+	var req dto.RequestStatusUpdateRequest
+	err := json.Unmarshal(msg.Data, &req)
 	if err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling update status request", "error", err)
-		_ = respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
-		return err
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
 	}
 
 	if err = w.validator.Struct(req); err != nil {
-		slog.ErrorContext(
-			ctx,
-			"validation error",
-			"error", err)
-		_ = respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
-		return err
+		slog.ErrorContext(ctx, "validation error", "error", err)
+		return respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
 	}
 
 	err = w.reqService.UpdateStatus(ctx, req.RequestID, domain.StatusType(req.Status))
 	if err != nil {
-		_ = respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
-		slog.ErrorContext(
-			ctx,
-			"error updating request status",
-			"error", err,
-		)
-		return err
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
-	err = respondSuccess(msg.Msg, "success", "status updated")
-	if err != nil {
-		slog.ErrorContext(ctx, "error sending response", "error", err)
-		return err
-	}
-	return nil
+	return respondSuccess(msg.Msg, "success", "status updated")
 }
 
 func (w *NatsWrapper) handleGetRequest(msg *broker.Msg) error {
 	ctx := msg.Context()
 
-	var req requestByID
-	err := req.UnmarshalJSON(msg.Data)
+	var req dto.RequestByIDRequest
+	err := json.Unmarshal(msg.Data, &req)
 	if err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling get request", "error", err)
-		_ = respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
-		return err
-	}
-
-	if err = w.validator.Struct(req); err != nil {
-		slog.ErrorContext(ctx, "validation error", "error", err)
-		_ = respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
-		return err
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
 	}
 
 	reqDomain, err := w.reqService.Get(ctx, req.RequestID)
 	if err != nil {
-		_ = respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
-		slog.Error("error getting request", "error", err)
-		return err
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
-	err = respondSuccess(msg.Msg, "success", reqDomain)
-	if err != nil {
-		slog.ErrorContext(ctx, "error sending response", "error", err)
-		return err
-	}
-	return nil
+	respDTO := mapRequestToDTO(*reqDomain)
+	return respondSuccess(msg.Msg, "success", respDTO)
 }
 
 func (w *NatsWrapper) handleListRequests(msg *broker.Msg) error {
 	ctx := msg.Context()
 
-	var req requestList
-	err := req.UnmarshalJSON(msg.Data)
+	var req dto.RequestListByTelegramRequest
+	err := json.Unmarshal(msg.Data, &req)
 	if err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling list request", "error", err)
-		_ = respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
-		return err
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
 	}
 
 	if err = w.validator.Struct(req); err != nil {
 		slog.ErrorContext(ctx, "validation error", "error", err)
-		_ = respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
-		return err
+		return respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
 	}
 
 	user := domain.User{TelegramID: req.TelegramID}
 	requests, err := w.reqService.List(ctx, user, req.Limit, req.Offset)
 	if err != nil {
-		_ = respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
-		slog.ErrorContext(ctx, "error listing requests", "error", err)
-		return err
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
-	err = respondSuccess(msg.Msg, "success", requests)
-	if err != nil {
-		slog.ErrorContext(ctx, "error sending response", "error", err)
-		return err
+	respDTO := make([]dto.Request, len(requests))
+	for i, r := range requests {
+		respDTO[i] = mapRequestToDTO(r)
 	}
-	return nil
+
+	return respondSuccess(msg.Msg, "success", respDTO)
 }
 
 func (w *NatsWrapper) handleCancelRequest(msg *broker.Msg) error {
 	ctx := msg.Context()
 
-	var req requestByID
-	err := req.UnmarshalJSON(msg.Data)
+	var req dto.RequestByIDRequest
+	err := json.Unmarshal(msg.Data, &req)
 	if err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling cancel request", "error", err)
-		_ = respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
-		return err
-	}
-
-	if err = w.validator.Struct(req); err != nil {
-		slog.ErrorContext(ctx, "validation error", "error", err)
-		_ = respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
-		return err
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
 	}
 
 	err = w.reqService.Cancel(ctx, req.RequestID)
 	if err != nil {
-		_ = respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
-		slog.ErrorContext(ctx, "error canceling request", "error", err)
-		return err
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
-	err = respondSuccess(msg.Msg, "success", "request canceled")
-	if err != nil {
-		slog.ErrorContext(ctx, "error sending response", "error", err)
-		return err
-	}
-	return nil
+	return respondSuccess(msg.Msg, "success", "request canceled")
 }
 
 func (w *NatsWrapper) handleCancelRequestFromService(msg *broker.Msg) error {
 	ctx := msg.Context()
 
-	var req requestByID
-	err := req.UnmarshalJSON(msg.Data)
+	var req dto.RequestByIDRequest
+	err := json.Unmarshal(msg.Data, &req)
 	if err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling cancel request from service", "error", err)
-		return err
-	}
-
-	if err = w.validator.Struct(req); err != nil {
-		slog.ErrorContext(ctx, "validation error", "error", err)
 		return err
 	}
 
@@ -285,129 +236,94 @@ func (w *NatsWrapper) handleCancelRequestFromService(msg *broker.Msg) error {
 func (w *NatsWrapper) handleAddEquipment(msg *broker.Msg) error {
 	ctx := msg.Context()
 
-	var req addEquipment
-	err := req.UnmarshalJSON(msg.Data)
+	var req dto.EquipmentAddRequest
+	err := json.Unmarshal(msg.Data, &req)
 	if err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling add equipment request", "error", err)
-		_ = respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
-		return err
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
 	}
 
 	if err = w.validator.Struct(req); err != nil {
 		slog.ErrorContext(ctx, "validation error", "error", err)
-		_ = respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
-		return err
+		return respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
 	}
 
-	err = w.eqService.Add(ctx, req.Equipments)
-	if err != nil {
-		_ = respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
-		slog.ErrorContext(ctx, "error adding equipment", "error", err)
-		return err
+	domainEquipment := make([]domain.Equipment, len(req.Equipments))
+	for i, eq := range req.Equipments {
+		domainEquipment[i] = domain.Equipment{
+			ID:       eq.ID,
+			Name:     eq.Name,
+			Quantity: eq.Quantity,
+		}
 	}
 
-	err = respondSuccess(msg.Msg, "success", "equipment added")
+	err = w.eqService.Add(ctx, domainEquipment)
 	if err != nil {
-		slog.ErrorContext(ctx, "error sending response", "error", err)
-		return err
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
-	return nil
+
+	return respondSuccess(msg.Msg, "success", "equipment added")
 }
 
 // Gateway handlers
 
-// gatewayListRequest запрос на получение списка заявок от gateway
-type gatewayListRequest struct {
-	ResponsibleID *string `json:"responsible_id,omitempty"`
-}
-
-// gatewayAssignRequest запрос на назначение ответственного
-type gatewayAssignRequest struct {
-	RequestID     string `json:"request_id" validate:"required,uuid4"`
-	ResponsibleID string `json:"responsible_id" validate:"required,uuid4"`
-}
-
 func (w *NatsWrapper) handleGatewayListRequests(msg *broker.Msg) error {
 	ctx := msg.Context()
 
-	var req gatewayListRequest
+	var req dto.RequestListRequest
 	if err := json.Unmarshal(msg.Data, &req); err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling gateway list request", "error", err)
 		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
 	}
 
-	var responsibleUUID uuid.UUID
-	if req.ResponsibleID != nil {
-		id, err := uuid.Parse(*req.ResponsibleID)
-		if err != nil {
-			slog.ErrorContext(ctx, "invalid responsible_id", "error", err)
-			return respondError(msg.Msg, "invalid responsible_id", err.Error(), statusBadRequest)
-		}
-		responsibleUUID = id
+	requests, err := w.reqService.ListByResponsible(ctx, req.ResponsibleID)
+	if err != nil {
+		slog.ErrorContext(ctx, "error listing requests", "error", err)
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
-	// TODO: добавить метод в сервис для получения списка по ответственному
-	// Пока возвращаем пустой список
-	_ = responsibleUUID
-	requests := make([]domain.Request, 0)
+	respDTO := make([]dto.Request, len(requests))
+	for i, r := range requests {
+		respDTO[i] = mapRequestToDTO(r)
+	}
 
-	return respondSuccess(msg.Msg, "success", requests)
+	return respondSuccess(msg.Msg, "success", respDTO)
 }
 
 func (w *NatsWrapper) handleGatewayGetRequest(msg *broker.Msg) error {
 	ctx := msg.Context()
 
-	var req requestByID
+	var req dto.RequestByIDRequest
 	if err := json.Unmarshal(msg.Data, &req); err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling gateway get request", "error", err)
 		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
 	}
 
-	if err := w.validator.Struct(req); err != nil {
-		slog.ErrorContext(ctx, "validation error", "error", err)
-		return respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
-	}
-
 	reqDomain, err := w.reqService.Get(ctx, req.RequestID)
 	if err != nil {
-		// TODO: проверять на pgx.ErrNoRows или доменную ошибку not found
 		slog.ErrorContext(ctx, "error getting request", "error", err)
-		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
+		return respondError(msg.Msg, "not found", "request not found", statusNotFound)
 	}
 
-	return respondSuccess(msg.Msg, "success", reqDomain)
+	respDTO := mapRequestToDTO(*reqDomain)
+	return respondSuccess(msg.Msg, "success", respDTO)
 }
 
 func (w *NatsWrapper) handleGatewayAssignResponsible(msg *broker.Msg) error {
 	ctx := msg.Context()
 
-	var req gatewayAssignRequest
+	var req dto.AssignResponsibleRequest
 	if err := json.Unmarshal(msg.Data, &req); err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling gateway assign request", "error", err)
 		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
 	}
 
-	if err := w.validator.Struct(req); err != nil {
-		slog.ErrorContext(ctx, "validation error", "error", err)
-		return respondError(msg.Msg, "validation error", err.Error(), statusBadRequest)
-	}
-
-	requestID, err := uuid.Parse(req.RequestID)
+	updatedReq, err := w.reqService.AssignResponsible(ctx, req.RequestID, req.ResponsibleID)
 	if err != nil {
-		slog.ErrorContext(ctx, "invalid request_id", "error", err)
-		return respondError(msg.Msg, "invalid request_id", err.Error(), statusBadRequest)
+		slog.ErrorContext(ctx, "error assigning responsible", "error", err)
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
-	responsibleID, err := uuid.Parse(req.ResponsibleID)
-	if err != nil {
-		slog.ErrorContext(ctx, "invalid responsible_id", "error", err)
-		return respondError(msg.Msg, "invalid responsible_id", err.Error(), statusBadRequest)
-	}
-
-	// TODO: добавить метод в сервис для назначения ответственного
-	// Пока возвращаем ошибку not implemented
-	_ = requestID
-	_ = responsibleID
-
-	return respondError(msg.Msg, "not implemented", "assign responsible not implemented", statusInternalServerError)
+	respDTO := mapRequestToDTO(*updatedReq)
+	return respondSuccess(msg.Msg, "success", respDTO)
 }
