@@ -1,19 +1,15 @@
 package dto
 
-import (
-	"time"
-
-	"github.com/google/uuid"
-)
+import "time"
 
 //go:generate easyjson -all technic.go
 
-// Technic DTO модель техники
+// TechEquipment DTO модель оборудования (тех сервис)
 //
 //easyjson:json
-type Technic struct {
-	ID                        uuid.UUID         `json:"id"`
-	CategoryID                uuid.UUID         `json:"category_id"`
+type TechEquipment struct {
+	ID                        int               `json:"id"`
+	CategoryID                int               `json:"category_id"`
 	Name                      string            `json:"name"`
 	Description               string            `json:"description"`
 	AdditionalCharacteristics map[string]string `json:"additional_characteristics,omitempty"`
@@ -21,85 +17,128 @@ type Technic struct {
 	UpdatedAt                 time.Time         `json:"updated_at,omitempty"`
 }
 
-// TechnicCategory DTO модель категории техники
+// TechEquipmentList DTO модель для списка оборудования
 //
 //easyjson:json
-type TechnicCategory struct {
-	ID          uuid.UUID   `json:"id"`
+type TechEquipmentList []TechEquipment
+
+// TechEquipmentCategoryList DTO
+//
+//easyjson:json
+type TechEquipmentCategoryList []TechEquipmentCategory
+
+// TechEquipmentCategory DTO модель категории оборудования (тех сервис)
+//
+//easyjson:json
+type TechEquipmentCategory struct {
+	ID          int         `json:"id"`
 	Name        string      `json:"name"`
 	Description *string     `json:"description,omitempty"`
 	Audit       AuditFields `json:"audit"`
 }
 
-// TechnicCreateRequest DTO запроса на создание техники
+// TechEquipmentCreateRequest DTO запроса на создание оборудования
 //
 //easyjson:json
-type TechnicCreateRequest struct {
-	CategoryID                uuid.UUID         `json:"category_id"`
+type TechEquipmentCreateRequest struct {
+	CategoryID                int               `json:"category_id"`
 	Name                      string            `json:"name"`
 	Description               string            `json:"description,omitempty"`
 	AdditionalCharacteristics map[string]string `json:"additional_characteristics,omitempty"`
 }
 
-// TechnicUpdateRequest DTO запроса на обновление техники
+// TechEquipmentUpdateRequest DTO запроса на обновление оборудования
 //
 //easyjson:json
-type TechnicUpdateRequest struct {
-	ID                        uuid.UUID         `json:"id"`
-	CategoryID                uuid.UUID         `json:"category_id"`
+type TechEquipmentUpdateRequest struct {
+	ID                        int               `json:"id"`
+	CategoryID                int               `json:"category_id"`
 	Name                      string            `json:"name"`
 	Description               string            `json:"description,omitempty"`
 	AdditionalCharacteristics map[string]string `json:"additional_characteristics,omitempty"`
 }
 
-// TechnicDeleteRequest DTO запроса на удаление техники
+// TechEquipmentDeleteRequest DTO запроса на удаление оборудования
 //
 //easyjson:json
-type TechnicDeleteRequest struct {
-	ID uuid.UUID `json:"id"`
+type TechEquipmentDeleteRequest struct {
+	ID int `json:"id"`
 }
 
-// TechnicGetByIDRequest DTO запроса на получение техники по ID
+// TechEquipmentGetByIDRequest DTO запроса на получение оборудования по ID
 //
 //easyjson:json
-type TechnicGetByIDRequest struct {
-	ID uuid.UUID `json:"id"`
+type TechEquipmentGetByIDRequest struct {
+	ID int `json:"id"`
 }
 
-// TechnicGetByCategoryRequest DTO запроса на получение техники по категории
+// TechEquipmentGetByCategoryRequest DTO запроса на получение оборудования по категории
 //
 //easyjson:json
-type TechnicGetByCategoryRequest struct {
-	CategoryID uuid.UUID `json:"category_id"`
+type TechEquipmentGetByCategoryRequest struct {
+	CategoryID int `json:"category_id"`
 }
 
-// TechnicCategoryCreateRequest DTO запроса на создание категории техники
+// TechEquipmentCategoryCreateRequest DTO запроса на создание категории оборудования
 //
 //easyjson:json
-type TechnicCategoryCreateRequest struct {
+type TechEquipmentCategoryCreateRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
 }
 
-// TechnicCategoryUpdateRequest DTO запроса на обновление категории техники
+// TechEquipmentCategoryUpdateRequest DTO запроса на обновление категории оборудования
 //
 //easyjson:json
-type TechnicCategoryUpdateRequest struct {
-	ID          uuid.UUID `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description,omitempty"`
+type TechEquipmentCategoryUpdateRequest struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
 }
 
-// TechnicCategoryDeleteRequest DTO запроса на удаление категории техники
+// TechEquipmentCategoryDeleteRequest DTO запроса на удаление категории оборудования
 //
 //easyjson:json
-type TechnicCategoryDeleteRequest struct {
-	ID uuid.UUID `json:"id"`
+type TechEquipmentCategoryDeleteRequest struct {
+	ID int `json:"id"`
 }
 
-// TechnicCategoryGetByIDRequest DTO запроса на получение категории по ID
+// TechEquipmentCategoryGetByIDRequest DTO запроса на получение категории по ID
 //
 //easyjson:json
-type TechnicCategoryGetByIDRequest struct {
-	ID uuid.UUID `json:"id"`
+type TechEquipmentCategoryGetByIDRequest struct {
+	ID int `json:"id"`
 }
+
+// Deprecated: используйте TechEquipment
+type Technic = TechEquipment
+
+// Deprecated: используйте TechEquipmentCategory
+type TechnicCategory = TechEquipmentCategory
+
+// Deprecated: используйте TechEquipmentCreateRequest
+type TechnicCreateRequest = TechEquipmentCreateRequest
+
+// Deprecated: используйте TechEquipmentUpdateRequest
+type TechnicUpdateRequest = TechEquipmentUpdateRequest
+
+// Deprecated: используйте TechEquipmentDeleteRequest
+type TechnicDeleteRequest = TechEquipmentDeleteRequest
+
+// Deprecated: используйте TechEquipmentGetByIDRequest
+type TechnicGetByIDRequest = TechEquipmentGetByIDRequest
+
+// Deprecated: используйте TechEquipmentGetByCategoryRequest
+type TechnicGetByCategoryRequest = TechEquipmentGetByCategoryRequest
+
+// Deprecated: используйте TechEquipmentCategoryCreateRequest
+type TechnicCategoryCreateRequest = TechEquipmentCategoryCreateRequest
+
+// Deprecated: используйте TechEquipmentCategoryUpdateRequest
+type TechnicCategoryUpdateRequest = TechEquipmentCategoryUpdateRequest
+
+// Deprecated: используйте TechEquipmentCategoryDeleteRequest
+type TechnicCategoryDeleteRequest = TechEquipmentCategoryDeleteRequest
+
+// Deprecated: используйте TechEquipmentCategoryGetByIDRequest
+type TechnicCategoryGetByIDRequest = TechEquipmentCategoryGetByIDRequest

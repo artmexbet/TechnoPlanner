@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 
 	"github.com/artmexbet/TechnoPlanner/libs/broker"
@@ -28,16 +27,14 @@ func NewEquipmentClient(conn *broker.NATS) *EquipmentClient {
 
 // Create создает новое оборудование
 func (c *EquipmentClient) Create(ctx context.Context, eq domain.Equipment) (domain.Equipment, error) {
-	req := dto.EquipmentCreateRequest{
-		Name:        eq.Name,
-		Description: derefString(eq.Description),
-		Quantity:    eq.Quantity,
-	}
-	for _, cat := range eq.Categories {
-		req.CategoryIDs = append(req.CategoryIDs, cat.ID)
+	req := dto.TechEquipmentCreateRequest{
+		CategoryID:                eq.CategoryID,
+		Name:                      eq.Name,
+		Description:               eq.Description,
+		AdditionalCharacteristics: eq.AdditionalCharacteristics,
 	}
 
-	data, err := req.MarshalJSON()
+	data, err := json.Marshal(req)
 	if err != nil {
 		return domain.Equipment{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -62,7 +59,7 @@ func (c *EquipmentClient) Create(ctx context.Context, eq domain.Equipment) (doma
 		return domain.Equipment{}, fmt.Errorf("service error: %s", resp.Message)
 	}
 
-	var result dto.Equipment
+	var result dto.TechEquipment
 	if err := json.Unmarshal(resp.Data, &result); err != nil {
 		return domain.Equipment{}, fmt.Errorf("unmarshal equipment: %w", err)
 	}
@@ -72,17 +69,15 @@ func (c *EquipmentClient) Create(ctx context.Context, eq domain.Equipment) (doma
 
 // Update обновляет оборудование
 func (c *EquipmentClient) Update(ctx context.Context, eq domain.Equipment) (domain.Equipment, error) {
-	req := dto.EquipmentUpdateRequest{
-		ID:          eq.ID,
-		Name:        eq.Name,
-		Description: derefString(eq.Description),
-		Quantity:    eq.Quantity,
-	}
-	for _, cat := range eq.Categories {
-		req.CategoryIDs = append(req.CategoryIDs, cat.ID)
+	req := dto.TechEquipmentUpdateRequest{
+		ID:                        eq.ID,
+		CategoryID:                eq.CategoryID,
+		Name:                      eq.Name,
+		Description:               eq.Description,
+		AdditionalCharacteristics: eq.AdditionalCharacteristics,
 	}
 
-	data, err := req.MarshalJSON()
+	data, err := json.Marshal(req)
 	if err != nil {
 		return domain.Equipment{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -107,7 +102,7 @@ func (c *EquipmentClient) Update(ctx context.Context, eq domain.Equipment) (doma
 		return domain.Equipment{}, fmt.Errorf("service error: %s", resp.Message)
 	}
 
-	var result dto.Equipment
+	var result dto.TechEquipment
 	if err := json.Unmarshal(resp.Data, &result); err != nil {
 		return domain.Equipment{}, fmt.Errorf("unmarshal equipment: %w", err)
 	}
@@ -116,10 +111,10 @@ func (c *EquipmentClient) Update(ctx context.Context, eq domain.Equipment) (doma
 }
 
 // Get получает оборудование по ID
-func (c *EquipmentClient) Get(ctx context.Context, id int32) (domain.Equipment, error) {
-	req := dto.IDRequest{ID: id}
+func (c *EquipmentClient) Get(ctx context.Context, id int) (domain.Equipment, error) {
+	req := dto.TechEquipmentGetByIDRequest{ID: id}
 
-	data, err := req.MarshalJSON()
+	data, err := json.Marshal(req)
 	if err != nil {
 		return domain.Equipment{}, fmt.Errorf("marshal request: %w", err)
 	}
@@ -144,7 +139,7 @@ func (c *EquipmentClient) Get(ctx context.Context, id int32) (domain.Equipment, 
 		return domain.Equipment{}, fmt.Errorf("service error: %s", resp.Message)
 	}
 
-	var result dto.Equipment
+	var result dto.TechEquipment
 	if err := json.Unmarshal(resp.Data, &result); err != nil {
 		return domain.Equipment{}, fmt.Errorf("unmarshal equipment: %w", err)
 	}
@@ -171,7 +166,7 @@ func (c *EquipmentClient) List(ctx context.Context) ([]domain.Equipment, error) 
 		return nil, fmt.Errorf("service error: %s", resp.Message)
 	}
 
-	var result []dto.Equipment
+	var result []dto.TechEquipment
 	if err := json.Unmarshal(resp.Data, &result); err != nil {
 		return nil, fmt.Errorf("unmarshal equipment list: %w", err)
 	}
@@ -184,14 +179,11 @@ func (c *EquipmentClient) List(ctx context.Context) ([]domain.Equipment, error) 
 	return equipment, nil
 }
 
-// SoftDelete мягко удаляет оборудование
-func (c *EquipmentClient) SoftDelete(ctx context.Context, id int32, userID *uuid.UUID) error {
-	req := dto.SoftDeleteRequest{
-		ID:     id,
-		UserID: userID,
-	}
+// Delete удаляет оборудование
+func (c *EquipmentClient) Delete(ctx context.Context, id int) error {
+	req := dto.TechEquipmentDeleteRequest{ID: id}
 
-	data, err := req.MarshalJSON()
+	data, err := json.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("marshal request: %w", err)
 	}
@@ -219,24 +211,14 @@ func (c *EquipmentClient) SoftDelete(ctx context.Context, id int32, userID *uuid
 	return nil
 }
 
-func mapEquipmentFromDTO(eq dto.Equipment) domain.Equipment {
-	categories := make([]domain.EquipmentCategory, 0, len(eq.Categories))
-	for _, cat := range eq.Categories {
-		categories = append(categories, mapCategoryFromDTO(cat))
-	}
-
+func mapEquipmentFromDTO(eq dto.TechEquipment) domain.Equipment {
 	return domain.Equipment{
-		ID:          eq.ID,
-		Name:        eq.Name,
-		Description: eq.Description,
-		Quantity:    eq.Quantity,
-		Categories:  categories,
-		Audit: domain.AuditFields{
-			CreatedAt: eq.Audit.CreatedAt,
-			UpdatedAt: eq.Audit.UpdatedAt,
-			DeletedAt: eq.Audit.DeletedAt,
-			CreatedBy: eq.Audit.CreatedBy,
-			UpdatedBy: eq.Audit.UpdatedBy,
-		},
+		ID:                        eq.ID,
+		CategoryID:                eq.CategoryID,
+		Name:                      eq.Name,
+		Description:               eq.Description,
+		AdditionalCharacteristics: eq.AdditionalCharacteristics,
+		CreatedAt:                 eq.CreatedAt,
+		UpdatedAt:                 eq.UpdatedAt,
 	}
 }

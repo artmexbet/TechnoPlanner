@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto(in *jlexer.Lexer, out *TechnicUpdateRequest) {
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto(in *jlexer.Lexer, out *TechEquipmentUpdateRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -35,17 +35,13 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto(in *jlexer.Lex
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ID).UnmarshalText(data))
-				}
+				out.ID = int(in.Int())
 			}
 		case "category_id":
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.CategoryID).UnmarshalText(data))
-				}
+				out.CategoryID = int(in.Int())
 			}
 		case "name":
 			if in.IsNull() {
@@ -93,19 +89,19 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto(in *jlexer.Lex
 		in.Consumed()
 	}
 }
-func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto(out *jwriter.Writer, in TechnicUpdateRequest) {
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto(out *jwriter.Writer, in TechEquipmentUpdateRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
-		out.RawText((in.ID).MarshalText())
+		out.Int(int(in.ID))
 	}
 	{
 		const prefix string = ",\"category_id\":"
 		out.RawString(prefix)
-		out.RawText((in.CategoryID).MarshalText())
+		out.Int(int(in.CategoryID))
 	}
 	{
 		const prefix string = ",\"name\":"
@@ -140,163 +136,99 @@ func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto(out *jwriter.W
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v TechnicUpdateRequest) MarshalJSON() ([]byte, error) {
+func (v TechEquipmentUpdateRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
 	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TechnicUpdateRequest) MarshalEasyJSON(w *jwriter.Writer) {
+func (v TechEquipmentUpdateRequest) MarshalEasyJSON(w *jwriter.Writer) {
 	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *TechnicUpdateRequest) UnmarshalJSON(data []byte) error {
+func (v *TechEquipmentUpdateRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TechnicUpdateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+func (v *TechEquipmentUpdateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto(l, v)
 }
-func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto1(in *jlexer.Lexer, out *TechnicGetByIDRequest) {
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto1(in *jlexer.Lexer, out *TechEquipmentList) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
 		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		switch key {
-		case "id":
+		*out = nil
+	} else {
+		in.Delim('[')
+		if *out == nil {
+			if !in.IsDelim(']') {
+				*out = make(TechEquipmentList, 0, 0)
+			} else {
+				*out = TechEquipmentList{}
+			}
+		} else {
+			*out = (*out)[:0]
+		}
+		for !in.IsDelim(']') {
+			var v3 TechEquipment
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ID).UnmarshalText(data))
-				}
+				(v3).UnmarshalEasyJSON(in)
 			}
-		default:
-			in.SkipRecursive()
+			*out = append(*out, v3)
+			in.WantComma()
 		}
-		in.WantComma()
+		in.Delim(']')
 	}
-	in.Delim('}')
 	if isTopLevel {
 		in.Consumed()
 	}
 }
-func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto1(out *jwriter.Writer, in TechnicGetByIDRequest) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"id\":"
-		out.RawString(prefix[1:])
-		out.RawText((in.ID).MarshalText())
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto1(out *jwriter.Writer, in TechEquipmentList) {
+	if in == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+		out.RawString("null")
+	} else {
+		out.RawByte('[')
+		for v4, v5 := range in {
+			if v4 > 0 {
+				out.RawByte(',')
+			}
+			(v5).MarshalEasyJSON(out)
+		}
+		out.RawByte(']')
 	}
-	out.RawByte('}')
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v TechnicGetByIDRequest) MarshalJSON() ([]byte, error) {
+func (v TechEquipmentList) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
 	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TechnicGetByIDRequest) MarshalEasyJSON(w *jwriter.Writer) {
+func (v TechEquipmentList) MarshalEasyJSON(w *jwriter.Writer) {
 	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *TechnicGetByIDRequest) UnmarshalJSON(data []byte) error {
+func (v *TechEquipmentList) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TechnicGetByIDRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+func (v *TechEquipmentList) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto1(l, v)
 }
-func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto2(in *jlexer.Lexer, out *TechnicGetByCategoryRequest) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		switch key {
-		case "category_id":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.CategoryID).UnmarshalText(data))
-				}
-			}
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto2(out *jwriter.Writer, in TechnicGetByCategoryRequest) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"category_id\":"
-		out.RawString(prefix[1:])
-		out.RawText((in.CategoryID).MarshalText())
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v TechnicGetByCategoryRequest) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto2(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TechnicGetByCategoryRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto2(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *TechnicGetByCategoryRequest) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto2(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TechnicGetByCategoryRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto2(l, v)
-}
-func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto3(in *jlexer.Lexer, out *TechnicDeleteRequest) {
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto2(in *jlexer.Lexer, out *TechEquipmentGetByIDRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -314,9 +246,7 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto3(in *jlexer.Le
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ID).UnmarshalText(data))
-				}
+				out.ID = int(in.Int())
 			}
 		default:
 			in.SkipRecursive()
@@ -328,42 +258,42 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto3(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto3(out *jwriter.Writer, in TechnicDeleteRequest) {
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto2(out *jwriter.Writer, in TechEquipmentGetByIDRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
-		out.RawText((in.ID).MarshalText())
+		out.Int(int(in.ID))
 	}
 	out.RawByte('}')
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v TechnicDeleteRequest) MarshalJSON() ([]byte, error) {
+func (v TechEquipmentGetByIDRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto3(&w, v)
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto2(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TechnicDeleteRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto3(w, v)
+func (v TechEquipmentGetByIDRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto2(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *TechnicDeleteRequest) UnmarshalJSON(data []byte) error {
+func (v *TechEquipmentGetByIDRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto3(&r, v)
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto2(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TechnicDeleteRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto3(l, v)
+func (v *TechEquipmentGetByIDRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto2(l, v)
 }
-func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto4(in *jlexer.Lexer, out *TechnicCreateRequest) {
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto3(in *jlexer.Lexer, out *TechEquipmentGetByCategoryRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -381,9 +311,137 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto4(in *jlexer.Le
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.CategoryID).UnmarshalText(data))
-				}
+				out.CategoryID = int(in.Int())
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto3(out *jwriter.Writer, in TechEquipmentGetByCategoryRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"category_id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.CategoryID))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v TechEquipmentGetByCategoryRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto3(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v TechEquipmentGetByCategoryRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto3(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *TechEquipmentGetByCategoryRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto3(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *TechEquipmentGetByCategoryRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto3(l, v)
+}
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto4(in *jlexer.Lexer, out *TechEquipmentDeleteRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		switch key {
+		case "id":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.ID = int(in.Int())
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto4(out *jwriter.Writer, in TechEquipmentDeleteRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.ID))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v TechEquipmentDeleteRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto4(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v TechEquipmentDeleteRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto4(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *TechEquipmentDeleteRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto4(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *TechEquipmentDeleteRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto4(l, v)
+}
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto5(in *jlexer.Lexer, out *TechEquipmentCreateRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		switch key {
+		case "category_id":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.CategoryID = int(in.Int())
 			}
 		case "name":
 			if in.IsNull() {
@@ -410,13 +468,13 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto4(in *jlexer.Le
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
-					var v3 string
+					var v6 string
 					if in.IsNull() {
 						in.Skip()
 					} else {
-						v3 = string(in.String())
+						v6 = string(in.String())
 					}
-					(out.AdditionalCharacteristics)[key] = v3
+					(out.AdditionalCharacteristics)[key] = v6
 					in.WantComma()
 				}
 				in.Delim('}')
@@ -431,14 +489,14 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto4(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto4(out *jwriter.Writer, in TechnicCreateRequest) {
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto5(out *jwriter.Writer, in TechEquipmentCreateRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
 		const prefix string = ",\"category_id\":"
 		out.RawString(prefix[1:])
-		out.RawText((in.CategoryID).MarshalText())
+		out.Int(int(in.CategoryID))
 	}
 	{
 		const prefix string = ",\"name\":"
@@ -455,16 +513,16 @@ func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto4(out *jwriter.
 		out.RawString(prefix)
 		{
 			out.RawByte('{')
-			v4First := true
-			for v4Name, v4Value := range in.AdditionalCharacteristics {
-				if v4First {
-					v4First = false
+			v7First := true
+			for v7Name, v7Value := range in.AdditionalCharacteristics {
+				if v7First {
+					v7First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v4Name))
+				out.String(string(v7Name))
 				out.RawByte(':')
-				out.String(string(v4Value))
+				out.String(string(v7Value))
 			}
 			out.RawByte('}')
 		}
@@ -473,118 +531,29 @@ func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto4(out *jwriter.
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v TechnicCreateRequest) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto4(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TechnicCreateRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto4(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *TechnicCreateRequest) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto4(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TechnicCreateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto4(l, v)
-}
-func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto5(in *jlexer.Lexer, out *TechnicCategoryUpdateRequest) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		switch key {
-		case "id":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ID).UnmarshalText(data))
-				}
-			}
-		case "name":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				out.Name = string(in.String())
-			}
-		case "description":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				out.Description = string(in.String())
-			}
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto5(out *jwriter.Writer, in TechnicCategoryUpdateRequest) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"id\":"
-		out.RawString(prefix[1:])
-		out.RawText((in.ID).MarshalText())
-	}
-	{
-		const prefix string = ",\"name\":"
-		out.RawString(prefix)
-		out.String(string(in.Name))
-	}
-	if in.Description != "" {
-		const prefix string = ",\"description\":"
-		out.RawString(prefix)
-		out.String(string(in.Description))
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v TechnicCategoryUpdateRequest) MarshalJSON() ([]byte, error) {
+func (v TechEquipmentCreateRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
 	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto5(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TechnicCategoryUpdateRequest) MarshalEasyJSON(w *jwriter.Writer) {
+func (v TechEquipmentCreateRequest) MarshalEasyJSON(w *jwriter.Writer) {
 	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto5(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *TechnicCategoryUpdateRequest) UnmarshalJSON(data []byte) error {
+func (v *TechEquipmentCreateRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto5(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TechnicCategoryUpdateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+func (v *TechEquipmentCreateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto5(l, v)
 }
-func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto6(in *jlexer.Lexer, out *TechnicCategoryGetByIDRequest) {
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto6(in *jlexer.Lexer, out *TechEquipmentCategoryUpdateRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -602,9 +571,19 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto6(in *jlexer.Le
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ID).UnmarshalText(data))
-				}
+				out.ID = int(in.Int())
+			}
+		case "name":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Name = string(in.String())
+			}
+		case "description":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Description = string(in.String())
 			}
 		default:
 			in.SkipRecursive()
@@ -616,42 +595,122 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto6(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto6(out *jwriter.Writer, in TechnicCategoryGetByIDRequest) {
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto6(out *jwriter.Writer, in TechEquipmentCategoryUpdateRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
-		out.RawText((in.ID).MarshalText())
+		out.Int(int(in.ID))
+	}
+	{
+		const prefix string = ",\"name\":"
+		out.RawString(prefix)
+		out.String(string(in.Name))
+	}
+	if in.Description != "" {
+		const prefix string = ",\"description\":"
+		out.RawString(prefix)
+		out.String(string(in.Description))
 	}
 	out.RawByte('}')
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v TechnicCategoryGetByIDRequest) MarshalJSON() ([]byte, error) {
+func (v TechEquipmentCategoryUpdateRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
 	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto6(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TechnicCategoryGetByIDRequest) MarshalEasyJSON(w *jwriter.Writer) {
+func (v TechEquipmentCategoryUpdateRequest) MarshalEasyJSON(w *jwriter.Writer) {
 	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto6(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *TechnicCategoryGetByIDRequest) UnmarshalJSON(data []byte) error {
+func (v *TechEquipmentCategoryUpdateRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto6(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TechnicCategoryGetByIDRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+func (v *TechEquipmentCategoryUpdateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto6(l, v)
 }
-func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto7(in *jlexer.Lexer, out *TechnicCategoryDeleteRequest) {
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto7(in *jlexer.Lexer, out *TechEquipmentCategoryList) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		in.Skip()
+		*out = nil
+	} else {
+		in.Delim('[')
+		if *out == nil {
+			if !in.IsDelim(']') {
+				*out = make(TechEquipmentCategoryList, 0, 0)
+			} else {
+				*out = TechEquipmentCategoryList{}
+			}
+		} else {
+			*out = (*out)[:0]
+		}
+		for !in.IsDelim(']') {
+			var v8 TechEquipmentCategory
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(v8).UnmarshalEasyJSON(in)
+			}
+			*out = append(*out, v8)
+			in.WantComma()
+		}
+		in.Delim(']')
+	}
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto7(out *jwriter.Writer, in TechEquipmentCategoryList) {
+	if in == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+		out.RawString("null")
+	} else {
+		out.RawByte('[')
+		for v9, v10 := range in {
+			if v9 > 0 {
+				out.RawByte(',')
+			}
+			(v10).MarshalEasyJSON(out)
+		}
+		out.RawByte(']')
+	}
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v TechEquipmentCategoryList) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto7(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v TechEquipmentCategoryList) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto7(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *TechEquipmentCategoryList) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto7(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *TechEquipmentCategoryList) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto7(l, v)
+}
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto8(in *jlexer.Lexer, out *TechEquipmentCategoryGetByIDRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -669,9 +728,7 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto7(in *jlexer.Le
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ID).UnmarshalText(data))
-				}
+				out.ID = int(in.Int())
 			}
 		default:
 			in.SkipRecursive()
@@ -683,42 +740,107 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto7(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto7(out *jwriter.Writer, in TechnicCategoryDeleteRequest) {
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto8(out *jwriter.Writer, in TechEquipmentCategoryGetByIDRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
-		out.RawText((in.ID).MarshalText())
+		out.Int(int(in.ID))
 	}
 	out.RawByte('}')
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v TechnicCategoryDeleteRequest) MarshalJSON() ([]byte, error) {
+func (v TechEquipmentCategoryGetByIDRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto7(&w, v)
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto8(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TechnicCategoryDeleteRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto7(w, v)
+func (v TechEquipmentCategoryGetByIDRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto8(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *TechnicCategoryDeleteRequest) UnmarshalJSON(data []byte) error {
+func (v *TechEquipmentCategoryGetByIDRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto7(&r, v)
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto8(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TechnicCategoryDeleteRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto7(l, v)
+func (v *TechEquipmentCategoryGetByIDRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto8(l, v)
 }
-func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto8(in *jlexer.Lexer, out *TechnicCategoryCreateRequest) {
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto9(in *jlexer.Lexer, out *TechEquipmentCategoryDeleteRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		switch key {
+		case "id":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.ID = int(in.Int())
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto9(out *jwriter.Writer, in TechEquipmentCategoryDeleteRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.ID))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v TechEquipmentCategoryDeleteRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto9(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v TechEquipmentCategoryDeleteRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto9(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *TechEquipmentCategoryDeleteRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto9(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *TechEquipmentCategoryDeleteRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto9(l, v)
+}
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto10(in *jlexer.Lexer, out *TechEquipmentCategoryCreateRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -754,7 +876,7 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto8(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto8(out *jwriter.Writer, in TechnicCategoryCreateRequest) {
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto10(out *jwriter.Writer, in TechEquipmentCategoryCreateRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -772,29 +894,29 @@ func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto8(out *jwriter.
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v TechnicCategoryCreateRequest) MarshalJSON() ([]byte, error) {
+func (v TechEquipmentCategoryCreateRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto8(&w, v)
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto10(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TechnicCategoryCreateRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto8(w, v)
+func (v TechEquipmentCategoryCreateRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto10(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *TechnicCategoryCreateRequest) UnmarshalJSON(data []byte) error {
+func (v *TechEquipmentCategoryCreateRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto8(&r, v)
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto10(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TechnicCategoryCreateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto8(l, v)
+func (v *TechEquipmentCategoryCreateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto10(l, v)
 }
-func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto9(in *jlexer.Lexer, out *TechnicCategory) {
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto11(in *jlexer.Lexer, out *TechEquipmentCategory) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -812,9 +934,7 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto9(in *jlexer.Le
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ID).UnmarshalText(data))
-				}
+				out.ID = int(in.Int())
 			}
 		case "name":
 			if in.IsNull() {
@@ -852,14 +972,14 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto9(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto9(out *jwriter.Writer, in TechnicCategory) {
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto11(out *jwriter.Writer, in TechEquipmentCategory) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
-		out.RawText((in.ID).MarshalText())
+		out.Int(int(in.ID))
 	}
 	{
 		const prefix string = ",\"name\":"
@@ -880,29 +1000,29 @@ func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto9(out *jwriter.
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v TechnicCategory) MarshalJSON() ([]byte, error) {
+func (v TechEquipmentCategory) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto9(&w, v)
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto11(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TechnicCategory) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto9(w, v)
+func (v TechEquipmentCategory) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto11(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *TechnicCategory) UnmarshalJSON(data []byte) error {
+func (v *TechEquipmentCategory) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto9(&r, v)
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto11(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TechnicCategory) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto9(l, v)
+func (v *TechEquipmentCategory) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto11(l, v)
 }
-func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto10(in *jlexer.Lexer, out *Technic) {
+func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto12(in *jlexer.Lexer, out *TechEquipment) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -920,17 +1040,13 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto10(in *jlexer.L
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ID).UnmarshalText(data))
-				}
+				out.ID = int(in.Int())
 			}
 		case "category_id":
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.CategoryID).UnmarshalText(data))
-				}
+				out.CategoryID = int(in.Int())
 			}
 		case "name":
 			if in.IsNull() {
@@ -957,13 +1073,13 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto10(in *jlexer.L
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
-					var v5 string
+					var v11 string
 					if in.IsNull() {
 						in.Skip()
 					} else {
-						v5 = string(in.String())
+						v11 = string(in.String())
 					}
-					(out.AdditionalCharacteristics)[key] = v5
+					(out.AdditionalCharacteristics)[key] = v11
 					in.WantComma()
 				}
 				in.Delim('}')
@@ -994,19 +1110,19 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto10(in *jlexer.L
 		in.Consumed()
 	}
 }
-func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto10(out *jwriter.Writer, in Technic) {
+func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto12(out *jwriter.Writer, in TechEquipment) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
-		out.RawText((in.ID).MarshalText())
+		out.Int(int(in.ID))
 	}
 	{
 		const prefix string = ",\"category_id\":"
 		out.RawString(prefix)
-		out.RawText((in.CategoryID).MarshalText())
+		out.Int(int(in.CategoryID))
 	}
 	{
 		const prefix string = ",\"name\":"
@@ -1023,16 +1139,16 @@ func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto10(out *jwriter
 		out.RawString(prefix)
 		{
 			out.RawByte('{')
-			v6First := true
-			for v6Name, v6Value := range in.AdditionalCharacteristics {
-				if v6First {
-					v6First = false
+			v12First := true
+			for v12Name, v12Value := range in.AdditionalCharacteristics {
+				if v12First {
+					v12First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v6Name))
+				out.String(string(v12Name))
 				out.RawByte(':')
-				out.String(string(v6Value))
+				out.String(string(v12Value))
 			}
 			out.RawByte('}')
 		}
@@ -1051,25 +1167,25 @@ func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto10(out *jwriter
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v Technic) MarshalJSON() ([]byte, error) {
+func (v TechEquipment) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto10(&w, v)
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto12(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v Technic) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto10(w, v)
+func (v TechEquipment) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto12(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *Technic) UnmarshalJSON(data []byte) error {
+func (v *TechEquipment) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto10(&r, v)
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto12(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *Technic) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto10(l, v)
+func (v *TechEquipment) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto12(l, v)
 }

@@ -31,20 +31,24 @@ type User struct {
 	DeletedAt    *time.Time `json:"-"`
 }
 
+// Equipment представляет оборудование (синхронизировано с Equipment Service)
 type Equipment struct {
-	ID          int32
-	Name        string
-	Description *string
-	Quantity    int32
-	Categories  []EquipmentCategory
-	Audit       AuditFields
+	ID                        int
+	CategoryID                int
+	Name                      string
+	Description               string
+	AdditionalCharacteristics map[string]string
+	CreatedAt                 time.Time
+	UpdatedAt                 time.Time
 }
 
+// EquipmentCategory представляет категорию оборудования (синхронизировано с Equipment Service)
 type EquipmentCategory struct {
-	ID          int32
+	ID          int
 	Name        string
-	Description *string
-	Audit       AuditFields
+	Description string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type Request struct {

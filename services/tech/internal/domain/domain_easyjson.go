@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson3e1fa5ecDecodeTechInternalDomain(in *jlexer.Lexer, out *TechnicCategory) {
+func easyjson3e1fa5ecDecodeTechInternalDomain(in *jlexer.Lexer, out *EquipmentCategory) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -35,9 +35,7 @@ func easyjson3e1fa5ecDecodeTechInternalDomain(in *jlexer.Lexer, out *TechnicCate
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ID).UnmarshalText(data))
-				}
+				out.ID = int(in.Int())
 			}
 		case "name":
 			if in.IsNull() {
@@ -77,14 +75,14 @@ func easyjson3e1fa5ecDecodeTechInternalDomain(in *jlexer.Lexer, out *TechnicCate
 		in.Consumed()
 	}
 }
-func easyjson3e1fa5ecEncodeTechInternalDomain(out *jwriter.Writer, in TechnicCategory) {
+func easyjson3e1fa5ecEncodeTechInternalDomain(out *jwriter.Writer, in EquipmentCategory) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
-		out.RawText((in.ID).MarshalText())
+		out.Int(int(in.ID))
 	}
 	{
 		const prefix string = ",\"name\":"
@@ -110,29 +108,29 @@ func easyjson3e1fa5ecEncodeTechInternalDomain(out *jwriter.Writer, in TechnicCat
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v TechnicCategory) MarshalJSON() ([]byte, error) {
+func (v EquipmentCategory) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
 	easyjson3e1fa5ecEncodeTechInternalDomain(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TechnicCategory) MarshalEasyJSON(w *jwriter.Writer) {
+func (v EquipmentCategory) MarshalEasyJSON(w *jwriter.Writer) {
 	easyjson3e1fa5ecEncodeTechInternalDomain(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *TechnicCategory) UnmarshalJSON(data []byte) error {
+func (v *EquipmentCategory) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjson3e1fa5ecDecodeTechInternalDomain(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TechnicCategory) UnmarshalEasyJSON(l *jlexer.Lexer) {
+func (v *EquipmentCategory) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson3e1fa5ecDecodeTechInternalDomain(l, v)
 }
-func easyjson3e1fa5ecDecodeTechInternalDomain1(in *jlexer.Lexer, out *Technic) {
+func easyjson3e1fa5ecDecodeTechInternalDomain1(in *jlexer.Lexer, out *Equipment) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -150,17 +148,13 @@ func easyjson3e1fa5ecDecodeTechInternalDomain1(in *jlexer.Lexer, out *Technic) {
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ID).UnmarshalText(data))
-				}
+				out.ID = int(in.Int())
 			}
 		case "category_id":
 			if in.IsNull() {
 				in.Skip()
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.CategoryID).UnmarshalText(data))
-				}
+				out.CategoryID = int(in.Int())
 			}
 		case "name":
 			if in.IsNull() {
@@ -220,19 +214,19 @@ func easyjson3e1fa5ecDecodeTechInternalDomain1(in *jlexer.Lexer, out *Technic) {
 		in.Consumed()
 	}
 }
-func easyjson3e1fa5ecEncodeTechInternalDomain1(out *jwriter.Writer, in Technic) {
+func easyjson3e1fa5ecEncodeTechInternalDomain1(out *jwriter.Writer, in Equipment) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
-		out.RawText((in.ID).MarshalText())
+		out.Int(int(in.ID))
 	}
 	{
 		const prefix string = ",\"category_id\":"
 		out.RawString(prefix)
-		out.RawText((in.CategoryID).MarshalText())
+		out.Int(int(in.CategoryID))
 	}
 	{
 		const prefix string = ",\"name\":"
@@ -279,25 +273,25 @@ func easyjson3e1fa5ecEncodeTechInternalDomain1(out *jwriter.Writer, in Technic) 
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v Technic) MarshalJSON() ([]byte, error) {
+func (v Equipment) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
 	easyjson3e1fa5ecEncodeTechInternalDomain1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v Technic) MarshalEasyJSON(w *jwriter.Writer) {
+func (v Equipment) MarshalEasyJSON(w *jwriter.Writer) {
 	easyjson3e1fa5ecEncodeTechInternalDomain1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *Technic) UnmarshalJSON(data []byte) error {
+func (v *Equipment) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjson3e1fa5ecDecodeTechInternalDomain1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *Technic) UnmarshalEasyJSON(l *jlexer.Lexer) {
+func (v *Equipment) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson3e1fa5ecDecodeTechInternalDomain1(l, v)
 }

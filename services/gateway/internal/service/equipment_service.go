@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
-
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
@@ -13,9 +11,9 @@ import (
 type EquipmentStorage interface {
 	Create(ctx context.Context, eq domain.Equipment) (domain.Equipment, error)
 	Update(ctx context.Context, eq domain.Equipment) (domain.Equipment, error)
-	Get(ctx context.Context, id int32) (domain.Equipment, error)
+	Get(ctx context.Context, id int) (domain.Equipment, error)
 	List(ctx context.Context) ([]domain.Equipment, error)
-	SoftDelete(ctx context.Context, id int32, userID *uuid.UUID) error
+	Delete(ctx context.Context, id int) error
 }
 
 type EquipmentService struct {
@@ -33,7 +31,6 @@ func (s *EquipmentService) Create(ctx context.Context, eq domain.Equipment) (dom
 	if s.storage == nil {
 		return domain.Equipment{}, errors.New("equipment storage not implemented")
 	}
-	eq.Audit.CreatedBy = userIDFromCtx(ctx)
 	return s.storage.Create(ctx, eq)
 }
 
@@ -44,7 +41,6 @@ func (s *EquipmentService) Update(ctx context.Context, eq domain.Equipment) (dom
 	if s.storage == nil {
 		return domain.Equipment{}, errors.New("equipment storage not implemented")
 	}
-	eq.Audit.UpdatedBy = userIDFromCtx(ctx)
 	return s.storage.Update(ctx, eq)
 }
 
@@ -55,19 +51,19 @@ func (s *EquipmentService) List(ctx context.Context) ([]domain.Equipment, error)
 	return s.storage.List(ctx)
 }
 
-func (s *EquipmentService) Get(ctx context.Context, id int32) (domain.Equipment, error) {
+func (s *EquipmentService) Get(ctx context.Context, id int) (domain.Equipment, error) {
 	if s.storage == nil {
 		return domain.Equipment{}, errors.New("equipment storage not implemented")
 	}
 	return s.storage.Get(ctx, id)
 }
 
-func (s *EquipmentService) Delete(ctx context.Context, id int32) error {
+func (s *EquipmentService) Delete(ctx context.Context, id int) error {
 	if err := requireAdmin(ctx); err != nil {
 		return err
 	}
 	if s.storage == nil {
 		return errors.New("equipment storage not implemented")
 	}
-	return s.storage.SoftDelete(ctx, id, userIDFromCtx(ctx))
+	return s.storage.Delete(ctx, id)
 }

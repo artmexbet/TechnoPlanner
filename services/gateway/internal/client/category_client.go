@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 
 	"github.com/artmexbet/TechnoPlanner/libs/broker"
@@ -28,17 +27,17 @@ func NewCategoryClient(conn *broker.NATS) *CategoryClient {
 
 // Create создает новую категорию
 func (c *CategoryClient) Create(ctx context.Context, cat domain.EquipmentCategory) (domain.EquipmentCategory, error) {
-	req := dto.CategoryCreateRequest{
+	req := dto.TechEquipmentCategoryCreateRequest{
 		Name:        cat.Name,
-		Description: derefString(cat.Description),
+		Description: cat.Description,
 	}
 
-	data, err := req.MarshalJSON()
+	data, err := json.Marshal(req)
 	if err != nil {
 		return domain.EquipmentCategory{}, fmt.Errorf("marshal request: %w", err)
 	}
 
-	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayCategoryCreate, data)
+	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayEquipmentCategoryCreate, data)
 	if err != nil {
 		if errors.Is(err, nats.ErrNoResponders) {
 			return domain.EquipmentCategory{}, domain.ErrNotFound
@@ -58,28 +57,28 @@ func (c *CategoryClient) Create(ctx context.Context, cat domain.EquipmentCategor
 		return domain.EquipmentCategory{}, fmt.Errorf("service error: %s", resp.Message)
 	}
 
-	var result dto.EquipmentCategory
+	var result dto.TechEquipmentCategory
 	if err := json.Unmarshal(resp.Data, &result); err != nil {
 		return domain.EquipmentCategory{}, fmt.Errorf("unmarshal category: %w", err)
 	}
 
-	return mapCategoryFromDTO(result), nil
+	return mapEquipmentCategoryFromDTO(result), nil
 }
 
 // Update обновляет категорию
 func (c *CategoryClient) Update(ctx context.Context, cat domain.EquipmentCategory) (domain.EquipmentCategory, error) {
-	req := dto.CategoryUpdateRequest{
+	req := dto.TechEquipmentCategoryUpdateRequest{
 		ID:          cat.ID,
 		Name:        cat.Name,
-		Description: derefString(cat.Description),
+		Description: cat.Description,
 	}
 
-	data, err := req.MarshalJSON()
+	data, err := json.Marshal(req)
 	if err != nil {
 		return domain.EquipmentCategory{}, fmt.Errorf("marshal request: %w", err)
 	}
 
-	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayCategoryUpdate, data)
+	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayEquipmentCategoryUpdate, data)
 	if err != nil {
 		if errors.Is(err, nats.ErrNoResponders) {
 			return domain.EquipmentCategory{}, domain.ErrNotFound
@@ -99,17 +98,17 @@ func (c *CategoryClient) Update(ctx context.Context, cat domain.EquipmentCategor
 		return domain.EquipmentCategory{}, fmt.Errorf("service error: %s", resp.Message)
 	}
 
-	var result dto.EquipmentCategory
+	var result dto.TechEquipmentCategory
 	if err := json.Unmarshal(resp.Data, &result); err != nil {
 		return domain.EquipmentCategory{}, fmt.Errorf("unmarshal category: %w", err)
 	}
 
-	return mapCategoryFromDTO(result), nil
+	return mapEquipmentCategoryFromDTO(result), nil
 }
 
 // List получает список категорий
 func (c *CategoryClient) List(ctx context.Context) ([]domain.EquipmentCategory, error) {
-	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayCategoryList, []byte("{}"))
+	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayEquipmentCategoryList, []byte("{}"))
 	if err != nil {
 		if errors.Is(err, nats.ErrNoResponders) {
 			return nil, domain.ErrNotFound
@@ -126,32 +125,29 @@ func (c *CategoryClient) List(ctx context.Context) ([]domain.EquipmentCategory, 
 		return nil, fmt.Errorf("service error: %s", resp.Message)
 	}
 
-	var result []dto.EquipmentCategory
+	var result []dto.TechEquipmentCategory
 	if err := json.Unmarshal(resp.Data, &result); err != nil {
 		return nil, fmt.Errorf("unmarshal category list: %w", err)
 	}
 
 	categories := make([]domain.EquipmentCategory, 0, len(result))
 	for _, cat := range result {
-		categories = append(categories, mapCategoryFromDTO(cat))
+		categories = append(categories, mapEquipmentCategoryFromDTO(cat))
 	}
 
 	return categories, nil
 }
 
-// SoftDelete мягко удаляет категорию
-func (c *CategoryClient) SoftDelete(ctx context.Context, id int32, userID *uuid.UUID) error {
-	req := dto.SoftDeleteRequest{
-		ID:     id,
-		UserID: userID,
-	}
+// Delete удаляет категорию
+func (c *CategoryClient) Delete(ctx context.Context, id int) error {
+	req := dto.TechEquipmentCategoryDeleteRequest{ID: id}
 
-	data, err := req.MarshalJSON()
+	data, err := json.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("marshal request: %w", err)
 	}
 
-	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayCategoryDelete, data)
+	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayEquipmentCategoryDelete, data)
 	if err != nil {
 		if errors.Is(err, nats.ErrNoResponders) {
 			return domain.ErrNotFound
@@ -174,17 +170,16 @@ func (c *CategoryClient) SoftDelete(ctx context.Context, id int32, userID *uuid.
 	return nil
 }
 
-func mapCategoryFromDTO(cat dto.EquipmentCategory) domain.EquipmentCategory {
+func mapEquipmentCategoryFromDTO(cat dto.TechEquipmentCategory) domain.EquipmentCategory {
+	desc := ""
+	if cat.Description != nil {
+		desc = *cat.Description
+	}
 	return domain.EquipmentCategory{
 		ID:          cat.ID,
 		Name:        cat.Name,
-		Description: cat.Description,
-		Audit: domain.AuditFields{
-			CreatedAt: cat.Audit.CreatedAt,
-			UpdatedAt: cat.Audit.UpdatedAt,
-			DeletedAt: cat.Audit.DeletedAt,
-			CreatedBy: cat.Audit.CreatedBy,
-			UpdatedBy: cat.Audit.UpdatedBy,
-		},
+		Description: desc,
+		CreatedAt:   cat.Audit.CreatedAt,
+		UpdatedAt:   cat.Audit.UpdatedAt,
 	}
 }

@@ -24,14 +24,8 @@ const (
 	// GatewayRequestAssignResponsible - назначение ответственного от gateway
 	GatewayRequestAssignResponsible = "gateway.requests.assign.responsible"
 
-	// Equipment subjects
-	GatewayEquipmentList   = "gateway.equipment.list"
-	GatewayEquipmentGet    = "gateway.equipment.get"
-	GatewayEquipmentCreate = "gateway.equipment.create"
-	GatewayEquipmentUpdate = "gateway.equipment.update"
-	GatewayEquipmentDelete = "gateway.equipment.delete"
+	// Category subjects (старое API)
 
-	// Category subjects
 	GatewayCategoryList   = "gateway.category.list"
 	GatewayCategoryGet    = "gateway.category.get"
 	GatewayCategoryCreate = "gateway.category.create"
@@ -39,27 +33,32 @@ const (
 	GatewayCategoryDelete = "gateway.category.delete"
 
 	// User subjects
+
 	GatewayUserList   = "gateway.user.list"
 	GatewayUserGet    = "gateway.user.get"
 	GatewayUserCreate = "gateway.user.create"
 
 	// History subjects
+
 	GatewayHistoryList = "gateway.history.list"
 	GatewayHistoryAdd  = "gateway.history.add"
 
-	// Tech subjects
-	GatewayTechnicList          = "gateway.technic.list"
-	GatewayTechnicGet           = "gateway.technic.get"
-	GatewayTechnicCreate        = "gateway.technic.create"
-	GatewayTechnicUpdate        = "gateway.technic.update"
-	GatewayTechnicDelete        = "gateway.technic.delete"
-	GatewayTechnicGetByCategory = "gateway.technic.get.by_category"
+	// Equipment subjects (новое API Equipment Service)
 
-	GatewayTechnicCategoryList   = "gateway.technic_category.list"
-	GatewayTechnicCategoryGet    = "gateway.technic_category.get"
-	GatewayTechnicCategoryCreate = "gateway.technic_category.create"
-	GatewayTechnicCategoryUpdate = "gateway.technic_category.update"
-	GatewayTechnicCategoryDelete = "gateway.technic_category.delete"
+	GatewayEquipmentList          = "gateway.equipment.list"
+	GatewayEquipmentGet           = "gateway.equipment.get"
+	GatewayEquipmentCreate        = "gateway.equipment.create"
+	GatewayEquipmentUpdate        = "gateway.equipment.update"
+	GatewayEquipmentDelete        = "gateway.equipment.delete"
+	GatewayEquipmentGetByCategory = "gateway.equipment.get.by_category"
+
+	// Equipment Category subjects (новое API Equipment Service)
+
+	GatewayEquipmentCategoryList   = "gateway.equipment_category.list"
+	GatewayEquipmentCategoryGet    = "gateway.equipment_category.get"
+	GatewayEquipmentCategoryCreate = "gateway.equipment_category.create"
+	GatewayEquipmentCategoryUpdate = "gateway.equipment_category.update"
+	GatewayEquipmentCategoryDelete = "gateway.equipment_category.delete"
 
 	ServiceRequestCreated  = "bot-svc.requests.created"
 	ServiceRequestCanceled = "bot-svc.requests.canceled"

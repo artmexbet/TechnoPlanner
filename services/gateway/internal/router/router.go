@@ -47,16 +47,16 @@ type PorterService interface {
 type EquipmentService interface {
 	Create(ctx context.Context, eq domain.Equipment) (domain.Equipment, error)
 	Update(ctx context.Context, eq domain.Equipment) (domain.Equipment, error)
-	Get(ctx context.Context, id int32) (domain.Equipment, error)
+	Get(ctx context.Context, id int) (domain.Equipment, error)
 	List(ctx context.Context) ([]domain.Equipment, error)
-	Delete(ctx context.Context, id int32) error
+	Delete(ctx context.Context, id int) error
 }
 
 type CategoryService interface {
 	Create(ctx context.Context, cat domain.EquipmentCategory) (domain.EquipmentCategory, error)
 	Update(ctx context.Context, cat domain.EquipmentCategory) (domain.EquipmentCategory, error)
 	List(ctx context.Context) ([]domain.EquipmentCategory, error)
-	Delete(ctx context.Context, id int32) error
+	Delete(ctx context.Context, id int) error
 }
 
 type RequestService interface {
@@ -250,9 +250,9 @@ func (r *Router) listEquipment() fiber.Handler {
 
 func (r *Router) getEquipment() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		id, err := parseInt32Param(c, "id")
+		id, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
-			return err
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid equipment id"})
 		}
 		ctx := r.userContext(c)
 		eq, err := r.equipmentSvc.Get(ctx, id)
@@ -274,12 +274,11 @@ func (r *Router) createEquipment() fiber.Handler {
 		}
 		eq := domain.Equipment{
 			Name:        req.Name,
-			Description: req.Description,
-			Quantity:    req.Quantity,
-			Categories:  make([]domain.EquipmentCategory, 0, len(req.CategoryIDs)),
+			Description: derefString(req.Description),
 		}
-		for _, catID := range req.CategoryIDs {
-			eq.Categories = append(eq.Categories, domain.EquipmentCategory{ID: catID})
+		// CategoryID из первого элемента CategoryIDs
+		if len(req.CategoryIDs) > 0 {
+			eq.CategoryID = req.CategoryIDs[0]
 		}
 		ctx := r.userContext(c)
 		created, err := r.equipmentSvc.Create(ctx, eq)
@@ -292,9 +291,9 @@ func (r *Router) createEquipment() fiber.Handler {
 
 func (r *Router) updateEquipment() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		id, err := parseInt32Param(c, "id")
+		id, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
-			return err
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid equipment id"})
 		}
 		var req models.EquipmentUpdateRequest
 		if err := c.BodyParser(&req); err != nil {
@@ -306,12 +305,11 @@ func (r *Router) updateEquipment() fiber.Handler {
 		eq := domain.Equipment{
 			ID:          id,
 			Name:        req.Name,
-			Description: req.Description,
-			Quantity:    req.Quantity,
-			Categories:  make([]domain.EquipmentCategory, 0, len(req.CategoryIDs)),
+			Description: derefString(req.Description),
 		}
-		for _, cID := range req.CategoryIDs {
-			eq.Categories = append(eq.Categories, domain.EquipmentCategory{ID: cID})
+		// CategoryID из первого элемента CategoryIDs
+		if len(req.CategoryIDs) > 0 {
+			eq.CategoryID = req.CategoryIDs[0]
 		}
 		ctx := r.userContext(c)
 		updated, err := r.equipmentSvc.Update(ctx, eq)
@@ -324,9 +322,9 @@ func (r *Router) updateEquipment() fiber.Handler {
 
 func (r *Router) deleteEquipment() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		id, err := parseInt32Param(c, "id")
+		id, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
-			return err
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid equipment id"})
 		}
 		ctx := r.userContext(c)
 		if err := r.equipmentSvc.Delete(ctx, id); err != nil {
@@ -360,7 +358,7 @@ func (r *Router) createCategory() fiber.Handler {
 		if err := r.validator.Struct(req); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
 		}
-		cat := domain.EquipmentCategory{Name: req.Name, Description: req.Description}
+		cat := domain.EquipmentCategory{Name: req.Name, Description: derefString(req.Description)}
 		ctx := r.userContext(c)
 		created, err := r.categorySvc.Create(ctx, cat)
 		if err != nil {
@@ -372,9 +370,9 @@ func (r *Router) createCategory() fiber.Handler {
 
 func (r *Router) updateCategory() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		id, err := parseInt32Param(c, "id")
+		id, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
-			return err
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid category id"})
 		}
 		var req models.EquipmentCategoryUpdateRequest
 		if err := c.BodyParser(&req); err != nil {
@@ -383,7 +381,7 @@ func (r *Router) updateCategory() fiber.Handler {
 		if err := r.validator.Struct(req); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
 		}
-		cat := domain.EquipmentCategory{ID: id, Name: req.Name, Description: req.Description}
+		cat := domain.EquipmentCategory{ID: id, Name: req.Name, Description: derefString(req.Description)}
 		ctx := r.userContext(c)
 		updated, err := r.categorySvc.Update(ctx, cat)
 		if err != nil {
@@ -395,9 +393,9 @@ func (r *Router) updateCategory() fiber.Handler {
 
 func (r *Router) deleteCategory() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		id, err := parseInt32Param(c, "id")
+		id, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
-			return err
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid category id"})
 		}
 		ctx := r.userContext(c)
 		if err := r.categorySvc.Delete(ctx, id); err != nil {
@@ -549,26 +547,10 @@ func toEquipmentResponse(eq domain.Equipment) models.Equipment {
 	resp := models.Equipment{
 		ID:          eq.ID,
 		Name:        eq.Name,
-		Description: eq.Description,
-		Quantity:    eq.Quantity,
-		CreatedAt:   eq.Audit.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:   eq.Audit.UpdatedAt.Format(time.RFC3339),
-	}
-	if eq.Audit.CreatedBy != nil {
-		id := eq.Audit.CreatedBy.String()
-		resp.CreatedBy = &id
-	}
-	if eq.Audit.UpdatedBy != nil {
-		id := eq.Audit.UpdatedBy.String()
-		resp.UpdatedBy = &id
-	}
-	if eq.Audit.DeletedAt != nil {
-		dt := eq.Audit.DeletedAt.Format(time.RFC3339)
-		resp.DeletedAt = &dt
-	}
-	resp.Categories = make([]models.EquipmentCategory, 0, len(eq.Categories))
-	for _, cat := range eq.Categories {
-		resp.Categories = append(resp.Categories, toCategoryResponse(cat))
+		Description: &eq.Description,
+		Quantity:    1, // Значение по умолчанию для совместимости
+		CreatedAt:   eq.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:   eq.UpdatedAt.Format(time.RFC3339),
 	}
 	return resp
 }
@@ -577,21 +559,9 @@ func toCategoryResponse(cat domain.EquipmentCategory) models.EquipmentCategory {
 	resp := models.EquipmentCategory{
 		ID:          cat.ID,
 		Name:        cat.Name,
-		Description: cat.Description,
-		CreatedAt:   cat.Audit.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:   cat.Audit.UpdatedAt.Format(time.RFC3339),
-	}
-	if cat.Audit.CreatedBy != nil {
-		id := cat.Audit.CreatedBy.String()
-		resp.CreatedBy = &id
-	}
-	if cat.Audit.UpdatedBy != nil {
-		id := cat.Audit.UpdatedBy.String()
-		resp.UpdatedBy = &id
-	}
-	if cat.Audit.DeletedAt != nil {
-		dt := cat.Audit.DeletedAt.Format(time.RFC3339)
-		resp.DeletedAt = &dt
+		Description: &cat.Description,
+		CreatedAt:   cat.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:   cat.UpdatedAt.Format(time.RFC3339),
 	}
 	return resp
 }
@@ -628,7 +598,7 @@ func toRequestResponse(req domain.Request) models.RequestResponse {
 	resp.Equipment = make([]models.Equipment, 0, len(req.Equipment))
 	for _, eq := range req.Equipment {
 		resp.Equipment = append(resp.Equipment, models.Equipment{
-			ID:        eq.EquipmentID,
+			ID:        int(eq.EquipmentID),
 			Quantity:  eq.Quantity,
 			CreatedAt: eq.CreatedAt.Format(time.RFC3339),
 			UpdatedAt: eq.UpdatedAt.Format(time.RFC3339),
@@ -663,10 +633,9 @@ func handleServiceError(c *fiber.Ctx, err error) error {
 	}
 }
 
-func parseInt32Param(c *fiber.Ctx, name string) (int32, error) {
-	v, err := strconv.ParseInt(c.Params(name), 10, 32)
-	if err != nil {
-		return 0, c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid id"})
+func derefString(s *string) string {
+	if s == nil {
+		return ""
 	}
-	return int32(v), nil
+	return *s
 }

@@ -53,7 +53,7 @@ type ErrorResponse struct {
 }
 
 type EquipmentCategory struct {
-	ID          int32   `json:"id"`
+	ID          int     `json:"id"`
 	Name        string  `json:"name"`
 	Description *string `json:"description,omitempty"`
 	CreatedAt   string  `json:"created_at"`
@@ -64,7 +64,7 @@ type EquipmentCategory struct {
 }
 
 type Equipment struct {
-	ID          int32               `json:"id"`
+	ID          int                 `json:"id"`
 	Name        string              `json:"name" validate:"required"`
 	Description *string             `json:"description,omitempty"`
 	Quantity    int32               `json:"quantity" validate:"gte=0"`
@@ -80,14 +80,14 @@ type EquipmentCreateRequest struct {
 	Name        string  `json:"name" validate:"required"`
 	Description *string `json:"description,omitempty"`
 	Quantity    int32   `json:"quantity" validate:"gte=0"`
-	CategoryIDs []int32 `json:"category_ids" validate:"dive,gt=0"`
+	CategoryIDs []int   `json:"category_ids" validate:"dive,gt=0"`
 }
 
 type EquipmentUpdateRequest struct {
 	Name        string  `json:"name" validate:"required"`
 	Description *string `json:"description,omitempty"`
 	Quantity    int32   `json:"quantity" validate:"gte=0"`
-	CategoryIDs []int32 `json:"category_ids" validate:"dive,gt=0"`
+	CategoryIDs []int   `json:"category_ids" validate:"dive,gt=0"`
 }
 
 type EquipmentCategoryCreateRequest struct {

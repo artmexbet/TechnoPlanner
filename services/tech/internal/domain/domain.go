@@ -1,16 +1,13 @@
 package domain
 
-import (
-	"time"
-
-	"github.com/google/uuid"
-)
+import "time"
 
 //go:generate easyjson -all domain.go
 
-type Technic struct {
-	ID                        uuid.UUID         `json:"id"`
-	CategoryID                uuid.UUID         `json:"category_id"`
+// Equipment представляет оборудование/технику
+type Equipment struct {
+	ID                        int               `json:"id"`
+	CategoryID                int               `json:"category_id"`
 	Name                      string            `json:"name"`
 	Description               string            `json:"description"`
 	AdditionalCharacteristics map[string]string `json:"additional_characteristics"`
@@ -18,8 +15,9 @@ type Technic struct {
 	UpdatedAt                 time.Time         `json:"updated_at,omitempty"`
 }
 
-type TechnicCategory struct {
-	ID          uuid.UUID `json:"id"`
+// EquipmentCategory представляет категорию оборудования
+type EquipmentCategory struct {
+	ID          int       `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at,omitempty"`

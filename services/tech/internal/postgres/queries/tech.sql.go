@@ -7,50 +7,47 @@ package queries
 
 import (
 	"context"
-
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const AddTechnic = `-- name: AddTechnic :one
-insert into technics(category_id, name, description, additional_characteristics) values($1, $2, $3, $4) returning id
+const AddEquipment = `-- name: AddEquipment :one
+insert into equipment(category_id, name, description, additional_characteristics) values($1, $2, $3, $4) returning id
 `
 
-type AddTechnicParams struct {
-	CategoryID                pgtype.UUID
+type AddEquipmentParams struct {
+	CategoryID                *int32
 	Name                      string
 	Description               *string
 	AdditionalCharacteristics []byte
 }
 
-func (q *Queries) AddTechnic(ctx context.Context, arg AddTechnicParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, AddTechnic,
+func (q *Queries) AddEquipment(ctx context.Context, arg AddEquipmentParams) (int32, error) {
+	row := q.db.QueryRow(ctx, AddEquipment,
 		arg.CategoryID,
 		arg.Name,
 		arg.Description,
 		arg.AdditionalCharacteristics,
 	)
-	var id uuid.UUID
+	var id int32
 	err := row.Scan(&id)
 	return id, err
 }
 
-const DeleteTechnic = `-- name: DeleteTechnic :exec
-delete from technics where id = $1
+const DeleteEquipment = `-- name: DeleteEquipment :exec
+delete from equipment where id = $1
 `
 
-func (q *Queries) DeleteTechnic(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, DeleteTechnic, id)
+func (q *Queries) DeleteEquipment(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, DeleteEquipment, id)
 	return err
 }
 
-const GetTechnicByID = `-- name: GetTechnicByID :one
-select id, category_id, name, description, additional_characteristics, created_at, updated_at from technics where id = $1
+const GetEquipmentByID = `-- name: GetEquipmentByID :one
+select id, category_id, name, description, additional_characteristics, created_at, updated_at from equipment where id = $1
 `
 
-func (q *Queries) GetTechnicByID(ctx context.Context, id uuid.UUID) (Technic, error) {
-	row := q.db.QueryRow(ctx, GetTechnicByID, id)
-	var i Technic
+func (q *Queries) GetEquipmentByID(ctx context.Context, id int32) (Equipment, error) {
+	row := q.db.QueryRow(ctx, GetEquipmentByID, id)
+	var i Equipment
 	err := row.Scan(
 		&i.ID,
 		&i.CategoryID,
@@ -63,20 +60,20 @@ func (q *Queries) GetTechnicByID(ctx context.Context, id uuid.UUID) (Technic, er
 	return i, err
 }
 
-const UpdateTechnic = `-- name: UpdateTechnic :exec
-update technics set category_id = $1, name = $2, description = $3, additional_characteristics = $4 where id = $5
+const UpdateEquipment = `-- name: UpdateEquipment :exec
+update equipment set category_id = $1, name = $2, description = $3, additional_characteristics = $4 where id = $5
 `
 
-type UpdateTechnicParams struct {
-	CategoryID                pgtype.UUID
+type UpdateEquipmentParams struct {
+	CategoryID                *int32
 	Name                      string
 	Description               *string
 	AdditionalCharacteristics []byte
-	ID                        uuid.UUID
+	ID                        int32
 }
 
-func (q *Queries) UpdateTechnic(ctx context.Context, arg UpdateTechnicParams) error {
-	_, err := q.db.Exec(ctx, UpdateTechnic,
+func (q *Queries) UpdateEquipment(ctx context.Context, arg UpdateEquipmentParams) error {
+	_, err := q.db.Exec(ctx, UpdateEquipment,
 		arg.CategoryID,
 		arg.Name,
 		arg.Description,

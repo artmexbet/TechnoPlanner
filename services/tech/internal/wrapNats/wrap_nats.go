@@ -2,34 +2,34 @@ package wrapnats
 
 import (
 	"context"
-	"encoding/json"
 	"log/slog"
 	"time"
 
-	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
-	"github.com/nats-io/nats.go"
 	"tech/internal/domain"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/mailru/easyjson"
+	"github.com/nats-io/nats.go"
 
 	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 	"github.com/artmexbet/TechnoPlanner/libs/dto"
 )
 
-type TechService interface {
-	AddTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error)
-	DeleteTechnic(ctx context.Context, techID uuid.UUID) error
-	UpdateTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error)
-	GetTechnicByID(ctx context.Context, techID uuid.UUID) (*domain.Technic, error)
-	GetAllTechnics(ctx context.Context) ([]domain.Technic, error)
-	GetTechnicByCategory(ctx context.Context, categoryID uuid.UUID) ([]domain.Technic, error)
+type EquipmentService interface {
+	AddEquipment(ctx context.Context, equipment domain.Equipment) (*domain.Equipment, error)
+	DeleteEquipment(ctx context.Context, equipmentID int) error
+	UpdateEquipment(ctx context.Context, equipment domain.Equipment) (*domain.Equipment, error)
+	GetEquipmentByID(ctx context.Context, equipmentID int) (*domain.Equipment, error)
+	GetAllEquipment(ctx context.Context) ([]domain.Equipment, error)
+	GetEquipmentByCategory(ctx context.Context, categoryID int) ([]domain.Equipment, error)
 }
 
 type CategoryService interface {
-	AddCategory(ctx context.Context, categoryName string, description string) (*domain.TechnicCategory, error)
-	UpdateCategory(ctx context.Context, category domain.TechnicCategory) (*domain.TechnicCategory, error)
-	DeleteCategory(ctx context.Context, categoryID uuid.UUID) error
-	GetCategoryByID(ctx context.Context, categoryID uuid.UUID) (*domain.TechnicCategory, error)
-	GetAllCategories(ctx context.Context) ([]domain.TechnicCategory, error)
+	AddCategory(ctx context.Context, categoryName string, description string) (*domain.EquipmentCategory, error)
+	UpdateCategory(ctx context.Context, category domain.EquipmentCategory) (*domain.EquipmentCategory, error)
+	DeleteCategory(ctx context.Context, categoryID int) error
+	GetCategoryByID(ctx context.Context, categoryID int) (*domain.EquipmentCategory, error)
+	GetAllCategories(ctx context.Context) ([]domain.EquipmentCategory, error)
 }
 
 type Config struct {
@@ -43,35 +43,35 @@ type NatsWrapper struct {
 	cfg       *Config
 	validator *validator.Validate
 
-	techService     TechService
-	categoryService CategoryService
+	equipmentService EquipmentService
+	categoryService  CategoryService
 }
 
-func New(cfg *Config, conn *nats.Conn, techService TechService, categoryService CategoryService) (*NatsWrapper, error) {
+func New(cfg *Config, conn *nats.Conn, equipmentService EquipmentService, categoryService CategoryService) (*NatsWrapper, error) {
 	return &NatsWrapper{
-		conn:            conn,
-		validator:       validator.New(validator.WithRequiredStructEnabled()),
-		cfg:             cfg,
-		techService:     techService,
-		categoryService: categoryService,
+		conn:             conn,
+		validator:        validator.New(validator.WithRequiredStructEnabled()),
+		cfg:              cfg,
+		equipmentService: equipmentService,
+		categoryService:  categoryService,
 	}, nil
 }
 
 func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 	handlers := map[string]nats.MsgHandler{
-		// Technic handlers
-		subjects.GatewayTechnicCreate:        w.handleCreateTechnic,
-		subjects.GatewayTechnicUpdate:        w.handleUpdateTechnic,
-		subjects.GatewayTechnicDelete:        w.handleDeleteTechnic,
-		subjects.GatewayTechnicGet:           w.handleGetTechnic,
-		subjects.GatewayTechnicList:          w.handleListTechnics,
-		subjects.GatewayTechnicGetByCategory: w.handleGetTechnicsByCategory,
+		// Equipment handlers
+		subjects.GatewayEquipmentCreate:        w.handleCreateEquipment,
+		subjects.GatewayEquipmentUpdate:        w.handleUpdateEquipment,
+		subjects.GatewayEquipmentDelete:        w.handleDeleteEquipment,
+		subjects.GatewayEquipmentGet:           w.handleGetEquipment,
+		subjects.GatewayEquipmentList:          w.handleListEquipment,
+		subjects.GatewayEquipmentGetByCategory: w.handleGetEquipmentByCategory,
 		// Category handlers
-		subjects.GatewayTechnicCategoryCreate: w.handleCreateCategory,
-		subjects.GatewayTechnicCategoryUpdate: w.handleUpdateCategory,
-		subjects.GatewayTechnicCategoryDelete: w.handleDeleteCategory,
-		subjects.GatewayTechnicCategoryGet:    w.handleGetCategory,
-		subjects.GatewayTechnicCategoryList:   w.handleListCategories,
+		subjects.GatewayEquipmentCategoryCreate: w.handleCreateCategory,
+		subjects.GatewayEquipmentCategoryUpdate: w.handleUpdateCategory,
+		subjects.GatewayEquipmentCategoryDelete: w.handleDeleteCategory,
+		subjects.GatewayEquipmentCategoryGet:    w.handleGetCategory,
+		subjects.GatewayEquipmentCategoryList:   w.handleListCategories,
 	}
 
 	for subject, handler := range handlers {
@@ -83,15 +83,15 @@ func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 	return w
 }
 
-// Technic handlers
+// Equipment handlers
 
-func (w *NatsWrapper) handleCreateTechnic(msg *nats.Msg) {
+func (w *NatsWrapper) handleCreateEquipment(msg *nats.Msg) {
 	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
 	defer cancel()
 
-	var req dto.TechnicCreateRequest
-	if err := json.Unmarshal(msg.Data, &req); err != nil {
-		slog.ErrorContext(ctx, "error unmarshaling create technic request", "error", err)
+	var req dto.TechEquipmentCreateRequest
+	if err := easyjson.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling create equipment request", "error", err)
 		_ = respondError(msg, "invalid request format", err.Error(), statusBadRequest)
 		return
 	}
@@ -102,22 +102,22 @@ func (w *NatsWrapper) handleCreateTechnic(msg *nats.Msg) {
 		return
 	}
 
-	domainReq := domain.Technic{
+	domainReq := domain.Equipment{
 		CategoryID:                req.CategoryID,
 		Name:                      req.Name,
 		Description:               req.Description,
 		AdditionalCharacteristics: req.AdditionalCharacteristics,
 	}
 
-	createdReq, err := w.techService.AddTechnic(ctx, domainReq)
+	createdReq, err := w.equipmentService.AddEquipment(ctx, domainReq)
 	if err != nil {
-		slog.ErrorContext(ctx, "error creating technic", "error", err)
+		slog.ErrorContext(ctx, "error creating equipment", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
 		return
 	}
 
-	respDTO := mapTechnicToDTO(*createdReq)
-	respData, err := json.Marshal(respDTO)
+	respDTO := mapEquipmentToDTO(*createdReq)
+	respData, err := easyjson.Marshal(respDTO)
 	if err != nil {
 		slog.ErrorContext(ctx, "error marshaling response", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -129,13 +129,13 @@ func (w *NatsWrapper) handleCreateTechnic(msg *nats.Msg) {
 	}
 }
 
-func (w *NatsWrapper) handleUpdateTechnic(msg *nats.Msg) {
+func (w *NatsWrapper) handleUpdateEquipment(msg *nats.Msg) {
 	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
 	defer cancel()
 
-	var req dto.TechnicUpdateRequest
-	if err := json.Unmarshal(msg.Data, &req); err != nil {
-		slog.ErrorContext(ctx, "error unmarshaling update technic request", "error", err)
+	var req dto.TechEquipmentUpdateRequest
+	if err := easyjson.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling update equipment request", "error", err)
 		_ = respondError(msg, "invalid request format", err.Error(), statusBadRequest)
 		return
 	}
@@ -146,7 +146,7 @@ func (w *NatsWrapper) handleUpdateTechnic(msg *nats.Msg) {
 		return
 	}
 
-	domainReq := domain.Technic{
+	domainReq := domain.Equipment{
 		ID:                        req.ID,
 		CategoryID:                req.CategoryID,
 		Name:                      req.Name,
@@ -154,52 +154,15 @@ func (w *NatsWrapper) handleUpdateTechnic(msg *nats.Msg) {
 		AdditionalCharacteristics: req.AdditionalCharacteristics,
 	}
 
-	updatedReq, err := w.techService.UpdateTechnic(ctx, domainReq)
+	updatedReq, err := w.equipmentService.UpdateEquipment(ctx, domainReq)
 	if err != nil {
-		slog.ErrorContext(ctx, "error updating technic", "error", err)
+		slog.ErrorContext(ctx, "error updating equipment", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
 		return
 	}
 
-	respDTO := mapTechnicToDTO(*updatedReq)
-	respData, err := json.Marshal(respDTO)
-	if err != nil {
-		slog.ErrorContext(ctx, "error marshaling response", "error", err)
-		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
-		return
-	}
-
-	if err := respondSuccess(msg, "success", respData); err != nil {
-		slog.ErrorContext(ctx, "error sending response", "error", err)
-	}
-}
-
-func (w *NatsWrapper) handleGetTechnic(msg *nats.Msg) {
-	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
-	defer cancel()
-
-	var req dto.TechnicGetByIDRequest
-	if err := json.Unmarshal(msg.Data, &req); err != nil {
-		slog.ErrorContext(ctx, "error unmarshaling get technic request", "error", err)
-		_ = respondError(msg, "invalid request format", err.Error(), statusBadRequest)
-		return
-	}
-
-	if err := w.validator.Struct(req); err != nil {
-		slog.ErrorContext(ctx, "validation error", "error", err)
-		_ = respondError(msg, "validation error", err.Error(), statusBadRequest)
-		return
-	}
-
-	getReq, err := w.techService.GetTechnicByID(ctx, req.ID)
-	if err != nil {
-		slog.ErrorContext(ctx, "error getting technic", "error", err)
-		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
-		return
-	}
-
-	respDTO := mapTechnicToDTO(*getReq)
-	respData, err := json.Marshal(respDTO)
+	respDTO := mapEquipmentToDTO(*updatedReq)
+	respData, err := easyjson.Marshal(respDTO)
 	if err != nil {
 		slog.ErrorContext(ctx, "error marshaling response", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -211,13 +174,13 @@ func (w *NatsWrapper) handleGetTechnic(msg *nats.Msg) {
 	}
 }
 
-func (w *NatsWrapper) handleDeleteTechnic(msg *nats.Msg) {
+func (w *NatsWrapper) handleGetEquipment(msg *nats.Msg) {
 	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
 	defer cancel()
 
-	var req dto.TechnicDeleteRequest
-	if err := json.Unmarshal(msg.Data, &req); err != nil {
-		slog.ErrorContext(ctx, "error unmarshaling delete technic request", "error", err)
+	var req dto.TechEquipmentGetByIDRequest
+	if err := easyjson.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling get equipment request", "error", err)
 		_ = respondError(msg, "invalid request format", err.Error(), statusBadRequest)
 		return
 	}
@@ -228,35 +191,15 @@ func (w *NatsWrapper) handleDeleteTechnic(msg *nats.Msg) {
 		return
 	}
 
-	err := w.techService.DeleteTechnic(ctx, req.ID)
+	getReq, err := w.equipmentService.GetEquipmentByID(ctx, req.ID)
 	if err != nil {
-		slog.ErrorContext(ctx, "error deleting technic", "error", err)
+		slog.ErrorContext(ctx, "error getting equipment", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
 		return
 	}
 
-	if err := respondSuccess(msg, "success", "technic deleted"); err != nil {
-		slog.ErrorContext(ctx, "error sending response", "error", err)
-	}
-}
-
-func (w *NatsWrapper) handleListTechnics(msg *nats.Msg) {
-	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
-	defer cancel()
-
-	technics, err := w.techService.GetAllTechnics(ctx)
-	if err != nil {
-		slog.ErrorContext(ctx, "error listing technics", "error", err)
-		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
-		return
-	}
-
-	respDTO := make([]dto.Technic, len(technics))
-	for i, t := range technics {
-		respDTO[i] = mapTechnicToDTO(t)
-	}
-
-	respData, err := json.Marshal(respDTO)
+	respDTO := mapEquipmentToDTO(*getReq)
+	respData, err := easyjson.Marshal(respDTO)
 	if err != nil {
 		slog.ErrorContext(ctx, "error marshaling response", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -268,13 +211,13 @@ func (w *NatsWrapper) handleListTechnics(msg *nats.Msg) {
 	}
 }
 
-func (w *NatsWrapper) handleGetTechnicsByCategory(msg *nats.Msg) {
+func (w *NatsWrapper) handleDeleteEquipment(msg *nats.Msg) {
 	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
 	defer cancel()
 
-	var req dto.TechnicGetByCategoryRequest
-	if err := json.Unmarshal(msg.Data, &req); err != nil {
-		slog.ErrorContext(ctx, "error unmarshaling get technics by category request", "error", err)
+	var req dto.TechEquipmentDeleteRequest
+	if err := easyjson.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling delete equipment request", "error", err)
 		_ = respondError(msg, "invalid request format", err.Error(), statusBadRequest)
 		return
 	}
@@ -285,19 +228,76 @@ func (w *NatsWrapper) handleGetTechnicsByCategory(msg *nats.Msg) {
 		return
 	}
 
-	technics, err := w.techService.GetTechnicByCategory(ctx, req.CategoryID)
+	err := w.equipmentService.DeleteEquipment(ctx, req.ID)
 	if err != nil {
-		slog.ErrorContext(ctx, "error getting technics by category", "error", err)
+		slog.ErrorContext(ctx, "error deleting equipment", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
 		return
 	}
 
-	respDTO := make([]dto.Technic, len(technics))
-	for i, t := range technics {
-		respDTO[i] = mapTechnicToDTO(t)
+	if err := respondSuccess(msg, "success", "equipment deleted"); err != nil {
+		slog.ErrorContext(ctx, "error sending response", "error", err)
+	}
+}
+
+func (w *NatsWrapper) handleListEquipment(msg *nats.Msg) {
+	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
+	defer cancel()
+
+	equipment, err := w.equipmentService.GetAllEquipment(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "error listing equipment", "error", err)
+		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
+		return
 	}
 
-	respData, err := json.Marshal(respDTO)
+	respDTO := make(dto.TechEquipmentList, len(equipment))
+	for i, e := range equipment {
+		respDTO[i] = mapEquipmentToDTO(e)
+	}
+
+	respData, err := easyjson.Marshal(respDTO)
+	if err != nil {
+		slog.ErrorContext(ctx, "error marshaling response", "error", err)
+		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
+		return
+	}
+
+	if err := respondSuccess(msg, "success", respData); err != nil {
+		slog.ErrorContext(ctx, "error sending response", "error", err)
+	}
+}
+
+func (w *NatsWrapper) handleGetEquipmentByCategory(msg *nats.Msg) {
+	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
+	defer cancel()
+
+	var req dto.TechEquipmentGetByCategoryRequest
+	if err := easyjson.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling get equipment by category request", "error", err)
+		_ = respondError(msg, "invalid request format", err.Error(), statusBadRequest)
+		return
+	}
+
+	if err := w.validator.Struct(req); err != nil {
+		slog.ErrorContext(ctx, "validation error", "error", err)
+		_ = respondError(msg, "validation error", err.Error(), statusBadRequest)
+		return
+	}
+
+	equipment, err := w.equipmentService.GetEquipmentByCategory(ctx, req.CategoryID)
+	if err != nil {
+		slog.ErrorContext(ctx, "error getting equipment by category", "error", err)
+		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
+		return
+	}
+
+	respDTO := make(dto.TechEquipmentList, len(equipment))
+	for i, e := range equipment {
+		respDTO[i] = mapEquipmentToDTO(e)
+	}
+
+	respData, err := easyjson.Marshal(respDTO)
 	if err != nil {
 		slog.ErrorContext(ctx, "error marshaling response", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -315,8 +315,8 @@ func (w *NatsWrapper) handleCreateCategory(msg *nats.Msg) {
 	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
 	defer cancel()
 
-	var req dto.TechnicCategoryCreateRequest
-	if err := json.Unmarshal(msg.Data, &req); err != nil {
+	var req dto.TechEquipmentCategoryCreateRequest
+	if err := easyjson.Unmarshal(msg.Data, &req); err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling create category request", "error", err)
 		_ = respondError(msg, "invalid request format", err.Error(), statusBadRequest)
 		return
@@ -336,7 +336,7 @@ func (w *NatsWrapper) handleCreateCategory(msg *nats.Msg) {
 	}
 
 	respDTO := mapCategoryToDTO(*createdReq)
-	respData, err := json.Marshal(respDTO)
+	respData, err := easyjson.Marshal(respDTO)
 	if err != nil {
 		slog.ErrorContext(ctx, "error marshaling response", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -352,8 +352,8 @@ func (w *NatsWrapper) handleUpdateCategory(msg *nats.Msg) {
 	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
 	defer cancel()
 
-	var req dto.TechnicCategoryUpdateRequest
-	if err := json.Unmarshal(msg.Data, &req); err != nil {
+	var req dto.TechEquipmentCategoryUpdateRequest
+	if err := easyjson.Unmarshal(msg.Data, &req); err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling update category request", "error", err)
 		_ = respondError(msg, "invalid request format", err.Error(), statusBadRequest)
 		return
@@ -365,7 +365,7 @@ func (w *NatsWrapper) handleUpdateCategory(msg *nats.Msg) {
 		return
 	}
 
-	updatedReq, err := w.categoryService.UpdateCategory(ctx, domain.TechnicCategory{
+	updatedReq, err := w.categoryService.UpdateCategory(ctx, domain.EquipmentCategory{
 		ID:          req.ID,
 		Name:        req.Name,
 		Description: req.Description,
@@ -377,7 +377,7 @@ func (w *NatsWrapper) handleUpdateCategory(msg *nats.Msg) {
 	}
 
 	respDTO := mapCategoryToDTO(*updatedReq)
-	respData, err := json.Marshal(respDTO)
+	respData, err := easyjson.Marshal(respDTO)
 	if err != nil {
 		slog.ErrorContext(ctx, "error marshaling response", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -393,8 +393,8 @@ func (w *NatsWrapper) handleDeleteCategory(msg *nats.Msg) {
 	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
 	defer cancel()
 
-	var req dto.TechnicCategoryDeleteRequest
-	if err := req.UnmarshalJSON(msg.Data); err != nil {
+	var req dto.TechEquipmentCategoryDeleteRequest
+	if err := easyjson.Unmarshal(msg.Data, &req); err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling delete category request", "error", err)
 		_ = respondError(msg, "invalid request format", err.Error(), statusBadRequest)
 		return
@@ -422,8 +422,8 @@ func (w *NatsWrapper) handleGetCategory(msg *nats.Msg) {
 	ctx, cancel := context.WithTimeout(context.Background(), w.cfg.RequestTimeout)
 	defer cancel()
 
-	var req dto.TechnicCategoryGetByIDRequest
-	if err := json.Unmarshal(msg.Data, &req); err != nil {
+	var req dto.TechEquipmentCategoryGetByIDRequest
+	if err := easyjson.Unmarshal(msg.Data, &req); err != nil {
 		slog.ErrorContext(ctx, "error unmarshaling get category request", "error", err)
 		_ = respondError(msg, "invalid request format", err.Error(), statusBadRequest)
 		return
@@ -443,7 +443,7 @@ func (w *NatsWrapper) handleGetCategory(msg *nats.Msg) {
 	}
 
 	respDTO := mapCategoryToDTO(*category)
-	respData, err := json.Marshal(respDTO)
+	respData, err := easyjson.Marshal(respDTO)
 	if err != nil {
 		slog.ErrorContext(ctx, "error marshaling response", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -466,12 +466,12 @@ func (w *NatsWrapper) handleListCategories(msg *nats.Msg) {
 		return
 	}
 
-	respDTO := make([]dto.TechnicCategory, len(categories))
+	respDTO := make(dto.TechEquipmentCategoryList, len(categories))
 	for i, c := range categories {
 		respDTO[i] = mapCategoryToDTO(c)
 	}
 
-	respData, err := json.Marshal(respDTO)
+	respData, err := easyjson.Marshal(respDTO)
 	if err != nil {
 		slog.ErrorContext(ctx, "error marshaling response", "error", err)
 		_ = respondError(msg, "internal server error", err.Error(), statusInternalServerError)
@@ -485,20 +485,20 @@ func (w *NatsWrapper) handleListCategories(msg *nats.Msg) {
 
 // Helper functions
 
-func mapTechnicToDTO(t domain.Technic) dto.Technic {
-	return dto.Technic{
-		ID:                        t.ID,
-		CategoryID:                t.CategoryID,
-		Name:                      t.Name,
-		Description:               t.Description,
-		AdditionalCharacteristics: t.AdditionalCharacteristics,
-		CreatedAt:                 t.CreatedAt,
-		UpdatedAt:                 t.UpdatedAt,
+func mapEquipmentToDTO(e domain.Equipment) dto.TechEquipment {
+	return dto.TechEquipment{
+		ID:                        e.ID,
+		CategoryID:                e.CategoryID,
+		Name:                      e.Name,
+		Description:               e.Description,
+		AdditionalCharacteristics: e.AdditionalCharacteristics,
+		CreatedAt:                 e.CreatedAt,
+		UpdatedAt:                 e.UpdatedAt,
 	}
 }
 
-func mapCategoryToDTO(c domain.TechnicCategory) dto.TechnicCategory {
-	return dto.TechnicCategory{
+func mapCategoryToDTO(c domain.EquipmentCategory) dto.TechEquipmentCategory {
+	return dto.TechEquipmentCategory{
 		ID:          c.ID,
 		Name:        c.Name,
 		Description: &c.Description,
