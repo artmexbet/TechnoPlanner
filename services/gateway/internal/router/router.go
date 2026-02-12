@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/gofiber/contrib/otelfiber/v2"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/fiber/v2/middleware/requestid"
+	otelfiber "github.com/gofiber/contrib/v3/otel"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/recover"
+	"github.com/gofiber/fiber/v3/middleware/requestid"
 	"github.com/google/uuid"
 	slogfiber "github.com/samber/slog-fiber"
 	"go.opentelemetry.io/otel/trace"
@@ -116,7 +116,7 @@ func NewRouter(
 func (r *Router) InitMiddlewares(provider trace.TracerProvider) *Router {
 	r.r.Use(cors.New(
 		cors.Config{
-			AllowOrigins: "*",
+			AllowOrigins: []string{"*"},
 		},
 	))
 	r.r.Use(recover.New())
@@ -133,12 +133,12 @@ func (r *Router) InitMiddlewares(provider trace.TracerProvider) *Router {
 // InitBaseRoutes регистрирует HTTP-маршруты
 func (r *Router) InitBaseRoutes() *Router {
 	// Healthcheck
-	r.r.Get("/healthz", func(c *fiber.Ctx) error {
+	r.r.Get("/healthz", func(c fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
 	// Простая проверка доступности API
-	r.r.Get("/ping", func(c *fiber.Ctx) error {
+	r.r.Get("/ping", func(c fiber.Ctx) error {
 		return c.JSON(fiber.Map{"message": "pong"})
 	})
 
@@ -151,10 +151,10 @@ func (r *Router) Run() {
 	}
 }
 
-func (r *Router) userContext(c *fiber.Ctx) context.Context {
+func (r *Router) userContext(c fiber.Ctx) context.Context {
 	userID, _ := c.Locals(middlwares.ContextUserIDKey).(string)
 	role, _ := c.Locals(middlwares.ContextUserRoleKey).(string)
-	return service.WithUserContext(c.UserContext(), userID, role)
+	return service.WithUserContext(c.Context(), userID, role)
 }
 
 func (r *Router) InitPorterRoutes() *Router {
@@ -167,7 +167,7 @@ func (r *Router) InitPorterRoutes() *Router {
 }
 
 func (r *Router) listPorters() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		ctx := r.userContext(c)
 		users, err := r.porterSvc.List(ctx)
 		if err != nil {
@@ -182,7 +182,7 @@ func (r *Router) listPorters() fiber.Handler {
 }
 
 func (r *Router) getPorter() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		id, err := uuid.Parse(c.Params("id"))
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid porter id"})
@@ -197,9 +197,9 @@ func (r *Router) getPorter() fiber.Handler {
 }
 
 func (r *Router) createPorter() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		var req models.PorterCreateRequest
-		if err := c.BodyParser(&req); err != nil {
+		if err := c.Bind().Body(&req); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
 		}
 		if err := r.validator.Struct(req); err != nil {
@@ -234,7 +234,7 @@ func (r *Router) InitEquipmentRoutes() *Router {
 }
 
 func (r *Router) listEquipment() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		ctx := r.userContext(c)
 		items, err := r.equipmentSvc.List(ctx)
 		if err != nil {
@@ -249,7 +249,7 @@ func (r *Router) listEquipment() fiber.Handler {
 }
 
 func (r *Router) getEquipment() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		id, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid equipment id"})
@@ -264,9 +264,9 @@ func (r *Router) getEquipment() fiber.Handler {
 }
 
 func (r *Router) createEquipment() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		var req models.EquipmentCreateRequest
-		if err := c.BodyParser(&req); err != nil {
+		if err := c.Bind().Body(&req); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
 		}
 		if err := r.validator.Struct(req); err != nil {
@@ -290,13 +290,13 @@ func (r *Router) createEquipment() fiber.Handler {
 }
 
 func (r *Router) updateEquipment() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		id, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid equipment id"})
 		}
 		var req models.EquipmentUpdateRequest
-		if err := c.BodyParser(&req); err != nil {
+		if err := c.Bind().Body(&req); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
 		}
 		if err := r.validator.Struct(req); err != nil {
@@ -321,7 +321,7 @@ func (r *Router) updateEquipment() fiber.Handler {
 }
 
 func (r *Router) deleteEquipment() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		id, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid equipment id"})
@@ -335,7 +335,7 @@ func (r *Router) deleteEquipment() fiber.Handler {
 }
 
 func (r *Router) listCategories() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		ctx := r.userContext(c)
 		cats, err := r.categorySvc.List(ctx)
 		if err != nil {
@@ -350,9 +350,9 @@ func (r *Router) listCategories() fiber.Handler {
 }
 
 func (r *Router) createCategory() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		var req models.EquipmentCategoryCreateRequest
-		if err := c.BodyParser(&req); err != nil {
+		if err := c.Bind().Body(&req); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
 		}
 		if err := r.validator.Struct(req); err != nil {
@@ -369,13 +369,13 @@ func (r *Router) createCategory() fiber.Handler {
 }
 
 func (r *Router) updateCategory() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		id, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid category id"})
 		}
 		var req models.EquipmentCategoryUpdateRequest
-		if err := c.BodyParser(&req); err != nil {
+		if err := c.Bind().Body(&req); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
 		}
 		if err := r.validator.Struct(req); err != nil {
@@ -392,7 +392,7 @@ func (r *Router) updateCategory() fiber.Handler {
 }
 
 func (r *Router) deleteCategory() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		id, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid category id"})
@@ -417,7 +417,7 @@ func (r *Router) InitRequestRoutes() *Router {
 }
 
 func (r *Router) listRequests() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		var filters models.RequestFilter
 		if responsible := c.Query("responsible_id"); responsible != "" {
 			filters.ResponsibleID = &responsible
@@ -444,7 +444,7 @@ func (r *Router) listRequests() fiber.Handler {
 }
 
 func (r *Router) getRequest() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		id, err := uuid.Parse(c.Params("id"))
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid request id"})
@@ -462,13 +462,13 @@ func (r *Router) assignResponsible() fiber.Handler {
 	type payload struct {
 		ResponsibleID string `json:"responsible_id" validate:"required,uuid4"`
 	}
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		id, err := uuid.Parse(c.Params("id"))
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid request id"})
 		}
 		var body payload
-		if err := c.BodyParser(&body); err != nil {
+		if err := c.Bind().Body(&body); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
 		}
 		if err := r.validator.Struct(body); err != nil {
@@ -488,7 +488,7 @@ func (r *Router) assignResponsible() fiber.Handler {
 }
 
 func (r *Router) listRequestHistory() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		id, err := uuid.Parse(c.Params("id"))
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid request id"})
@@ -507,13 +507,13 @@ func (r *Router) listRequestHistory() fiber.Handler {
 }
 
 func (r *Router) addRequestHistory() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		id, err := uuid.Parse(c.Params("id"))
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid request id"})
 		}
 		var body models.RequestStatusUpdateRequest
-		if err := c.BodyParser(&body); err != nil {
+		if err := c.Bind().Body(&body); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
 		}
 		if err := r.validator.Struct(body); err != nil {
@@ -622,7 +622,7 @@ func toHistoryResponse(entry domain.RequestStatusHistory) models.RequestStatusHi
 	return resp
 }
 
-func handleServiceError(c *fiber.Ctx, err error) error {
+func handleServiceError(c fiber.Ctx, err error) error {
 	switch {
 	case errors.Is(err, domain.ErrForbidden):
 		return c.Status(fiber.StatusForbidden).JSON(models.ErrorResponse{Error: "forbidden"})
@@ -639,3 +639,5 @@ func derefString(s *string) string {
 	}
 	return *s
 }
+
+// fiber:context-methods migrated

@@ -3,7 +3,7 @@ package middlwares
 import (
 	"context"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
 )
@@ -18,7 +18,7 @@ type AuthClient interface {
 }
 
 func CheckJWTMiddleware(authClient AuthClient) fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		h := c.GetReqHeaders()["Authorization"]
 		if len(h) == 0 {
 			return c.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{
@@ -33,7 +33,7 @@ func CheckJWTMiddleware(authClient AuthClient) fiber.Handler {
 			})
 		}
 		token := authHeader[len(bearerPrefix):]
-		validateRes, err := authClient.ValidateToken(c.UserContext(), token)
+		validateRes, err := authClient.ValidateToken(c.Context(), token)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{
 				Error:   "invalid token",
@@ -53,3 +53,5 @@ func CheckJWTMiddleware(authClient AuthClient) fiber.Handler {
 		return c.Next()
 	}
 }
+
+// fiber:context-methods migrated
