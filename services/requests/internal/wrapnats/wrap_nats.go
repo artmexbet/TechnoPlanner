@@ -6,12 +6,13 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/artmexbet/TechnoPlanner/libs/broker"
-	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
-	"github.com/artmexbet/TechnoPlanner/libs/dto"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
+
+	"github.com/artmexbet/TechnoPlanner/libs/broker"
+	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
+	"github.com/artmexbet/TechnoPlanner/libs/dto"
 
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )

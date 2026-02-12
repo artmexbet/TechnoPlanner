@@ -83,12 +83,16 @@ func (s *Service) UpdateStatus(ctx context.Context, requestID uuid.UUID, status 
 }
 
 // ListByResponsible возвращает список заявок по ответственному (заглушка)
+//
+//nolint:revive
 func (s *Service) ListByResponsible(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error) {
 	// TODO: implement
 	return nil, errors.New("not implemented")
 }
 
 // AssignResponsible назначает ответственного за заявку (заглушка)
+//
+//nolint:revive
 func (s *Service) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) (*domain.Request, error) {
 	// TODO: implement
 	return nil, errors.New("not implemented")

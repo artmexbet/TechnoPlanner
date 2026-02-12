@@ -12,6 +12,7 @@ import (
 	"github.com/artmexbet/TechnoPlanner/libs/broker"
 	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 	"github.com/artmexbet/TechnoPlanner/libs/dto"
+
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
@@ -107,7 +108,7 @@ func (c *RequestClient) Get(ctx context.Context, id uuid.UUID) (domain.Request, 
 }
 
 // AssignResponsible назначает ответственного за заявку
-func (c *RequestClient) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID, userID *uuid.UUID) (domain.Request, error) {
+func (c *RequestClient) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID, _ *uuid.UUID) (domain.Request, error) {
 	req := dto.AssignResponsibleRequest{
 		RequestID: requestID,
 	}

@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/contrib/otelfiber/v2"
 	"github.com/gofiber/fiber/v2"
@@ -22,6 +21,7 @@ import (
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router/middlwares"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/service"
 )
 
 type UserService interface {

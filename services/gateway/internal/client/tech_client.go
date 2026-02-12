@@ -12,6 +12,7 @@ import (
 	"github.com/artmexbet/TechnoPlanner/libs/broker"
 	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 	"github.com/artmexbet/TechnoPlanner/libs/dto"
+
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 

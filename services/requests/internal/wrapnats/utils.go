@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/artmexbet/TechnoPlanner/libs/dto"
 	"github.com/nats-io/nats.go"
+
+	"github.com/artmexbet/TechnoPlanner/libs/dto"
 
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
@@ -22,7 +23,7 @@ const (
 	statusInternalServerError statusCode = 500
 )
 
-func respondError(msg *nats.Msg, message string, payload interface{}, statusCode statusCode) error {
+func respondError(msg *nats.Msg, message string, payload interface{}, statusCode statusCode) error { //nolint:revive //todo: удалить статус код, он не нужен, так как в GatewayResponse уже есть поле Message для описания ошибки
 	resp := dto.GatewayResponse{
 		Success: false,
 		Message: message,
@@ -103,28 +104,6 @@ func mapRequestCreateToDomain(req dto.RequestCreateRequest) domain.Request {
 			TelegramID: req.TelegramUserID,
 			Username:   username,
 		},
-	}
-}
-
-func mapRequestToDomain(req dto.Request) domain.Request {
-	equipments := make([]domain.Equipment, len(req.Equipment))
-	for i, eq := range req.Equipment {
-		equipments[i] = domain.Equipment{
-			ID:       int(eq.EquipmentID),
-			Quantity: int(eq.Quantity),
-		}
-	}
-
-	return domain.Request{
-		ID:           req.ID,
-		RequestText:  req.RequestText,
-		Status:       domain.StatusType(req.Status),
-		Equipments:   equipments,
-		ScheduleTime: req.ScheduleTime,
-		EndTime:      req.EndTime,
-		Address:      req.Address,
-		CreatedAt:    req.Audit.CreatedAt,
-		UpdatedAt:    req.Audit.UpdatedAt,
 	}
 }
 
