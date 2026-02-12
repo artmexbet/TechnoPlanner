@@ -3,10 +3,10 @@ package postgres
 import (
 	"context"
 	"log/slog"
-	"tech/internal/domain"
-	"tech/internal/postgres/queries"
 
 	"github.com/google/uuid"
+	"tech/internal/domain"
+	"tech/internal/postgres/queries"
 )
 
 func (p *Postgres) AddTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error) {

@@ -2,16 +2,16 @@ package queries
 
 import (
 	"log/slog"
-	"tech/internal/domain"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"tech/internal/domain"
 )
 
 func DBTechSliceToDomain(dbTech []Technic) []domain.Technic {
 	techToRet := make([]domain.Technic, 0, len(dbTech))
 	for _, v := range dbTech {
 		var chars AdditionalCharacteristics
-		chars.UnmarshalJSON(v.AdditionalCharacteristics)
+		chars.UnmarshalJSON(v.AdditionalCharacteristics) //nolint:errcheck
 		techToRet = append(techToRet, domain.Technic{
 			ID:                        v.ID,
 			CategoryID:                v.CategoryID.Bytes,

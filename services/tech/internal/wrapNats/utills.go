@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/artmexbet/TechnoPlanner/libs/dto"
 	"github.com/nats-io/nats.go"
+
+	"github.com/artmexbet/TechnoPlanner/libs/dto"
 )
 
 type statusCode int

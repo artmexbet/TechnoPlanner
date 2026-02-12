@@ -6,13 +6,13 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
+	"github.com/nats-io/nats.go"
 	"tech/internal/domain"
 
 	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
 	"github.com/artmexbet/TechnoPlanner/libs/dto"
-	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
-	"github.com/nats-io/nats.go"
 )
 
 type TechService interface {

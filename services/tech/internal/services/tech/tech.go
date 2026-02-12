@@ -2,9 +2,9 @@ package techservice
 
 import (
 	"context"
-	"tech/internal/domain"
 
 	"github.com/google/uuid"
+	"tech/internal/domain"
 )
 
 type IRepository interface {

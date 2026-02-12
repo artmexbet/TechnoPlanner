@@ -2,9 +2,9 @@ package categoryrepo
 
 import (
 	"context"
-	"tech/internal/domain"
 
 	"github.com/google/uuid"
+	"tech/internal/domain"
 )
 
 type IPostgres interface {

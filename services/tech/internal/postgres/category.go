@@ -3,11 +3,11 @@ package postgres
 import (
 	"context"
 	"log/slog"
-	"tech/internal/domain"
-	"tech/internal/postgres/queries"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"tech/internal/domain"
+	"tech/internal/postgres/queries"
 )
 
 func (p *Postgres) GetTechnicByCategory(ctx context.Context, categoryID uuid.UUID) ([]domain.Technic, error) {
