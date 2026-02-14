@@ -1,6 +1,8 @@
 package queries
 
 import (
+	"encoding/json"
+
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
@@ -16,7 +18,7 @@ func RequestStatusFromDomain(s domain.StatusType) *RequestStatus {
 }
 
 func (r *Request) ToDomain() *domain.Request {
-	return &domain.Request{
+	req := &domain.Request{
 		ID:          r.ID,
 		RequestText: r.RequestText,
 		Status:      r.Status.ToDomain(),
@@ -24,10 +26,20 @@ func (r *Request) ToDomain() *domain.Request {
 		CreatedAt:   r.CreatedAt,
 		UpdatedAt:   r.UpdatedAt,
 	}
+
+	// Parse ResponsibleInfo from JSONB
+	if len(r.ResponsibleInfo) > 0 {
+		var respInfo domain.ResponsibleInfo
+		if err := json.Unmarshal(r.ResponsibleInfo, &respInfo); err == nil {
+			req.ResponsibleInfo = &respInfo
+		}
+	}
+
+	return req
 }
 
 func RequestFromDomain(r domain.Request) *Request {
-	return &Request{
+	req := &Request{
 		ID:             r.ID,
 		TelegramUserID: r.Issuer.ID,
 		RequestText:    r.RequestText,
@@ -35,6 +47,22 @@ func RequestFromDomain(r domain.Request) *Request {
 		CreatedAt:      r.CreatedAt,
 		UpdatedAt:      r.UpdatedAt,
 	}
+
+	// Convert ResponsibleInfo to JSONB
+	if r.ResponsibleInfo != nil {
+		data, _ := json.Marshal(r.ResponsibleInfo)
+		req.ResponsibleInfo = data
+	}
+
+	return req
+}
+
+func ResponsibleInfoFromDomain(r *domain.ResponsibleInfo) []byte {
+	if r == nil {
+		return nil
+	}
+	data, _ := json.Marshal(r)
+	return data
 }
 
 func (u *TelegramUser) ToDomain() *domain.User {

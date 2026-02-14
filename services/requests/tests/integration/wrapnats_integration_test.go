@@ -60,6 +60,22 @@ func (m *MockRequestService) Cancel(ctx context.Context, requestID uuid.UUID) er
 	return args.Error(0)
 }
 
+func (m *MockRequestService) ListByResponsible(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error) {
+	args := m.Called(ctx, responsibleID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]domain.Request), args.Error(1)
+}
+
+func (m *MockRequestService) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) (*domain.Request, error) {
+	args := m.Called(ctx, requestID, responsibleID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*domain.Request), args.Error(1)
+}
+
 type MockEquipmentService struct {
 	mock.Mock
 }

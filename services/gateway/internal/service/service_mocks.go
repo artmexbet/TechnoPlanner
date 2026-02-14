@@ -105,6 +105,63 @@ func (_c *MockCategoryStorage_Create_Call) RunAndReturn(run func(ctx context.Con
 	return _c
 }
 
+// Delete provides a mock function for the type MockCategoryStorage
+func (_mock *MockCategoryStorage) Delete(ctx context.Context, id int) error {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int) error); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockCategoryStorage_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type MockCategoryStorage_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int
+func (_e *MockCategoryStorage_Expecter) Delete(ctx interface{}, id interface{}) *MockCategoryStorage_Delete_Call {
+	return &MockCategoryStorage_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
+}
+
+func (_c *MockCategoryStorage_Delete_Call) Run(run func(ctx context.Context, id int)) *MockCategoryStorage_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 int
+		if args[1] != nil {
+			arg1 = args[1].(int)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockCategoryStorage_Delete_Call) Return(err error) *MockCategoryStorage_Delete_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockCategoryStorage_Delete_Call) RunAndReturn(run func(ctx context.Context, id int) error) *MockCategoryStorage_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // List provides a mock function for the type MockCategoryStorage
 func (_mock *MockCategoryStorage) List(ctx context.Context) ([]domain.EquipmentCategory, error) {
 	ret := _mock.Called(ctx)
@@ -163,69 +220,6 @@ func (_c *MockCategoryStorage_List_Call) Return(equipmentCategorys []domain.Equi
 }
 
 func (_c *MockCategoryStorage_List_Call) RunAndReturn(run func(ctx context.Context) ([]domain.EquipmentCategory, error)) *MockCategoryStorage_List_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SoftDelete provides a mock function for the type MockCategoryStorage
-func (_mock *MockCategoryStorage) SoftDelete(ctx context.Context, id int32, userID *uuid.UUID) error {
-	ret := _mock.Called(ctx, id, userID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SoftDelete")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32, *uuid.UUID) error); ok {
-		r0 = returnFunc(ctx, id, userID)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// MockCategoryStorage_SoftDelete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SoftDelete'
-type MockCategoryStorage_SoftDelete_Call struct {
-	*mock.Call
-}
-
-// SoftDelete is a helper method to define mock.On call
-//   - ctx context.Context
-//   - id int32
-//   - userID *uuid.UUID
-func (_e *MockCategoryStorage_Expecter) SoftDelete(ctx interface{}, id interface{}, userID interface{}) *MockCategoryStorage_SoftDelete_Call {
-	return &MockCategoryStorage_SoftDelete_Call{Call: _e.mock.On("SoftDelete", ctx, id, userID)}
-}
-
-func (_c *MockCategoryStorage_SoftDelete_Call) Run(run func(ctx context.Context, id int32, userID *uuid.UUID)) *MockCategoryStorage_SoftDelete_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 int32
-		if args[1] != nil {
-			arg1 = args[1].(int32)
-		}
-		var arg2 *uuid.UUID
-		if args[2] != nil {
-			arg2 = args[2].(*uuid.UUID)
-		}
-		run(
-			arg0,
-			arg1,
-			arg2,
-		)
-	})
-	return _c
-}
-
-func (_c *MockCategoryStorage_SoftDelete_Call) Return(err error) *MockCategoryStorage_SoftDelete_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *MockCategoryStorage_SoftDelete_Call) RunAndReturn(run func(ctx context.Context, id int32, userID *uuid.UUID) error) *MockCategoryStorage_SoftDelete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -389,8 +383,65 @@ func (_c *MockEquipmentStorage_Create_Call) RunAndReturn(run func(ctx context.Co
 	return _c
 }
 
+// Delete provides a mock function for the type MockEquipmentStorage
+func (_mock *MockEquipmentStorage) Delete(ctx context.Context, id int) error {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int) error); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockEquipmentStorage_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type MockEquipmentStorage_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int
+func (_e *MockEquipmentStorage_Expecter) Delete(ctx interface{}, id interface{}) *MockEquipmentStorage_Delete_Call {
+	return &MockEquipmentStorage_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
+}
+
+func (_c *MockEquipmentStorage_Delete_Call) Run(run func(ctx context.Context, id int)) *MockEquipmentStorage_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 int
+		if args[1] != nil {
+			arg1 = args[1].(int)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockEquipmentStorage_Delete_Call) Return(err error) *MockEquipmentStorage_Delete_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockEquipmentStorage_Delete_Call) RunAndReturn(run func(ctx context.Context, id int) error) *MockEquipmentStorage_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function for the type MockEquipmentStorage
-func (_mock *MockEquipmentStorage) Get(ctx context.Context, id int32) (domain.Equipment, error) {
+func (_mock *MockEquipmentStorage) Get(ctx context.Context, id int) (domain.Equipment, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -399,15 +450,15 @@ func (_mock *MockEquipmentStorage) Get(ctx context.Context, id int32) (domain.Eq
 
 	var r0 domain.Equipment
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) (domain.Equipment, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int) (domain.Equipment, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) domain.Equipment); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int) domain.Equipment); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		r0 = ret.Get(0).(domain.Equipment)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int) error); ok {
 		r1 = returnFunc(ctx, id)
 	} else {
 		r1 = ret.Error(1)
@@ -422,20 +473,20 @@ type MockEquipmentStorage_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id int32
+//   - id int
 func (_e *MockEquipmentStorage_Expecter) Get(ctx interface{}, id interface{}) *MockEquipmentStorage_Get_Call {
 	return &MockEquipmentStorage_Get_Call{Call: _e.mock.On("Get", ctx, id)}
 }
 
-func (_c *MockEquipmentStorage_Get_Call) Run(run func(ctx context.Context, id int32)) *MockEquipmentStorage_Get_Call {
+func (_c *MockEquipmentStorage_Get_Call) Run(run func(ctx context.Context, id int)) *MockEquipmentStorage_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 int32
+		var arg1 int
 		if args[1] != nil {
-			arg1 = args[1].(int32)
+			arg1 = args[1].(int)
 		}
 		run(
 			arg0,
@@ -450,7 +501,7 @@ func (_c *MockEquipmentStorage_Get_Call) Return(equipment domain.Equipment, err 
 	return _c
 }
 
-func (_c *MockEquipmentStorage_Get_Call) RunAndReturn(run func(ctx context.Context, id int32) (domain.Equipment, error)) *MockEquipmentStorage_Get_Call {
+func (_c *MockEquipmentStorage_Get_Call) RunAndReturn(run func(ctx context.Context, id int) (domain.Equipment, error)) *MockEquipmentStorage_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -513,69 +564,6 @@ func (_c *MockEquipmentStorage_List_Call) Return(equipments []domain.Equipment, 
 }
 
 func (_c *MockEquipmentStorage_List_Call) RunAndReturn(run func(ctx context.Context) ([]domain.Equipment, error)) *MockEquipmentStorage_List_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SoftDelete provides a mock function for the type MockEquipmentStorage
-func (_mock *MockEquipmentStorage) SoftDelete(ctx context.Context, id int32, userID *uuid.UUID) error {
-	ret := _mock.Called(ctx, id, userID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SoftDelete")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32, *uuid.UUID) error); ok {
-		r0 = returnFunc(ctx, id, userID)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// MockEquipmentStorage_SoftDelete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SoftDelete'
-type MockEquipmentStorage_SoftDelete_Call struct {
-	*mock.Call
-}
-
-// SoftDelete is a helper method to define mock.On call
-//   - ctx context.Context
-//   - id int32
-//   - userID *uuid.UUID
-func (_e *MockEquipmentStorage_Expecter) SoftDelete(ctx interface{}, id interface{}, userID interface{}) *MockEquipmentStorage_SoftDelete_Call {
-	return &MockEquipmentStorage_SoftDelete_Call{Call: _e.mock.On("SoftDelete", ctx, id, userID)}
-}
-
-func (_c *MockEquipmentStorage_SoftDelete_Call) Run(run func(ctx context.Context, id int32, userID *uuid.UUID)) *MockEquipmentStorage_SoftDelete_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 int32
-		if args[1] != nil {
-			arg1 = args[1].(int32)
-		}
-		var arg2 *uuid.UUID
-		if args[2] != nil {
-			arg2 = args[2].(*uuid.UUID)
-		}
-		run(
-			arg0,
-			arg1,
-			arg2,
-		)
-	})
-	return _c
-}
-
-func (_c *MockEquipmentStorage_SoftDelete_Call) Return(err error) *MockEquipmentStorage_SoftDelete_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *MockEquipmentStorage_SoftDelete_Call) RunAndReturn(run func(ctx context.Context, id int32, userID *uuid.UUID) error) *MockEquipmentStorage_SoftDelete_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -12,6 +12,41 @@ import (
 	"github.com/google/uuid"
 )
 
+const AssignResponsible = `-- name: AssignResponsible :one
+UPDATE requests
+SET responsible_info = $2,
+    status           = CASE
+                           WHEN status = 'pending' THEN 'assigned'::request_status
+                           ELSE status
+        END,
+    updated_at       = NOW()
+WHERE id = $1
+RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
+`
+
+type AssignResponsibleParams struct {
+	ID              uuid.UUID
+	ResponsibleInfo []byte
+}
+
+func (q *Queries) AssignResponsible(ctx context.Context, arg AssignResponsibleParams) (Request, error) {
+	row := q.db.QueryRow(ctx, AssignResponsible, arg.ID, arg.ResponsibleInfo)
+	var i Request
+	err := row.Scan(
+		&i.ID,
+		&i.TelegramUserID,
+		&i.RequestText,
+		&i.Status,
+		&i.ScheduleTime,
+		&i.EndTime,
+		&i.Address,
+		&i.ResponsibleInfo,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const CreateRequest = `-- name: CreateRequest :one
 INSERT INTO requests (telegram_user_id, request_text, schedule_time, address, end_time)
 VALUES ($1, $2, $3, $4, $5)
@@ -72,6 +107,88 @@ func (q *Queries) GetRequestByID(ctx context.Context, id uuid.UUID) (Request, er
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const GetRequests = `-- name: GetRequests :many
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
+FROM requests
+ORDER BY created_at DESC
+OFFSET $1 LIMIT $2
+`
+
+type GetRequestsParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) GetRequests(ctx context.Context, arg GetRequestsParams) ([]Request, error) {
+	rows, err := q.db.Query(ctx, GetRequests, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Request
+	for rows.Next() {
+		var i Request
+		if err := rows.Scan(
+			&i.ID,
+			&i.TelegramUserID,
+			&i.RequestText,
+			&i.Status,
+			&i.ScheduleTime,
+			&i.EndTime,
+			&i.Address,
+			&i.ResponsibleInfo,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const GetRequestsByResponsibleID = `-- name: GetRequestsByResponsibleID :many
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
+FROM requests
+WHERE responsible_info IS NOT NULL
+  AND responsible_info->>'user_id' = $1::text
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetRequestsByResponsibleID(ctx context.Context, dollar_1 string) ([]Request, error) {
+	rows, err := q.db.Query(ctx, GetRequestsByResponsibleID, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Request
+	for rows.Next() {
+		var i Request
+		if err := rows.Scan(
+			&i.ID,
+			&i.TelegramUserID,
+			&i.RequestText,
+			&i.Status,
+			&i.ScheduleTime,
+			&i.EndTime,
+			&i.Address,
+			&i.ResponsibleInfo,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const GetRequestsByTelegramUserID = `-- name: GetRequestsByTelegramUserID :many

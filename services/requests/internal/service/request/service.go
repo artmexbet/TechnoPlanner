@@ -2,7 +2,6 @@ package request
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -16,15 +15,25 @@ type Repository interface {
 	GetRequestsByUserID(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]domain.Request, error)
 	GetRequestByID(ctx context.Context, requestID uuid.UUID) (*domain.Request, error)
 	UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status domain.StatusType) error
+	GetRequestsByResponsibleID(ctx context.Context, responsibleID uuid.UUID) ([]domain.Request, error)
+	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleInfo *domain.ResponsibleInfo) (*domain.Request, error)
+	ListRequests(ctx context.Context, limit, offset int32) ([]domain.Request, error)
+}
+
+// UserProvider интерфейс для получения информации о пользователе по ID
+type UserProvider interface {
+	GetUserByID(ctx context.Context, userID uuid.UUID) (domain.User, error)
 }
 
 type Service struct {
-	repository Repository
+	repository   Repository
+	userProvider UserProvider
 }
 
-func New(repository Repository) *Service {
+func New(repository Repository, userProvider UserProvider) *Service {
 	return &Service{
-		repository: repository,
+		repository:   repository,
+		userProvider: userProvider,
 	}
 }
 
@@ -82,18 +91,48 @@ func (s *Service) UpdateStatus(ctx context.Context, requestID uuid.UUID, status 
 	return nil
 }
 
-// ListByResponsible возвращает список заявок по ответственному (заглушка)
-//
-//nolint:revive
+// ListByResponsible возвращает список заявок по ответственному.
+// Если responsibleID nil, возвращает все заявки (для админа).
 func (s *Service) ListByResponsible(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error) {
-	// TODO: implement
-	return nil, errors.New("not implemented")
+	if responsibleID == nil {
+		// Для админа - возвращаем все заявки (без фильтрации по ответственному)
+		requests, err := s.repository.ListRequests(ctx, 100, 0)
+		if err != nil {
+			return nil, fmt.Errorf("list requests: %w", err)
+		}
+		return requests, nil
+	}
+
+	requests, err := s.repository.GetRequestsByResponsibleID(ctx, *responsibleID)
+	if err != nil {
+		return nil, fmt.Errorf("list requests by responsible: %w", err)
+	}
+
+	return requests, nil
 }
 
-// AssignResponsible назначает ответственного за заявку (заглушка)
-//
-//nolint:revive
+// AssignResponsible назначает ответственного за заявку.
+// Если responsibleID nil, снимает назначение.
 func (s *Service) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) (*domain.Request, error) {
-	// TODO: implement
-	return nil, errors.New("not implemented")
+	var responsibleInfo *domain.ResponsibleInfo
+
+	if responsibleID != nil {
+		// Получаем информацию о пользователе для заполнения ResponsibleInfo
+		user, err := s.userProvider.GetUserByID(ctx, *responsibleID)
+		if err != nil {
+			return nil, fmt.Errorf("get responsible user: %w", err)
+		}
+
+		responsibleInfo = &domain.ResponsibleInfo{
+			UserID:   *responsibleID,
+			Username: user.Username,
+		}
+	}
+
+	updatedReq, err := s.repository.AssignResponsible(ctx, requestID, responsibleInfo)
+	if err != nil {
+		return nil, fmt.Errorf("assign responsible: %w", err)
+	}
+
+	return updatedReq, nil
 }

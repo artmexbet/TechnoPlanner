@@ -21,6 +21,8 @@ type Postgres interface {
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (domain.User, error)
 	SaveTelegramUser(ctx context.Context, user domain.User) (domain.User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
+	GetRequestsByResponsibleID(ctx context.Context, responsibleID uuid.UUID) ([]domain.Request, error)
+	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleInfo *domain.ResponsibleInfo) (*domain.Request, error)
 }
 
 type Publisher interface {
@@ -117,4 +119,45 @@ func (r *Repository) SaveTelegramUser(ctx context.Context, user domain.User) (do
 		return domain.User{}, fmt.Errorf("error publishing user added event: %w", err)
 	}
 	return u, nil
+}
+
+func (r *Repository) GetRequestsByResponsibleID(ctx context.Context, responsibleID uuid.UUID) ([]domain.Request, error) {
+	requests, err := r.pg.GetRequestsByResponsibleID(ctx, responsibleID)
+	if err != nil {
+		return nil, fmt.Errorf("get requests by responsible id: %w", err)
+	}
+
+	// Enrich requests with equipment and issuer info
+	for i := range requests {
+		// todo: use batch queries
+		requests[i].Issuer, err = r.pg.GetUserByID(ctx, requests[i].Issuer.ID)
+		if err != nil {
+			return nil, fmt.Errorf("get issuer for request %s: %w", requests[i].ID, err)
+		}
+		requests[i].Equipments, err = r.pg.GetEquipmentByRequestID(ctx, requests[i].ID)
+		if err != nil {
+			return nil, fmt.Errorf("get equipment for request %s: %w", requests[i].ID, err)
+		}
+	}
+
+	return requests, nil
+}
+
+func (r *Repository) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleInfo *domain.ResponsibleInfo) (*domain.Request, error) {
+	updatedReq, err := r.pg.AssignResponsible(ctx, requestID, responsibleInfo)
+	if err != nil {
+		return nil, fmt.Errorf("assign responsible: %w", err)
+	}
+
+	// Enrich with equipment and issuer info
+	updatedReq.Issuer, err = r.pg.GetUserByID(ctx, updatedReq.Issuer.ID)
+	if err != nil {
+		return nil, fmt.Errorf("get issuer: %w", err)
+	}
+	updatedReq.Equipments, err = r.pg.GetEquipmentByRequestID(ctx, updatedReq.ID)
+	if err != nil {
+		return nil, fmt.Errorf("get equipment: %w", err)
+	}
+
+	return updatedReq, nil
 }
