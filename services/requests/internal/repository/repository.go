@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/postgres/queries"
 )
 
 type Postgres interface {
@@ -22,7 +23,10 @@ type Postgres interface {
 	SaveTelegramUser(ctx context.Context, user domain.User) (domain.User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 	GetRequestsByResponsibleID(ctx context.Context, responsibleID uuid.UUID) ([]domain.Request, error)
-	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleInfo *domain.ResponsibleInfo) (*domain.Request, error)
+	ListRequests(ctx context.Context, offset, limit int32) ([]domain.Request, error)
+	// Responsibles
+	ListResponsibles(ctx context.Context) ([]queries.Responsible, error)
+	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error
 }
 
 type Publisher interface {
@@ -143,21 +147,16 @@ func (r *Repository) GetRequestsByResponsibleID(ctx context.Context, responsible
 	return requests, nil
 }
 
-func (r *Repository) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleInfo *domain.ResponsibleInfo) (*domain.Request, error) {
-	updatedReq, err := r.pg.AssignResponsible(ctx, requestID, responsibleInfo)
-	if err != nil {
-		return nil, fmt.Errorf("assign responsible: %w", err)
-	}
+func (r *Repository) ListRequests(ctx context.Context, offset, limit int32) ([]domain.Request, error) {
+	return r.pg.ListRequests(ctx, offset, limit)
+}
 
-	// Enrich with equipment and issuer info
-	updatedReq.Issuer, err = r.pg.GetUserByID(ctx, updatedReq.Issuer.ID)
-	if err != nil {
-		return nil, fmt.Errorf("get issuer: %w", err)
-	}
-	updatedReq.Equipments, err = r.pg.GetEquipmentByRequestID(ctx, updatedReq.ID)
-	if err != nil {
-		return nil, fmt.Errorf("get equipment: %w", err)
-	}
+// ListResponsibles возвращает список всех ответственных
+func (r *Repository) ListResponsibles(ctx context.Context) ([]queries.Responsible, error) {
+	return r.pg.ListResponsibles(ctx)
+}
 
-	return updatedReq, nil
+// AssignResponsible назначает ответственного за заявку
+func (r *Repository) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error {
+	return r.pg.AssignResponsible(ctx, requestID, responsibleID)
 }

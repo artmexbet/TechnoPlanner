@@ -140,7 +140,7 @@ func (p *Postgres) AssignEquipmentToRequest(ctx context.Context, requestID uuid.
 }
 
 func (p *Postgres) GetRequestsByResponsibleID(ctx context.Context, responsibleID uuid.UUID) ([]domain.Request, error) {
-	requests, err := p.q.GetRequestsByResponsibleID(ctx, responsibleID.String())
+	requests, err := p.q.GetRequestsByResponsibleID(ctx, responsibleID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting requests by responsible ID: %w", err)
 	}
@@ -150,32 +150,6 @@ func (p *Postgres) GetRequestsByResponsibleID(ctx context.Context, responsibleID
 		result = append(result, *req.ToDomain())
 	}
 	return result, nil
-}
-
-func (p *Postgres) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleInfo *domain.ResponsibleInfo) (*domain.Request, error) {
-	tx, err := p.pool.Begin(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("error starting transaction: %w", err)
-	}
-	defer tx.Rollback(ctx) //nolint:errcheck
-
-	q := p.q.WithTx(tx)
-
-	params := queries.AssignResponsibleParams{
-		ID:              requestID,
-		ResponsibleInfo: queries.ResponsibleInfoFromDomain(responsibleInfo),
-	}
-
-	updatedReq, err := q.AssignResponsible(ctx, params)
-	if err != nil {
-		return nil, fmt.Errorf("error assigning responsible: %w", err)
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return nil, fmt.Errorf("error committing transaction: %w", err)
-	}
-
-	return updatedReq.ToDomain(), nil
 }
 
 func (p *Postgres) ListRequests(ctx context.Context, limit, offset int32) ([]domain.Request, error) {
@@ -189,4 +163,17 @@ func (p *Postgres) ListRequests(ctx context.Context, limit, offset int32) ([]dom
 		result[i] = *request.ToDomain()
 	}
 	return result, nil
+}
+
+// AssignResponsible назначает ответственного за заявку
+func (p *Postgres) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error {
+	params := queries.AssignResponsibleParams{
+		ID:            requestID,
+		ResponsibleID: responsibleID,
+	}
+	_, err := p.q.AssignResponsible(ctx, params)
+	if err != nil {
+		return fmt.Errorf("error assigning responsible: %w", err)
+	}
+	return nil
 }

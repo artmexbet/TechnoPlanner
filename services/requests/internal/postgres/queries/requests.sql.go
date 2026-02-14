@@ -10,27 +10,28 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const AssignResponsible = `-- name: AssignResponsible :one
 UPDATE requests
-SET responsible_info = $2,
-    status           = CASE
-                           WHEN status = 'pending' THEN 'assigned'::request_status
-                           ELSE status
+SET responsible_id = $2,
+    status         = CASE
+                         WHEN status = 'pending' THEN 'assigned'::request_status
+                         ELSE status
         END,
-    updated_at       = NOW()
+    updated_at     = NOW()
 WHERE id = $1
-RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
+RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
 `
 
 type AssignResponsibleParams struct {
-	ID              uuid.UUID
-	ResponsibleInfo []byte
+	ID            uuid.UUID
+	ResponsibleID pgtype.UUID
 }
 
 func (q *Queries) AssignResponsible(ctx context.Context, arg AssignResponsibleParams) (Request, error) {
-	row := q.db.QueryRow(ctx, AssignResponsible, arg.ID, arg.ResponsibleInfo)
+	row := q.db.QueryRow(ctx, AssignResponsible, arg.ID, arg.ResponsibleID)
 	var i Request
 	err := row.Scan(
 		&i.ID,
@@ -40,9 +41,9 @@ func (q *Queries) AssignResponsible(ctx context.Context, arg AssignResponsiblePa
 		&i.ScheduleTime,
 		&i.EndTime,
 		&i.Address,
-		&i.ResponsibleInfo,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ResponsibleID,
 	)
 	return i, err
 }
@@ -50,7 +51,7 @@ func (q *Queries) AssignResponsible(ctx context.Context, arg AssignResponsiblePa
 const CreateRequest = `-- name: CreateRequest :one
 INSERT INTO requests (telegram_user_id, request_text, schedule_time, address, end_time)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
+RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
 `
 
 type CreateRequestParams struct {
@@ -78,15 +79,15 @@ func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (R
 		&i.ScheduleTime,
 		&i.EndTime,
 		&i.Address,
-		&i.ResponsibleInfo,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ResponsibleID,
 	)
 	return i, err
 }
 
 const GetRequestByID = `-- name: GetRequestByID :one
-SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
 FROM requests
 WHERE id = $1
 `
@@ -102,15 +103,15 @@ func (q *Queries) GetRequestByID(ctx context.Context, id uuid.UUID) (Request, er
 		&i.ScheduleTime,
 		&i.EndTime,
 		&i.Address,
-		&i.ResponsibleInfo,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ResponsibleID,
 	)
 	return i, err
 }
 
 const GetRequests = `-- name: GetRequests :many
-SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
 FROM requests
 ORDER BY created_at DESC
 OFFSET $1 LIMIT $2
@@ -138,9 +139,9 @@ func (q *Queries) GetRequests(ctx context.Context, arg GetRequestsParams) ([]Req
 			&i.ScheduleTime,
 			&i.EndTime,
 			&i.Address,
-			&i.ResponsibleInfo,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ResponsibleID,
 		); err != nil {
 			return nil, err
 		}
@@ -153,15 +154,14 @@ func (q *Queries) GetRequests(ctx context.Context, arg GetRequestsParams) ([]Req
 }
 
 const GetRequestsByResponsibleID = `-- name: GetRequestsByResponsibleID :many
-SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
 FROM requests
-WHERE responsible_info IS NOT NULL
-  AND responsible_info->>'user_id' = $1::text
+WHERE responsible_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) GetRequestsByResponsibleID(ctx context.Context, dollar_1 string) ([]Request, error) {
-	rows, err := q.db.Query(ctx, GetRequestsByResponsibleID, dollar_1)
+func (q *Queries) GetRequestsByResponsibleID(ctx context.Context, responsibleID pgtype.UUID) ([]Request, error) {
+	rows, err := q.db.Query(ctx, GetRequestsByResponsibleID, responsibleID)
 	if err != nil {
 		return nil, err
 	}
@@ -177,9 +177,9 @@ func (q *Queries) GetRequestsByResponsibleID(ctx context.Context, dollar_1 strin
 			&i.ScheduleTime,
 			&i.EndTime,
 			&i.Address,
-			&i.ResponsibleInfo,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ResponsibleID,
 		); err != nil {
 			return nil, err
 		}
@@ -192,7 +192,7 @@ func (q *Queries) GetRequestsByResponsibleID(ctx context.Context, dollar_1 strin
 }
 
 const GetRequestsByTelegramUserID = `-- name: GetRequestsByTelegramUserID :many
-SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
 FROM requests
 WHERE telegram_user_id = $1
 ORDER BY created_at DESC
@@ -222,9 +222,9 @@ func (q *Queries) GetRequestsByTelegramUserID(ctx context.Context, arg GetReques
 			&i.ScheduleTime,
 			&i.EndTime,
 			&i.Address,
-			&i.ResponsibleInfo,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ResponsibleID,
 		); err != nil {
 			return nil, err
 		}
@@ -241,7 +241,7 @@ UPDATE requests
 SET status     = $2,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, responsible_info, created_at, updated_at
+RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
 `
 
 type UpdateRequestStatusParams struct {
@@ -260,9 +260,9 @@ func (q *Queries) UpdateRequestStatus(ctx context.Context, arg UpdateRequestStat
 		&i.ScheduleTime,
 		&i.EndTime,
 		&i.Address,
-		&i.ResponsibleInfo,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ResponsibleID,
 	)
 	return i, err
 }

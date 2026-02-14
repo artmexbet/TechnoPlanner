@@ -25,21 +25,19 @@ WHERE id = $1;
 -- name: GetRequestsByResponsibleID :many
 SELECT *
 FROM requests
-WHERE responsible_info IS NOT NULL
-  AND responsible_info->>'user_id' = $1::text
+WHERE responsible_id = $1
 ORDER BY created_at DESC;
 
 -- name: AssignResponsible :one
 UPDATE requests
-SET responsible_info = $2,
-    status           = CASE
-                           WHEN status = 'pending' THEN 'assigned'::request_status
-                           ELSE status
+SET responsible_id = $2,
+    status         = CASE
+                         WHEN status = 'pending' THEN 'assigned'::request_status
+                         ELSE status
         END,
-    updated_at       = NOW()
+    updated_at     = NOW()
 WHERE id = $1
 RETURNING *;
-
 
 -- name: GetRequests :many
 SELECT *

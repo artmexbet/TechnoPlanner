@@ -46,7 +46,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	tracer, shutdownFn := opentelemetry.NewTracerProvider(traceExp, "auth-service")
+	tracer, shutdownFn := opentelemetry.NewTracerProvider(traceExp, "requests-service")
 	defer func() {
 		if err := shutdownFn(ctx); err != nil {
 			panic(err)
@@ -88,7 +88,7 @@ func main() {
 	requestService := request.New(repo, userClient)
 	equipmentService := equipment.New(repo)
 
-	wrapper, err := wrapnats.New(cfg.Nats, conn, requestService, equipmentService)
+	wrapper, err := wrapnats.New(cfg.Nats, conn, requestService, equipmentService, pg)
 	if err != nil {
 		panic(err)
 	}

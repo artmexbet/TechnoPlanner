@@ -16,7 +16,7 @@ type Repository interface {
 	GetRequestByID(ctx context.Context, requestID uuid.UUID) (*domain.Request, error)
 	UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status domain.StatusType) error
 	GetRequestsByResponsibleID(ctx context.Context, responsibleID uuid.UUID) ([]domain.Request, error)
-	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleInfo *domain.ResponsibleInfo) (*domain.Request, error)
+	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error
 	ListRequests(ctx context.Context, limit, offset int32) ([]domain.Request, error)
 }
 
@@ -114,25 +114,10 @@ func (s *Service) ListByResponsible(ctx context.Context, responsibleID *uuid.UUI
 // AssignResponsible назначает ответственного за заявку.
 // Если responsibleID nil, снимает назначение.
 func (s *Service) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) (*domain.Request, error) {
-	var responsibleInfo *domain.ResponsibleInfo
-
-	if responsibleID != nil {
-		// Получаем информацию о пользователе для заполнения ResponsibleInfo
-		user, err := s.userProvider.GetUserByID(ctx, *responsibleID)
-		if err != nil {
-			return nil, fmt.Errorf("get responsible user: %w", err)
-		}
-
-		responsibleInfo = &domain.ResponsibleInfo{
-			UserID:   *responsibleID,
-			Username: user.Username,
-		}
-	}
-
-	updatedReq, err := s.repository.AssignResponsible(ctx, requestID, responsibleInfo)
+	err := s.repository.AssignResponsible(ctx, requestID, responsibleID)
 	if err != nil {
 		return nil, fmt.Errorf("assign responsible: %w", err)
 	}
 
-	return updatedReq, nil
+	return nil, nil
 }

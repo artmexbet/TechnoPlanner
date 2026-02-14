@@ -33,9 +33,13 @@ type EquipmentService interface {
 	Add(ctx context.Context, technics []domain.Equipment) error
 }
 
-type Config struct {
-	URL string `yaml:"url" env:"URL"`
+// ResponsibleStorage интерфейс для работы с ответственными пользователями
+type ResponsibleStorage interface {
+	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
+}
 
+type Config struct {
+	URL            string        `yaml:"url" env:"URL"`
 	RequestTimeout time.Duration `yaml:"request_timeout" env:"REQUEST_TIMEOUT" env-default:"5s"`
 }
 
@@ -47,15 +51,17 @@ type NatsWrapper struct {
 
 	reqService RequestService
 	eqService  EquipmentService
+	respStore  ResponsibleStorage
 }
 
-func New(cfg *Config, conn *broker.NATS, reqService RequestService, eqService EquipmentService) (*NatsWrapper, error) {
+func New(cfg *Config, conn *broker.NATS, reqService RequestService, eqService EquipmentService, respStore ResponsibleStorage) (*NatsWrapper, error) {
 	return &NatsWrapper{
 		conn:       conn,
 		validator:  validator.New(validator.WithRequiredStructEnabled()),
 		cfg:        cfg,
 		reqService: reqService,
 		eqService:  eqService,
+		respStore:  respStore,
 	}, nil
 }
 
@@ -80,6 +86,8 @@ func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 		subjects.GatewayRequestList:              w.handleGatewayListRequests,
 		subjects.GatewayRequestGet:               w.handleGatewayGetRequest,
 		subjects.GatewayRequestAssignResponsible: w.handleGatewayAssignResponsible,
+		// Event handlers
+		subjects.UserCreated: w.handleUserCreated,
 	}
 
 	for subject, handler := range handlers {
@@ -90,6 +98,25 @@ func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 		w.subscriptions = append(w.subscriptions, sub)
 	}
 	return w
+}
+
+// handleUserCreated обрабатывает событие создания пользователя от auth сервиса
+func (w *NatsWrapper) handleUserCreated(msg *broker.Msg) error {
+	ctx := msg.Context()
+
+	var event dto.UserCreatedEvent
+	if err := event.UnmarshalJSON(msg.Data); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling user created event", "error", err)
+		return err
+	}
+
+	if err := w.respStore.SaveResponsible(ctx, event.ID, event.Username); err != nil {
+		slog.ErrorContext(ctx, "error saving responsible", "error", err, "user_id", event.ID, "username", event.Username)
+		return err
+	}
+
+	slog.InfoContext(ctx, "responsible user saved", "user_id", event.ID, "username", event.Username)
+	return nil
 }
 
 // Bot handlers

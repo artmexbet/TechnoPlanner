@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type RequestStatus string
@@ -76,16 +77,21 @@ type EquipmentToRequest struct {
 }
 
 type Request struct {
-	ID              uuid.UUID
-	TelegramUserID  uuid.UUID
-	RequestText     *string
-	Status          RequestStatus
-	ScheduleTime    string
-	EndTime         time.Time
-	Address         string
-	ResponsibleInfo []byte
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	ID             uuid.UUID
+	TelegramUserID uuid.UUID
+	RequestText    *string
+	Status         RequestStatus
+	ScheduleTime   string
+	EndTime        time.Time
+	Address        string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	ResponsibleID  pgtype.UUID
+}
+
+type Responsible struct {
+	ID       uuid.UUID
+	Username string
 }
 
 type TelegramUser struct {
