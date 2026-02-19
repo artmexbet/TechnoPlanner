@@ -149,6 +149,56 @@ func (c *RequestClient) AssignResponsible(ctx context.Context, requestID uuid.UU
 	return mapRequestFromDTO(result), nil
 }
 
+// UpdateRequest обновляет заявку
+func (c *RequestClient) UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (domain.Request, error) {
+	var status *dto.RequestStatus
+	if updates.Status != nil {
+		s := dto.RequestStatus(*updates.Status)
+		status = &s
+	}
+
+	req := dto.RequestUpdateRequest{
+		RequestID:     requestID,
+		RequestText:   updates.RequestText,
+		Status:        status,
+		ScheduleTime:  updates.ScheduleTime,
+		Address:       updates.Address,
+		ResponsibleID: updates.ResponsibleID,
+	}
+
+	data, err := req.MarshalJSON()
+	if err != nil {
+		return domain.Request{}, fmt.Errorf("marshal request: %w", err)
+	}
+
+	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayRequestUpdate, data)
+	if err != nil {
+		if errors.Is(err, nats.ErrNoResponders) {
+			return domain.Request{}, domain.ErrNotFound
+		}
+		return domain.Request{}, fmt.Errorf("nats request: %w", err)
+	}
+
+	var resp dto.GatewayResponse
+	if err := json.Unmarshal(msg.Data, &resp); err != nil {
+		return domain.Request{}, fmt.Errorf("unmarshal response: %w", err)
+	}
+
+	if !resp.Success {
+		if resp.Message == "not found" {
+			return domain.Request{}, domain.ErrNotFound
+		}
+		return domain.Request{}, fmt.Errorf("service error: %s", resp.Message)
+	}
+
+	var result dto.Request
+	if err := json.Unmarshal(resp.Data, &result); err != nil {
+		return domain.Request{}, fmt.Errorf("unmarshal request: %w", err)
+	}
+
+	return mapRequestFromDTO(result), nil
+}
+
 func mapRequestFromDTO(r dto.Request) domain.Request {
 	equip := make([]domain.RequestEquipment, 0, len(r.Equipment))
 	for _, eq := range r.Equipment {

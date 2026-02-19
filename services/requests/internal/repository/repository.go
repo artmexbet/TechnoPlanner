@@ -22,11 +22,13 @@ type Postgres interface {
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (domain.User, error)
 	SaveTelegramUser(ctx context.Context, user domain.User) (domain.User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
-	GetRequestsByResponsibleID(ctx context.Context, responsibleID uuid.UUID) ([]domain.Request, error)
+	GetRequestsByResponsibleID(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)
 	ListRequests(ctx context.Context, offset, limit int32) ([]domain.Request, error)
 	// Responsibles
 	ListResponsibles(ctx context.Context) ([]queries.Responsible, error)
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error
+	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
+	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
 }
 
 type Publisher interface {
@@ -125,7 +127,7 @@ func (r *Repository) SaveTelegramUser(ctx context.Context, user domain.User) (do
 	return u, nil
 }
 
-func (r *Repository) GetRequestsByResponsibleID(ctx context.Context, responsibleID uuid.UUID) ([]domain.Request, error) {
+func (r *Repository) GetRequestsByResponsibleID(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error) {
 	requests, err := r.pg.GetRequestsByResponsibleID(ctx, responsibleID)
 	if err != nil {
 		return nil, fmt.Errorf("get requests by responsible id: %w", err)
@@ -159,4 +161,14 @@ func (r *Repository) ListResponsibles(ctx context.Context) ([]queries.Responsibl
 // AssignResponsible назначает ответственного за заявку
 func (r *Repository) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error {
 	return r.pg.AssignResponsible(ctx, requestID, responsibleID)
+}
+
+// UpdateRequest обновляет заявку
+func (r *Repository) UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error) {
+	return r.pg.UpdateRequest(ctx, requestID, updates)
+}
+
+// SaveResponsible сохраняет или обновляет ответственного
+func (r *Repository) SaveResponsible(ctx context.Context, id uuid.UUID, username string) error {
+	return r.pg.SaveResponsible(ctx, id, username)
 }

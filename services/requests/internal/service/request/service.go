@@ -15,9 +15,12 @@ type Repository interface {
 	GetRequestsByUserID(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]domain.Request, error)
 	GetRequestByID(ctx context.Context, requestID uuid.UUID) (*domain.Request, error)
 	UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status domain.StatusType) error
-	GetRequestsByResponsibleID(ctx context.Context, responsibleID uuid.UUID) ([]domain.Request, error)
+	GetRequestsByResponsibleID(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error
 	ListRequests(ctx context.Context, limit, offset int32) ([]domain.Request, error)
+	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
+	ListResponsibles(ctx context.Context) ([]domain.Responsible, error)
+	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
 }
 
 // UserProvider интерфейс для получения информации о пользователе по ID
@@ -103,7 +106,7 @@ func (s *Service) ListByResponsible(ctx context.Context, responsibleID *uuid.UUI
 		return requests, nil
 	}
 
-	requests, err := s.repository.GetRequestsByResponsibleID(ctx, *responsibleID)
+	requests, err := s.repository.GetRequestsByResponsibleID(ctx, responsibleID)
 	if err != nil {
 		return nil, fmt.Errorf("list requests by responsible: %w", err)
 	}
@@ -120,4 +123,32 @@ func (s *Service) AssignResponsible(ctx context.Context, requestID uuid.UUID, re
 	}
 
 	return nil, nil
+}
+
+// UpdateRequest обновляет заявку
+func (s *Service) UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error) {
+	return s.repository.UpdateRequest(ctx, requestID, updates)
+}
+
+// ListResponsibles возвращает список всех ответственных
+func (s *Service) ListResponsibles(ctx context.Context) ([]domain.Responsible, error) {
+	responsibles, err := s.repository.ListResponsibles(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list responsibles: %w", err)
+	}
+
+	result := make([]domain.Responsible, len(responsibles))
+	for i, r := range responsibles {
+		result[i] = domain.Responsible{
+			ID:       r.ID,
+			Username: r.Username,
+		}
+	}
+
+	return result, nil
+}
+
+// SaveResponsible сохраняет или обновляет ответственного
+func (s *Service) SaveResponsible(ctx context.Context, id uuid.UUID, username string) error {
+	return s.repository.SaveResponsible(ctx, id, username)
 }

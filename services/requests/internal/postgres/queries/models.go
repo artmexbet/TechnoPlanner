@@ -9,8 +9,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
+	uuid "github.com/google/uuid"
 )
 
 type RequestStatus string
@@ -86,7 +85,7 @@ type Request struct {
 	Address        string
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	ResponsibleID  pgtype.UUID
+	ResponsibleID  *uuid.UUID
 }
 
 type Responsible struct {

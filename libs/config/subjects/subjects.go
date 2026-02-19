@@ -23,6 +23,15 @@ const (
 	GatewayRequestGet = "gateway.requests.get"
 	// GatewayRequestAssignResponsible - назначение ответственного от gateway
 	GatewayRequestAssignResponsible = "gateway.requests.assign.responsible"
+	// GatewayRequestUpdate - обновление заявки от gateway
+	GatewayRequestUpdate = "gateway.requests.update"
+
+	// Responsible subjects
+
+	// GatewayResponsibleList - список всех ответственных
+	GatewayResponsibleList = "gateway.responsibles.list"
+	// GatewayResponsibleCreate - создание ответственного
+	GatewayResponsibleCreate = "gateway.responsibles.create"
 
 	// Category subjects (старое API)
 

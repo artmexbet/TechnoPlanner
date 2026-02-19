@@ -27,6 +27,9 @@ type RequestService interface {
 
 	ListByResponsible(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) (*domain.Request, error)
+	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
+	ListResponsibles(ctx context.Context) ([]domain.Responsible, error)
+	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
 }
 
 type EquipmentService interface {
@@ -86,6 +89,10 @@ func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 		subjects.GatewayRequestList:              w.handleGatewayListRequests,
 		subjects.GatewayRequestGet:               w.handleGatewayGetRequest,
 		subjects.GatewayRequestAssignResponsible: w.handleGatewayAssignResponsible,
+		subjects.GatewayRequestUpdate:            w.handleGatewayUpdateRequest,
+		// Responsible handlers
+		subjects.GatewayResponsibleList:   w.handleGatewayListResponsibles,
+		subjects.GatewayResponsibleCreate: w.handleGatewayCreateResponsible,
 		// Event handlers
 		subjects.UserCreated: w.handleUserCreated,
 	}
@@ -353,5 +360,75 @@ func (w *NatsWrapper) handleGatewayAssignResponsible(msg *broker.Msg) error {
 	}
 
 	respDTO := mapRequestToDTO(*updatedReq)
+	return respondSuccess(msg.Msg, "success", respDTO)
+}
+
+func (w *NatsWrapper) handleGatewayUpdateRequest(msg *broker.Msg) error {
+	ctx := msg.Context()
+
+	var req dto.RequestUpdateRequest
+	if err := json.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling gateway update request", "error", err)
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
+	}
+
+	updates := domain.RequestUpdate{
+		RequestText:   req.RequestText,
+		Status:        (*domain.StatusType)(req.Status),
+		ScheduleTime:  req.ScheduleTime,
+		Address:       req.Address,
+		ResponsibleID: req.ResponsibleID,
+	}
+
+	updatedReq, err := w.reqService.UpdateRequest(ctx, req.RequestID, updates)
+	if err != nil {
+		slog.ErrorContext(ctx, "error updating request", "error", err)
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
+	}
+
+	respDTO := mapRequestToDTO(*updatedReq)
+	return respondSuccess(msg.Msg, "success", respDTO)
+}
+
+func (w *NatsWrapper) handleGatewayListResponsibles(msg *broker.Msg) error {
+	ctx := msg.Context()
+
+	responsibles, err := w.reqService.ListResponsibles(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "error listing responsibles", "error", err)
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
+	}
+
+	respDTO := make([]dto.Responsible, len(responsibles))
+	for i, r := range responsibles {
+		respDTO[i] = dto.Responsible{
+			ID:       r.ID,
+			Username: r.Username,
+		}
+	}
+
+	return respondSuccess(msg.Msg, "success", respDTO)
+}
+
+func (w *NatsWrapper) handleGatewayCreateResponsible(msg *broker.Msg) error {
+	ctx := msg.Context()
+
+	var req dto.ResponsibleCreateRequest
+	if err := json.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling create responsible request", "error", err)
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
+	}
+
+	err := w.reqService.SaveResponsible(ctx, req.ID, req.Username)
+	if err != nil {
+		slog.ErrorContext(ctx, "error saving responsible", "error", err)
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
+	}
+
+	respDTO := dto.Responsible{
+		ID:       req.ID,
+		Username: req.Username,
+	}
+
 	return respondSuccess(msg.Msg, "success", respDTO)
 }

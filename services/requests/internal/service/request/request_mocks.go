@@ -40,31 +40,20 @@ func (_m *MockRepository) EXPECT() *MockRepository_Expecter {
 }
 
 // AssignResponsible provides a mock function for the type MockRepository
-func (_mock *MockRepository) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleInfo *domain.ResponsibleInfo) (*domain.Request, error) {
-	ret := _mock.Called(ctx, requestID, responsibleInfo)
+func (_mock *MockRepository) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error {
+	ret := _mock.Called(ctx, requestID, responsibleID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AssignResponsible")
 	}
 
-	var r0 *domain.Request
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, *domain.ResponsibleInfo) (*domain.Request, error)); ok {
-		return returnFunc(ctx, requestID, responsibleInfo)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, *domain.ResponsibleInfo) *domain.Request); ok {
-		r0 = returnFunc(ctx, requestID, responsibleInfo)
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, *uuid.UUID) error); ok {
+		r0 = returnFunc(ctx, requestID, responsibleID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*domain.Request)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, *domain.ResponsibleInfo) error); ok {
-		r1 = returnFunc(ctx, requestID, responsibleInfo)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockRepository_AssignResponsible_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AssignResponsible'
@@ -75,12 +64,12 @@ type MockRepository_AssignResponsible_Call struct {
 // AssignResponsible is a helper method to define mock.On call
 //   - ctx context.Context
 //   - requestID uuid.UUID
-//   - responsibleInfo *domain.ResponsibleInfo
-func (_e *MockRepository_Expecter) AssignResponsible(ctx interface{}, requestID interface{}, responsibleInfo interface{}) *MockRepository_AssignResponsible_Call {
-	return &MockRepository_AssignResponsible_Call{Call: _e.mock.On("AssignResponsible", ctx, requestID, responsibleInfo)}
+//   - responsibleID *uuid.UUID
+func (_e *MockRepository_Expecter) AssignResponsible(ctx interface{}, requestID interface{}, responsibleID interface{}) *MockRepository_AssignResponsible_Call {
+	return &MockRepository_AssignResponsible_Call{Call: _e.mock.On("AssignResponsible", ctx, requestID, responsibleID)}
 }
 
-func (_c *MockRepository_AssignResponsible_Call) Run(run func(ctx context.Context, requestID uuid.UUID, responsibleInfo *domain.ResponsibleInfo)) *MockRepository_AssignResponsible_Call {
+func (_c *MockRepository_AssignResponsible_Call) Run(run func(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID)) *MockRepository_AssignResponsible_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -90,9 +79,9 @@ func (_c *MockRepository_AssignResponsible_Call) Run(run func(ctx context.Contex
 		if args[1] != nil {
 			arg1 = args[1].(uuid.UUID)
 		}
-		var arg2 *domain.ResponsibleInfo
+		var arg2 *uuid.UUID
 		if args[2] != nil {
-			arg2 = args[2].(*domain.ResponsibleInfo)
+			arg2 = args[2].(*uuid.UUID)
 		}
 		run(
 			arg0,
@@ -103,12 +92,12 @@ func (_c *MockRepository_AssignResponsible_Call) Run(run func(ctx context.Contex
 	return _c
 }
 
-func (_c *MockRepository_AssignResponsible_Call) Return(request *domain.Request, err error) *MockRepository_AssignResponsible_Call {
-	_c.Call.Return(request, err)
+func (_c *MockRepository_AssignResponsible_Call) Return(err error) *MockRepository_AssignResponsible_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockRepository_AssignResponsible_Call) RunAndReturn(run func(ctx context.Context, requestID uuid.UUID, responsibleInfo *domain.ResponsibleInfo) (*domain.Request, error)) *MockRepository_AssignResponsible_Call {
+func (_c *MockRepository_AssignResponsible_Call) RunAndReturn(run func(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error) *MockRepository_AssignResponsible_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -250,7 +239,7 @@ func (_c *MockRepository_GetRequestByID_Call) RunAndReturn(run func(ctx context.
 }
 
 // GetRequestsByResponsibleID provides a mock function for the type MockRepository
-func (_mock *MockRepository) GetRequestsByResponsibleID(ctx context.Context, responsibleID uuid.UUID) ([]domain.Request, error) {
+func (_mock *MockRepository) GetRequestsByResponsibleID(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error) {
 	ret := _mock.Called(ctx, responsibleID)
 
 	if len(ret) == 0 {
@@ -259,17 +248,17 @@ func (_mock *MockRepository) GetRequestsByResponsibleID(ctx context.Context, res
 
 	var r0 []domain.Request
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]domain.Request, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *uuid.UUID) ([]domain.Request, error)); ok {
 		return returnFunc(ctx, responsibleID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) []domain.Request); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *uuid.UUID) []domain.Request); ok {
 		r0 = returnFunc(ctx, responsibleID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.Request)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *uuid.UUID) error); ok {
 		r1 = returnFunc(ctx, responsibleID)
 	} else {
 		r1 = ret.Error(1)
@@ -284,20 +273,20 @@ type MockRepository_GetRequestsByResponsibleID_Call struct {
 
 // GetRequestsByResponsibleID is a helper method to define mock.On call
 //   - ctx context.Context
-//   - responsibleID uuid.UUID
+//   - responsibleID *uuid.UUID
 func (_e *MockRepository_Expecter) GetRequestsByResponsibleID(ctx interface{}, responsibleID interface{}) *MockRepository_GetRequestsByResponsibleID_Call {
 	return &MockRepository_GetRequestsByResponsibleID_Call{Call: _e.mock.On("GetRequestsByResponsibleID", ctx, responsibleID)}
 }
 
-func (_c *MockRepository_GetRequestsByResponsibleID_Call) Run(run func(ctx context.Context, responsibleID uuid.UUID)) *MockRepository_GetRequestsByResponsibleID_Call {
+func (_c *MockRepository_GetRequestsByResponsibleID_Call) Run(run func(ctx context.Context, responsibleID *uuid.UUID)) *MockRepository_GetRequestsByResponsibleID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 *uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(*uuid.UUID)
 		}
 		run(
 			arg0,
@@ -312,7 +301,7 @@ func (_c *MockRepository_GetRequestsByResponsibleID_Call) Return(requests []doma
 	return _c
 }
 
-func (_c *MockRepository_GetRequestsByResponsibleID_Call) RunAndReturn(run func(ctx context.Context, responsibleID uuid.UUID) ([]domain.Request, error)) *MockRepository_GetRequestsByResponsibleID_Call {
+func (_c *MockRepository_GetRequestsByResponsibleID_Call) RunAndReturn(run func(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)) *MockRepository_GetRequestsByResponsibleID_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -397,6 +386,205 @@ func (_c *MockRepository_GetRequestsByUserID_Call) RunAndReturn(run func(ctx con
 	return _c
 }
 
+// ListRequests provides a mock function for the type MockRepository
+func (_mock *MockRepository) ListRequests(ctx context.Context, limit int32, offset int32) ([]domain.Request, error) {
+	ret := _mock.Called(ctx, limit, offset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListRequests")
+	}
+
+	var r0 []domain.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32, int32) ([]domain.Request, error)); ok {
+		return returnFunc(ctx, limit, offset)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32, int32) []domain.Request); ok {
+		r0 = returnFunc(ctx, limit, offset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int32, int32) error); ok {
+		r1 = returnFunc(ctx, limit, offset)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_ListRequests_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListRequests'
+type MockRepository_ListRequests_Call struct {
+	*mock.Call
+}
+
+// ListRequests is a helper method to define mock.On call
+//   - ctx context.Context
+//   - limit int32
+//   - offset int32
+func (_e *MockRepository_Expecter) ListRequests(ctx interface{}, limit interface{}, offset interface{}) *MockRepository_ListRequests_Call {
+	return &MockRepository_ListRequests_Call{Call: _e.mock.On("ListRequests", ctx, limit, offset)}
+}
+
+func (_c *MockRepository_ListRequests_Call) Run(run func(ctx context.Context, limit int32, offset int32)) *MockRepository_ListRequests_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 int32
+		if args[1] != nil {
+			arg1 = args[1].(int32)
+		}
+		var arg2 int32
+		if args[2] != nil {
+			arg2 = args[2].(int32)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_ListRequests_Call) Return(requests []domain.Request, err error) *MockRepository_ListRequests_Call {
+	_c.Call.Return(requests, err)
+	return _c
+}
+
+func (_c *MockRepository_ListRequests_Call) RunAndReturn(run func(ctx context.Context, limit int32, offset int32) ([]domain.Request, error)) *MockRepository_ListRequests_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListResponsibles provides a mock function for the type MockRepository
+func (_mock *MockRepository) ListResponsibles(ctx context.Context) ([]domain.Responsible, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListResponsibles")
+	}
+
+	var r0 []domain.Responsible
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]domain.Responsible, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []domain.Responsible); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.Responsible)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_ListResponsibles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListResponsibles'
+type MockRepository_ListResponsibles_Call struct {
+	*mock.Call
+}
+
+// ListResponsibles is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockRepository_Expecter) ListResponsibles(ctx interface{}) *MockRepository_ListResponsibles_Call {
+	return &MockRepository_ListResponsibles_Call{Call: _e.mock.On("ListResponsibles", ctx)}
+}
+
+func (_c *MockRepository_ListResponsibles_Call) Run(run func(ctx context.Context)) *MockRepository_ListResponsibles_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_ListResponsibles_Call) Return(responsibles []domain.Responsible, err error) *MockRepository_ListResponsibles_Call {
+	_c.Call.Return(responsibles, err)
+	return _c
+}
+
+func (_c *MockRepository_ListResponsibles_Call) RunAndReturn(run func(ctx context.Context) ([]domain.Responsible, error)) *MockRepository_ListResponsibles_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SaveResponsible provides a mock function for the type MockRepository
+func (_mock *MockRepository) SaveResponsible(ctx context.Context, id uuid.UUID, username string) error {
+	ret := _mock.Called(ctx, id, username)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveResponsible")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, string) error); ok {
+		r0 = returnFunc(ctx, id, username)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockRepository_SaveResponsible_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveResponsible'
+type MockRepository_SaveResponsible_Call struct {
+	*mock.Call
+}
+
+// SaveResponsible is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+//   - username string
+func (_e *MockRepository_Expecter) SaveResponsible(ctx interface{}, id interface{}, username interface{}) *MockRepository_SaveResponsible_Call {
+	return &MockRepository_SaveResponsible_Call{Call: _e.mock.On("SaveResponsible", ctx, id, username)}
+}
+
+func (_c *MockRepository_SaveResponsible_Call) Run(run func(ctx context.Context, id uuid.UUID, username string)) *MockRepository_SaveResponsible_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_SaveResponsible_Call) Return(err error) *MockRepository_SaveResponsible_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockRepository_SaveResponsible_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID, username string) error) *MockRepository_SaveResponsible_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SaveTelegramUser provides a mock function for the type MockRepository
 func (_mock *MockRepository) SaveTelegramUser(ctx context.Context, user domain.User) (domain.User, error) {
 	ret := _mock.Called(ctx, user)
@@ -459,6 +647,80 @@ func (_c *MockRepository_SaveTelegramUser_Call) Return(user1 domain.User, err er
 }
 
 func (_c *MockRepository_SaveTelegramUser_Call) RunAndReturn(run func(ctx context.Context, user domain.User) (domain.User, error)) *MockRepository_SaveTelegramUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateRequest provides a mock function for the type MockRepository
+func (_mock *MockRepository) UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error) {
+	ret := _mock.Called(ctx, requestID, updates)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateRequest")
+	}
+
+	var r0 *domain.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, domain.RequestUpdate) (*domain.Request, error)); ok {
+		return returnFunc(ctx, requestID, updates)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, domain.RequestUpdate) *domain.Request); ok {
+		r0 = returnFunc(ctx, requestID, updates)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, domain.RequestUpdate) error); ok {
+		r1 = returnFunc(ctx, requestID, updates)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_UpdateRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateRequest'
+type MockRepository_UpdateRequest_Call struct {
+	*mock.Call
+}
+
+// UpdateRequest is a helper method to define mock.On call
+//   - ctx context.Context
+//   - requestID uuid.UUID
+//   - updates domain.RequestUpdate
+func (_e *MockRepository_Expecter) UpdateRequest(ctx interface{}, requestID interface{}, updates interface{}) *MockRepository_UpdateRequest_Call {
+	return &MockRepository_UpdateRequest_Call{Call: _e.mock.On("UpdateRequest", ctx, requestID, updates)}
+}
+
+func (_c *MockRepository_UpdateRequest_Call) Run(run func(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate)) *MockRepository_UpdateRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 domain.RequestUpdate
+		if args[2] != nil {
+			arg2 = args[2].(domain.RequestUpdate)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_UpdateRequest_Call) Return(request *domain.Request, err error) *MockRepository_UpdateRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockRepository_UpdateRequest_Call) RunAndReturn(run func(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)) *MockRepository_UpdateRequest_Call {
 	_c.Call.Return(run)
 	return _c
 }

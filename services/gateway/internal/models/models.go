@@ -170,3 +170,25 @@ type MeResponse struct {
 	Email    string `json:"email"`
 	Role     string `json:"role"`
 }
+
+type ResponsibleResponse struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+}
+
+type ResponsibleListResponse struct {
+	Items []ResponsibleResponse `json:"items"`
+}
+
+type ResponsibleCreateRequest struct {
+	ID       string `json:"id" validate:"required,uuid4"`
+	Username string `json:"username" validate:"required,min=3,max=30"`
+}
+
+type RequestUpdateRequest struct {
+	RequestText   *string `json:"request_text,omitempty"`
+	Status        *string `json:"status,omitempty" validate:"omitempty,oneof=canceled pending assigned in_progress completed rejected"`
+	ScheduleTime  *string `json:"schedule_time,omitempty"`
+	Address       *string `json:"address,omitempty"`
+	ResponsibleID *string `json:"responsible_id,omitempty" validate:"omitempty,uuid4"`
+}

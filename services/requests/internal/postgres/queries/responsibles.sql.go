@@ -8,7 +8,7 @@ package queries
 import (
 	"context"
 
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
 )
 
 const GetResponsibleByID = `-- name: GetResponsibleByID :one

@@ -9,8 +9,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
+	uuid "github.com/google/uuid"
 )
 
 const AssignResponsible = `-- name: AssignResponsible :one
@@ -27,7 +26,7 @@ RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, a
 
 type AssignResponsibleParams struct {
 	ID            uuid.UUID
-	ResponsibleID pgtype.UUID
+	ResponsibleID *uuid.UUID
 }
 
 func (q *Queries) AssignResponsible(ctx context.Context, arg AssignResponsibleParams) (Request, error) {
@@ -160,7 +159,7 @@ WHERE responsible_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) GetRequestsByResponsibleID(ctx context.Context, responsibleID pgtype.UUID) ([]Request, error) {
+func (q *Queries) GetRequestsByResponsibleID(ctx context.Context, responsibleID *uuid.UUID) ([]Request, error) {
 	rows, err := q.db.Query(ctx, GetRequestsByResponsibleID, responsibleID)
 	if err != nil {
 		return nil, err

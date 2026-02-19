@@ -18,6 +18,7 @@ type RequestStorage interface {
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID, userID *uuid.UUID) (domain.Request, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.Request, error)
 	List(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)
+	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (domain.Request, error)
 }
 
 type RequestService struct {
@@ -60,4 +61,11 @@ func (s *RequestService) AssignResponsible(ctx context.Context, requestID uuid.U
 		return domain.Request{}, err
 	}
 	return s.storage.AssignResponsible(ctx, requestID, &responsibleID, userIDFromCtx(ctx))
+}
+
+func (s *RequestService) UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (domain.Request, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return domain.Request{}, err
+	}
+	return s.storage.UpdateRequest(ctx, requestID, updates)
 }

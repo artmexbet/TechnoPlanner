@@ -27,33 +27,6 @@ func (r *Request) ToDomain() *domain.Request {
 		UpdatedAt:   r.UpdatedAt,
 	}
 
-	// Parse ResponsibleInfo from JSONB
-	if len(r.ResponsibleInfo) > 0 {
-		var respInfo domain.ResponsibleInfo
-		if err := json.Unmarshal(r.ResponsibleInfo, &respInfo); err == nil {
-			req.ResponsibleInfo = &respInfo
-		}
-	}
-
-	return req
-}
-
-func RequestFromDomain(r domain.Request) *Request {
-	req := &Request{
-		ID:             r.ID,
-		TelegramUserID: r.Issuer.ID,
-		RequestText:    r.RequestText,
-		Status:         *RequestStatusFromDomain(r.Status),
-		CreatedAt:      r.CreatedAt,
-		UpdatedAt:      r.UpdatedAt,
-	}
-
-	// Convert ResponsibleInfo to JSONB
-	if r.ResponsibleInfo != nil {
-		data, _ := json.Marshal(r.ResponsibleInfo)
-		req.ResponsibleInfo = data
-	}
-
 	return req
 }
 

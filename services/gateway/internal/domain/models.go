@@ -117,3 +117,16 @@ func NewAuditFields(createdAt, updatedAt time.Time, createdBy, updatedBy *uuid.U
 		UpdatedBy: updatedBy,
 	}
 }
+
+type Responsible struct {
+	ID       uuid.UUID
+	Username string
+}
+
+type RequestUpdate struct {
+	RequestText   *string
+	Status        *RequestStatus
+	ScheduleTime  *string
+	Address       *string
+	ResponsibleID *uuid.UUID
+}

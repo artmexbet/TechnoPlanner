@@ -83,15 +83,18 @@ func main() {
 	requestSvc := service.NewRequestService(requestClient)
 	historyClient := client.NewHistoryClient(natsConn)
 	historySvc := service.NewRequestHistoryService(historyClient)
+	responsibleClient := client.NewResponsibleClient(natsConn)
+	responsibleSvc := service.NewResponsibleService(responsibleClient)
 
-	r := router.NewRouter(cfg.Router, nil, authSvc, porterSvc, equipmentSvc, categorySvc, requestSvc, historySvc).
+	r := router.NewRouter(cfg.Router, nil, authSvc, porterSvc, equipmentSvc, categorySvc, requestSvc, historySvc, responsibleSvc).
 		InitMiddlewares(tracer).
 		InitBaseRoutes().
 		InitUserRoutes().
 		InitProtectedUserRoutes().
 		InitPorterRoutes().
 		InitEquipmentRoutes().
-		InitRequestRoutes()
+		InitRequestRoutes().
+		InitResponsibleRoutes()
 	slog.Info("Starting HTTP server")
 	r.Run()
 }

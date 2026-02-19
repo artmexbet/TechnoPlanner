@@ -1,0 +1,79 @@
+package router
+
+import (
+	"time"
+
+	"github.com/gofiber/fiber/v3"
+	"github.com/google/uuid"
+
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
+	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router/middlwares"
+)
+
+func (r *Router) InitPorterRoutes() *Router {
+	group := r.r.Group("/api/v1/porters")
+	group.Use(middlwares.CheckJWTMiddleware(r.authSvc))
+	group.Get("/", r.listPorters())
+	group.Post("/", r.createPorter())
+	group.Get(":id", r.getPorter())
+	return r
+}
+
+func (r *Router) listPorters() fiber.Handler {
+	return func(c fiber.Ctx) error {
+		ctx := r.userContext(c)
+		users, err := r.porterSvc.List(ctx)
+		if err != nil {
+			return handleServiceError(c, err)
+		}
+		resp := models.PorterListResponse{Items: make([]models.PorterResponse, 0, len(users))}
+		for _, u := range users {
+			resp.Items = append(resp.Items, toPorterResponse(u))
+		}
+		return c.Status(fiber.StatusOK).JSON(resp)
+	}
+}
+
+func (r *Router) getPorter() fiber.Handler {
+	return func(c fiber.Ctx) error {
+		id, err := uuid.Parse(c.Params("id"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid porter id"})
+		}
+		ctx := r.userContext(c)
+		user, err := r.porterSvc.Get(ctx, id)
+		if err != nil {
+			return handleServiceError(c, err)
+		}
+		return c.Status(fiber.StatusOK).JSON(toPorterResponse(user))
+	}
+}
+
+func (r *Router) createPorter() fiber.Handler {
+	return func(c fiber.Ctx) error {
+		var req models.PorterCreateRequest
+		if err := c.Bind().Body(&req); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
+		}
+		if err := r.validator.Struct(req); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
+		}
+		ctx := r.userContext(c)
+		userID, err := r.porterSvc.Create(ctx, req.Username, req.Email, req.Password)
+		if err != nil {
+			return handleServiceError(c, err)
+		}
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"id": userID})
+	}
+}
+
+func toPorterResponse(u domain.User) models.PorterResponse {
+	return models.PorterResponse{
+		ID:        u.ID.String(),
+		Username:  u.Username,
+		Email:     u.Email,
+		CreatedAt: u.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: u.UpdatedAt.Format(time.RFC3339),
+	}
+}

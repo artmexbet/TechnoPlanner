@@ -75,3 +75,16 @@ type Equipment struct {
 	CreatedAt   time.Time `json:"created_at,omitempty"`
 	UpdatedAt   time.Time `json:"updated_at,omitempty"`
 }
+
+type RequestUpdate struct {
+	RequestText   *string     `json:"request_text,omitempty"`
+	Status        *StatusType `json:"status,omitempty"`
+	ScheduleTime  *string     `json:"schedule_time,omitempty"`
+	Address       *string     `json:"address,omitempty"`
+	ResponsibleID *uuid.UUID  `json:"responsible_id,omitempty"`
+}
+
+type Responsible struct {
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+}

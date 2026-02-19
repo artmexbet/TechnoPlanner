@@ -2,11 +2,8 @@ package router
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
-	"strconv"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	otelfiber "github.com/gofiber/contrib/v3/otel"
@@ -63,11 +60,17 @@ type RequestService interface {
 	List(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.Request, error)
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID uuid.UUID) (domain.Request, error)
+	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (domain.Request, error)
 }
 
 type HistoryService interface {
 	List(ctx context.Context, requestID uuid.UUID) ([]domain.RequestStatusHistory, error)
 	Add(ctx context.Context, entry domain.RequestStatusHistory) (domain.RequestStatusHistory, error)
+}
+
+type ResponsibleService interface {
+	List(ctx context.Context) ([]domain.Responsible, error)
+	Create(ctx context.Context, id uuid.UUID, username string) (domain.Responsible, error)
 }
 
 type Config struct {
@@ -79,14 +82,15 @@ type Router struct {
 	r         *fiber.App
 	validator *validator.Validate
 
-	cfg          Config
-	userSvc      UserService
-	authSvc      AuthSvcConnector
-	porterSvc    PorterService
-	equipmentSvc EquipmentService
-	categorySvc  CategoryService
-	requestSvc   RequestService
-	historySvc   HistoryService
+	cfg            Config
+	userSvc        UserService
+	authSvc        AuthSvcConnector
+	porterSvc      PorterService
+	equipmentSvc   EquipmentService
+	categorySvc    CategoryService
+	requestSvc     RequestService
+	historySvc     HistoryService
+	responsibleSvc ResponsibleService
 }
 
 func NewRouter(
@@ -98,18 +102,20 @@ func NewRouter(
 	categorySvc CategoryService,
 	requestSvc RequestService,
 	historySvc HistoryService,
+	responsibleSvc ResponsibleService,
 ) *Router {
 	return &Router{
-		r:            fiber.New(),
-		validator:    validator.New(validator.WithRequiredStructEnabled()),
-		cfg:          cfg,
-		userSvc:      userSvc,
-		authSvc:      authSvc,
-		porterSvc:    porterSvc,
-		equipmentSvc: equipmentSvc,
-		categorySvc:  categorySvc,
-		requestSvc:   requestSvc,
-		historySvc:   historySvc,
+		r:              fiber.New(),
+		validator:      validator.New(validator.WithRequiredStructEnabled()),
+		cfg:            cfg,
+		userSvc:        userSvc,
+		authSvc:        authSvc,
+		porterSvc:      porterSvc,
+		equipmentSvc:   equipmentSvc,
+		categorySvc:    categorySvc,
+		requestSvc:     requestSvc,
+		historySvc:     historySvc,
+		responsibleSvc: responsibleSvc,
 	}
 }
 
@@ -156,488 +162,3 @@ func (r *Router) userContext(c fiber.Ctx) context.Context {
 	role, _ := c.Locals(middlwares.ContextUserRoleKey).(string)
 	return service.WithUserContext(c.Context(), userID, role)
 }
-
-func (r *Router) InitPorterRoutes() *Router {
-	group := r.r.Group("/api/v1/porters")
-	group.Use(middlwares.CheckJWTMiddleware(r.authSvc))
-	group.Get("/", r.listPorters())
-	group.Post("/", r.createPorter())
-	group.Get(":id", r.getPorter())
-	return r
-}
-
-func (r *Router) listPorters() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		ctx := r.userContext(c)
-		users, err := r.porterSvc.List(ctx)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		resp := models.PorterListResponse{Items: make([]models.PorterResponse, 0, len(users))}
-		for _, u := range users {
-			resp.Items = append(resp.Items, toPorterResponse(u))
-		}
-		return c.Status(fiber.StatusOK).JSON(resp)
-	}
-}
-
-func (r *Router) getPorter() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		id, err := uuid.Parse(c.Params("id"))
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid porter id"})
-		}
-		ctx := r.userContext(c)
-		user, err := r.porterSvc.Get(ctx, id)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.Status(fiber.StatusOK).JSON(toPorterResponse(user))
-	}
-}
-
-func (r *Router) createPorter() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		var req models.PorterCreateRequest
-		if err := c.Bind().Body(&req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
-		}
-		if err := r.validator.Struct(req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
-		}
-		ctx := r.userContext(c)
-		userID, err := r.porterSvc.Create(ctx, req.Username, req.Email, req.Password)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"id": userID})
-	}
-}
-
-func (r *Router) InitEquipmentRoutes() *Router {
-	group := r.r.Group("/api/v1/equipment")
-	group.Use(middlwares.CheckJWTMiddleware(r.authSvc))
-
-	cat := group.Group("/categories")
-
-	cat.Get("/", r.listCategories())
-	cat.Post("/", r.createCategory())
-	cat.Put(":id", r.updateCategory())
-	cat.Delete(":id", r.deleteCategory())
-
-	group.Get("/", r.listEquipment())
-	group.Post("/", r.createEquipment())
-	group.Get(":id", r.getEquipment())
-	group.Put(":id", r.updateEquipment())
-	group.Delete(":id", r.deleteEquipment())
-	return r
-}
-
-func (r *Router) listEquipment() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		ctx := r.userContext(c)
-		items, err := r.equipmentSvc.List(ctx)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		resp := make([]models.Equipment, 0, len(items))
-		for _, eq := range items {
-			resp = append(resp, toEquipmentResponse(eq))
-		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"items": resp})
-	}
-}
-
-func (r *Router) getEquipment() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		id, err := strconv.Atoi(c.Params("id"))
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid equipment id"})
-		}
-		ctx := r.userContext(c)
-		eq, err := r.equipmentSvc.Get(ctx, id)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.Status(fiber.StatusOK).JSON(toEquipmentResponse(eq))
-	}
-}
-
-func (r *Router) createEquipment() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		var req models.EquipmentCreateRequest
-		if err := c.Bind().Body(&req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
-		}
-		if err := r.validator.Struct(req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
-		}
-		eq := domain.Equipment{
-			Name:        req.Name,
-			Description: derefString(req.Description),
-		}
-		// CategoryID из первого элемента CategoryIDs
-		if len(req.CategoryIDs) > 0 {
-			eq.CategoryID = req.CategoryIDs[0]
-		}
-		ctx := r.userContext(c)
-		created, err := r.equipmentSvc.Create(ctx, eq)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.Status(fiber.StatusCreated).JSON(toEquipmentResponse(created))
-	}
-}
-
-func (r *Router) updateEquipment() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		id, err := strconv.Atoi(c.Params("id"))
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid equipment id"})
-		}
-		var req models.EquipmentUpdateRequest
-		if err := c.Bind().Body(&req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
-		}
-		if err := r.validator.Struct(req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
-		}
-		eq := domain.Equipment{
-			ID:          id,
-			Name:        req.Name,
-			Description: derefString(req.Description),
-		}
-		// CategoryID из первого элемента CategoryIDs
-		if len(req.CategoryIDs) > 0 {
-			eq.CategoryID = req.CategoryIDs[0]
-		}
-		ctx := r.userContext(c)
-		updated, err := r.equipmentSvc.Update(ctx, eq)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.Status(fiber.StatusOK).JSON(toEquipmentResponse(updated))
-	}
-}
-
-func (r *Router) deleteEquipment() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		id, err := strconv.Atoi(c.Params("id"))
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid equipment id"})
-		}
-		ctx := r.userContext(c)
-		if err := r.equipmentSvc.Delete(ctx, id); err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.SendStatus(fiber.StatusNoContent)
-	}
-}
-
-func (r *Router) listCategories() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		ctx := r.userContext(c)
-		cats, err := r.categorySvc.List(ctx)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		resp := models.EquipmentCategoryListResponse{Items: make([]models.EquipmentCategory, 0, len(cats))}
-		for _, cat := range cats {
-			resp.Items = append(resp.Items, toCategoryResponse(cat))
-		}
-		return c.Status(fiber.StatusOK).JSON(resp)
-	}
-}
-
-func (r *Router) createCategory() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		var req models.EquipmentCategoryCreateRequest
-		if err := c.Bind().Body(&req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
-		}
-		if err := r.validator.Struct(req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
-		}
-		cat := domain.EquipmentCategory{Name: req.Name, Description: derefString(req.Description)}
-		ctx := r.userContext(c)
-		created, err := r.categorySvc.Create(ctx, cat)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.Status(fiber.StatusCreated).JSON(toCategoryResponse(created))
-	}
-}
-
-func (r *Router) updateCategory() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		id, err := strconv.Atoi(c.Params("id"))
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid category id"})
-		}
-		var req models.EquipmentCategoryUpdateRequest
-		if err := c.Bind().Body(&req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
-		}
-		if err := r.validator.Struct(req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
-		}
-		cat := domain.EquipmentCategory{ID: id, Name: req.Name, Description: derefString(req.Description)}
-		ctx := r.userContext(c)
-		updated, err := r.categorySvc.Update(ctx, cat)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.Status(fiber.StatusOK).JSON(toCategoryResponse(updated))
-	}
-}
-
-func (r *Router) deleteCategory() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		id, err := strconv.Atoi(c.Params("id"))
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid category id"})
-		}
-		ctx := r.userContext(c)
-		if err := r.categorySvc.Delete(ctx, id); err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.SendStatus(fiber.StatusNoContent)
-	}
-}
-
-func (r *Router) InitRequestRoutes() *Router {
-	group := r.r.Group("/api/v1/requests")
-	group.Use(middlwares.CheckJWTMiddleware(r.authSvc))
-	group.Get("/", r.listRequests())
-	group.Get(":id", r.getRequest())
-	group.Post(":id/responsible", r.assignResponsible())
-	group.Get(":id/history", r.listRequestHistory())
-	group.Post(":id/history", r.addRequestHistory())
-	return r
-}
-
-func (r *Router) listRequests() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		var filters models.RequestFilter
-		if responsible := c.Query("responsible_id"); responsible != "" {
-			filters.ResponsibleID = &responsible
-		}
-		ctx := r.userContext(c)
-		var responsibleUUID *uuid.UUID
-		if filters.ResponsibleID != nil {
-			id, err := uuid.Parse(*filters.ResponsibleID)
-			if err != nil {
-				return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid responsible_id"})
-			}
-			responsibleUUID = &id
-		}
-		requests, err := r.requestSvc.List(ctx, responsibleUUID)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		resp := models.RequestListResponse{Items: make([]models.RequestResponse, 0, len(requests))}
-		for _, req := range requests {
-			resp.Items = append(resp.Items, toRequestResponse(req))
-		}
-		return c.Status(fiber.StatusOK).JSON(resp)
-	}
-}
-
-func (r *Router) getRequest() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		id, err := uuid.Parse(c.Params("id"))
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid request id"})
-		}
-		ctx := r.userContext(c)
-		req, err := r.requestSvc.Get(ctx, id)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.Status(fiber.StatusOK).JSON(toRequestResponse(req))
-	}
-}
-
-func (r *Router) assignResponsible() fiber.Handler {
-	type payload struct {
-		ResponsibleID string `json:"responsible_id" validate:"required,uuid4"`
-	}
-	return func(c fiber.Ctx) error {
-		id, err := uuid.Parse(c.Params("id"))
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid request id"})
-		}
-		var body payload
-		if err := c.Bind().Body(&body); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
-		}
-		if err := r.validator.Struct(body); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
-		}
-		responsibleID, err := uuid.Parse(body.ResponsibleID)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid responsible_id"})
-		}
-		ctx := r.userContext(c)
-		req, err := r.requestSvc.AssignResponsible(ctx, id, responsibleID)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.Status(fiber.StatusOK).JSON(toRequestResponse(req))
-	}
-}
-
-func (r *Router) listRequestHistory() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		id, err := uuid.Parse(c.Params("id"))
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid request id"})
-		}
-		ctx := r.userContext(c)
-		history, err := r.historySvc.List(ctx, id)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		resp := models.RequestStatusHistoryListResponse{Items: make([]models.RequestStatusHistoryResponse, 0, len(history))}
-		for _, entry := range history {
-			resp.Items = append(resp.Items, toHistoryResponse(entry))
-		}
-		return c.Status(fiber.StatusOK).JSON(resp)
-	}
-}
-
-func (r *Router) addRequestHistory() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		id, err := uuid.Parse(c.Params("id"))
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid request id"})
-		}
-		var body models.RequestStatusUpdateRequest
-		if err := c.Bind().Body(&body); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
-		}
-		if err := r.validator.Struct(body); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
-		}
-		ctx := r.userContext(c)
-		entry := domain.RequestStatusHistory{
-			RequestID: id,
-			Status:    domain.RequestStatus(body.Status),
-			Comment:   body.Comment,
-		}
-		created, err := r.historySvc.Add(ctx, entry)
-		if err != nil {
-			return handleServiceError(c, err)
-		}
-		return c.Status(fiber.StatusCreated).JSON(toHistoryResponse(created))
-	}
-}
-
-func toPorterResponse(u domain.User) models.PorterResponse {
-	return models.PorterResponse{
-		ID:        u.ID.String(),
-		Username:  u.Username,
-		Email:     u.Email,
-		CreatedAt: u.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: u.UpdatedAt.Format(time.RFC3339),
-	}
-}
-
-func toEquipmentResponse(eq domain.Equipment) models.Equipment {
-	resp := models.Equipment{
-		ID:          eq.ID,
-		Name:        eq.Name,
-		Description: &eq.Description,
-		Quantity:    1, // Значение по умолчанию для совместимости
-		CreatedAt:   eq.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:   eq.UpdatedAt.Format(time.RFC3339),
-	}
-	return resp
-}
-
-func toCategoryResponse(cat domain.EquipmentCategory) models.EquipmentCategory {
-	resp := models.EquipmentCategory{
-		ID:          cat.ID,
-		Name:        cat.Name,
-		Description: &cat.Description,
-		CreatedAt:   cat.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:   cat.UpdatedAt.Format(time.RFC3339),
-	}
-	return resp
-}
-
-func toRequestResponse(req domain.Request) models.RequestResponse {
-	resp := models.RequestResponse{
-		ID:           req.ID.String(),
-		RequestText:  req.RequestText,
-		Status:       string(req.Status),
-		ScheduleTime: req.ScheduleTime,
-		Address:      req.Address,
-		CreatedAt:    req.Audit.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:    req.Audit.UpdatedAt.Format(time.RFC3339),
-	}
-	if !req.EndTime.IsZero() {
-		resp.EndTime = req.EndTime.Format(time.RFC3339)
-	}
-	if req.ResponsibleUserID != nil {
-		id := req.ResponsibleUserID.String()
-		resp.ResponsibleID = &id
-	}
-	if req.Audit.CreatedBy != nil {
-		id := req.Audit.CreatedBy.String()
-		resp.CreatedBy = &id
-	}
-	if req.Audit.UpdatedBy != nil {
-		id := req.Audit.UpdatedBy.String()
-		resp.UpdatedBy = &id
-	}
-	if req.Audit.DeletedAt != nil {
-		dt := req.Audit.DeletedAt.Format(time.RFC3339)
-		resp.DeletedAt = &dt
-	}
-	resp.Equipment = make([]models.Equipment, 0, len(req.Equipment))
-	for _, eq := range req.Equipment {
-		resp.Equipment = append(resp.Equipment, models.Equipment{
-			ID:        int(eq.EquipmentID),
-			Quantity:  eq.Quantity,
-			CreatedAt: eq.CreatedAt.Format(time.RFC3339),
-			UpdatedAt: eq.UpdatedAt.Format(time.RFC3339),
-		})
-	}
-	return resp
-}
-
-func toHistoryResponse(entry domain.RequestStatusHistory) models.RequestStatusHistoryResponse {
-	resp := models.RequestStatusHistoryResponse{
-		ID:        entry.ID,
-		RequestID: entry.RequestID.String(),
-		Status:    string(entry.Status),
-		Comment:   entry.Comment,
-		ChangedAt: entry.ChangedAt.Format(time.RFC3339),
-	}
-	if entry.ChangedBy != nil {
-		id := entry.ChangedBy.String()
-		resp.ChangedBy = &id
-	}
-	return resp
-}
-
-func handleServiceError(c fiber.Ctx, err error) error {
-	switch {
-	case errors.Is(err, domain.ErrForbidden):
-		return c.Status(fiber.StatusForbidden).JSON(models.ErrorResponse{Error: "forbidden"})
-	case errors.Is(err, domain.ErrNotFound):
-		return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{Error: "not found"})
-	default:
-		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Error: "internal error", Details: err.Error()})
-	}
-}
-
-func derefString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
-}
-
-// fiber:context-methods migrated

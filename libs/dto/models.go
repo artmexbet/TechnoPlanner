@@ -226,3 +226,31 @@ type HistoryAddRequest struct {
 	Status    RequestStatus `json:"status"`
 	Comment   string        `json:"comment,omitempty"`
 }
+
+// Responsible DTO ответственного
+//
+//easyjson:json
+type Responsible struct {
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+}
+
+// ResponsibleCreateRequest DTO запроса на создание ответственного
+//
+//easyjson:json
+type ResponsibleCreateRequest struct {
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+}
+
+// RequestUpdateRequest DTO запроса на обновление заявки
+//
+//easyjson:json
+type RequestUpdateRequest struct {
+	RequestID     uuid.UUID      `json:"request_id"`
+	RequestText   *string        `json:"request_text,omitempty"`
+	Status        *RequestStatus `json:"status,omitempty"`
+	ScheduleTime  *string        `json:"schedule_time,omitempty"`
+	Address       *string        `json:"address,omitempty"`
+	ResponsibleID *uuid.UUID     `json:"responsible_id,omitempty"`
+}

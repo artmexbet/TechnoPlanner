@@ -557,7 +557,327 @@ func (v *Role) UnmarshalJSON(data []byte) error {
 func (v *Role) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto3(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto4(in *jlexer.Lexer, out *RequestStatusHistory) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto4(in *jlexer.Lexer, out *ResponsibleCreateRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		switch key {
+		case "id":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				if data := in.UnsafeBytes(); in.Ok() {
+					in.AddError((out.ID).UnmarshalText(data))
+				}
+			}
+		case "username":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Username = string(in.String())
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto4(out *jwriter.Writer, in ResponsibleCreateRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.RawText((in.ID).MarshalText())
+	}
+	{
+		const prefix string = ",\"username\":"
+		out.RawString(prefix)
+		out.String(string(in.Username))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v ResponsibleCreateRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto4(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v ResponsibleCreateRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto4(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *ResponsibleCreateRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto4(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *ResponsibleCreateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto4(l, v)
+}
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto5(in *jlexer.Lexer, out *Responsible) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		switch key {
+		case "id":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				if data := in.UnsafeBytes(); in.Ok() {
+					in.AddError((out.ID).UnmarshalText(data))
+				}
+			}
+		case "username":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Username = string(in.String())
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto5(out *jwriter.Writer, in Responsible) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.RawText((in.ID).MarshalText())
+	}
+	{
+		const prefix string = ",\"username\":"
+		out.RawString(prefix)
+		out.String(string(in.Username))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Responsible) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto5(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Responsible) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto5(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Responsible) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto5(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Responsible) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto5(l, v)
+}
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto6(in *jlexer.Lexer, out *RequestUpdateRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		switch key {
+		case "request_id":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				if data := in.UnsafeBytes(); in.Ok() {
+					in.AddError((out.RequestID).UnmarshalText(data))
+				}
+			}
+		case "request_text":
+			if in.IsNull() {
+				in.Skip()
+				out.RequestText = nil
+			} else {
+				if out.RequestText == nil {
+					out.RequestText = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.RequestText = string(in.String())
+				}
+			}
+		case "status":
+			if in.IsNull() {
+				in.Skip()
+				out.Status = nil
+			} else {
+				if out.Status == nil {
+					out.Status = new(RequestStatus)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.Status = RequestStatus(in.String())
+				}
+			}
+		case "schedule_time":
+			if in.IsNull() {
+				in.Skip()
+				out.ScheduleTime = nil
+			} else {
+				if out.ScheduleTime == nil {
+					out.ScheduleTime = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.ScheduleTime = string(in.String())
+				}
+			}
+		case "address":
+			if in.IsNull() {
+				in.Skip()
+				out.Address = nil
+			} else {
+				if out.Address == nil {
+					out.Address = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.Address = string(in.String())
+				}
+			}
+		case "responsible_id":
+			if in.IsNull() {
+				in.Skip()
+				out.ResponsibleID = nil
+			} else {
+				if out.ResponsibleID == nil {
+					out.ResponsibleID = new(uuid.UUID)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					if data := in.UnsafeBytes(); in.Ok() {
+						in.AddError((*out.ResponsibleID).UnmarshalText(data))
+					}
+				}
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto6(out *jwriter.Writer, in RequestUpdateRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"request_id\":"
+		out.RawString(prefix[1:])
+		out.RawText((in.RequestID).MarshalText())
+	}
+	if in.RequestText != nil {
+		const prefix string = ",\"request_text\":"
+		out.RawString(prefix)
+		out.String(string(*in.RequestText))
+	}
+	if in.Status != nil {
+		const prefix string = ",\"status\":"
+		out.RawString(prefix)
+		out.String(string(*in.Status))
+	}
+	if in.ScheduleTime != nil {
+		const prefix string = ",\"schedule_time\":"
+		out.RawString(prefix)
+		out.String(string(*in.ScheduleTime))
+	}
+	if in.Address != nil {
+		const prefix string = ",\"address\":"
+		out.RawString(prefix)
+		out.String(string(*in.Address))
+	}
+	if in.ResponsibleID != nil {
+		const prefix string = ",\"responsible_id\":"
+		out.RawString(prefix)
+		out.RawText((*in.ResponsibleID).MarshalText())
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v RequestUpdateRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto6(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v RequestUpdateRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto6(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *RequestUpdateRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto6(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *RequestUpdateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto6(l, v)
+}
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto7(in *jlexer.Lexer, out *RequestStatusHistory) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -639,7 +959,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto4(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto4(out *jwriter.Writer, in RequestStatusHistory) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto7(out *jwriter.Writer, in RequestStatusHistory) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -679,27 +999,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto4(out *jwriter.
 // MarshalJSON supports json.Marshaler interface
 func (v RequestStatusHistory) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto4(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto7(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v RequestStatusHistory) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto4(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto7(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *RequestStatusHistory) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto4(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto7(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *RequestStatusHistory) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto4(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto7(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto5(in *jlexer.Lexer, out *RequestListRequest) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto8(in *jlexer.Lexer, out *RequestListRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -739,7 +1059,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto5(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto5(out *jwriter.Writer, in RequestListRequest) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto8(out *jwriter.Writer, in RequestListRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -755,27 +1075,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto5(out *jwriter.
 // MarshalJSON supports json.Marshaler interface
 func (v RequestListRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto5(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto8(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v RequestListRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto5(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto8(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *RequestListRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto5(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto8(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *RequestListRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto5(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto8(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto6(in *jlexer.Lexer, out *RequestEquipment) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto9(in *jlexer.Lexer, out *RequestEquipment) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -835,7 +1155,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto6(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto6(out *jwriter.Writer, in RequestEquipment) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto9(out *jwriter.Writer, in RequestEquipment) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -870,27 +1190,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto6(out *jwriter.
 // MarshalJSON supports json.Marshaler interface
 func (v RequestEquipment) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto6(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto9(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v RequestEquipment) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto6(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto9(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *RequestEquipment) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto6(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto9(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *RequestEquipment) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto6(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto9(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto7(in *jlexer.Lexer, out *RequestByIDRequest) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto10(in *jlexer.Lexer, out *RequestByIDRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -922,7 +1242,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto7(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto7(out *jwriter.Writer, in RequestByIDRequest) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto10(out *jwriter.Writer, in RequestByIDRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -937,27 +1257,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto7(out *jwriter.
 // MarshalJSON supports json.Marshaler interface
 func (v RequestByIDRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto7(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto10(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v RequestByIDRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto7(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto10(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *RequestByIDRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto7(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto10(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *RequestByIDRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto7(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto10(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto8(in *jlexer.Lexer, out *Request) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto11(in *jlexer.Lexer, out *Request) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1085,7 +1405,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto8(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto8(out *jwriter.Writer, in Request) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto11(out *jwriter.Writer, in Request) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1154,27 +1474,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto8(out *jwriter.
 // MarshalJSON supports json.Marshaler interface
 func (v Request) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto8(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto11(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Request) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto8(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto11(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Request) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto8(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto11(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Request) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto8(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto11(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto9(in *jlexer.Lexer, out *Place) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto12(in *jlexer.Lexer, out *Place) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1254,7 +1574,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto9(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto9(out *jwriter.Writer, in Place) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto12(out *jwriter.Writer, in Place) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1299,27 +1619,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto9(out *jwriter.
 // MarshalJSON supports json.Marshaler interface
 func (v Place) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto9(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto12(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Place) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto9(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto12(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Place) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto9(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto12(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Place) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto9(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto12(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto10(in *jlexer.Lexer, out *HistoryAddRequest) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto13(in *jlexer.Lexer, out *HistoryAddRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1363,7 +1683,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto10(in *jlexer.L
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto10(out *jwriter.Writer, in HistoryAddRequest) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto13(out *jwriter.Writer, in HistoryAddRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1388,27 +1708,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto10(out *jwriter
 // MarshalJSON supports json.Marshaler interface
 func (v HistoryAddRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto10(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto13(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v HistoryAddRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto10(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto13(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *HistoryAddRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto10(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto13(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *HistoryAddRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto10(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto13(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto11(in *jlexer.Lexer, out *GatewayResponse) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto14(in *jlexer.Lexer, out *GatewayResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1452,7 +1772,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto11(in *jlexer.L
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto11(out *jwriter.Writer, in GatewayResponse) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto14(out *jwriter.Writer, in GatewayResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1477,27 +1797,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto11(out *jwriter
 // MarshalJSON supports json.Marshaler interface
 func (v GatewayResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto11(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto14(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v GatewayResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto11(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto14(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *GatewayResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto11(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto14(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *GatewayResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto11(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto14(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto12(in *jlexer.Lexer, out *EquipmentUpdateRequest) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto15(in *jlexer.Lexer, out *EquipmentUpdateRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1572,7 +1892,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto12(in *jlexer.L
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto12(out *jwriter.Writer, in EquipmentUpdateRequest) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto15(out *jwriter.Writer, in EquipmentUpdateRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1616,27 +1936,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto12(out *jwriter
 // MarshalJSON supports json.Marshaler interface
 func (v EquipmentUpdateRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto12(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto15(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v EquipmentUpdateRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto12(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto15(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *EquipmentUpdateRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto12(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto15(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *EquipmentUpdateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto12(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto15(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto13(in *jlexer.Lexer, out *EquipmentCreateRequest) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto16(in *jlexer.Lexer, out *EquipmentCreateRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1705,7 +2025,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto13(in *jlexer.L
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto13(out *jwriter.Writer, in EquipmentCreateRequest) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto16(out *jwriter.Writer, in EquipmentCreateRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1744,27 +2064,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto13(out *jwriter
 // MarshalJSON supports json.Marshaler interface
 func (v EquipmentCreateRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto13(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto16(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v EquipmentCreateRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto13(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto16(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *EquipmentCreateRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto13(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto16(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *EquipmentCreateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto13(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto16(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto14(in *jlexer.Lexer, out *EquipmentCategory) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto17(in *jlexer.Lexer, out *EquipmentCategory) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1820,7 +2140,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto14(in *jlexer.L
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto14(out *jwriter.Writer, in EquipmentCategory) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto17(out *jwriter.Writer, in EquipmentCategory) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1850,27 +2170,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto14(out *jwriter
 // MarshalJSON supports json.Marshaler interface
 func (v EquipmentCategory) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto14(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto17(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v EquipmentCategory) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto14(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto17(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *EquipmentCategory) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto14(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto17(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *EquipmentCategory) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto14(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto17(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto15(in *jlexer.Lexer, out *Equipment) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto18(in *jlexer.Lexer, out *Equipment) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1959,7 +2279,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto15(in *jlexer.L
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto15(out *jwriter.Writer, in Equipment) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto18(out *jwriter.Writer, in Equipment) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -2008,27 +2328,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto15(out *jwriter
 // MarshalJSON supports json.Marshaler interface
 func (v Equipment) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto15(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto18(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Equipment) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto15(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto18(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Equipment) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto15(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto18(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Equipment) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto15(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto18(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto16(in *jlexer.Lexer, out *CategoryUpdateRequest) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto19(in *jlexer.Lexer, out *CategoryUpdateRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -2070,7 +2390,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto16(in *jlexer.L
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto16(out *jwriter.Writer, in CategoryUpdateRequest) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto19(out *jwriter.Writer, in CategoryUpdateRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -2095,27 +2415,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto16(out *jwriter
 // MarshalJSON supports json.Marshaler interface
 func (v CategoryUpdateRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto16(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto19(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v CategoryUpdateRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto16(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto19(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *CategoryUpdateRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto16(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto19(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *CategoryUpdateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto16(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto19(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto17(in *jlexer.Lexer, out *CategoryCreateRequest) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto20(in *jlexer.Lexer, out *CategoryCreateRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -2151,7 +2471,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto17(in *jlexer.L
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto17(out *jwriter.Writer, in CategoryCreateRequest) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto20(out *jwriter.Writer, in CategoryCreateRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -2171,27 +2491,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto17(out *jwriter
 // MarshalJSON supports json.Marshaler interface
 func (v CategoryCreateRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto17(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto20(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v CategoryCreateRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto17(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto20(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *CategoryCreateRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto17(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto20(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *CategoryCreateRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto17(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto20(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto18(in *jlexer.Lexer, out *AuditFields) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto21(in *jlexer.Lexer, out *AuditFields) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -2279,7 +2599,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto18(in *jlexer.L
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto18(out *jwriter.Writer, in AuditFields) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto21(out *jwriter.Writer, in AuditFields) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -2314,27 +2634,27 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto18(out *jwriter
 // MarshalJSON supports json.Marshaler interface
 func (v AuditFields) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto18(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto21(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v AuditFields) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto18(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto21(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *AuditFields) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto18(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto21(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *AuditFields) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto18(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto21(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto19(in *jlexer.Lexer, out *AssignResponsibleRequest) {
+func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto22(in *jlexer.Lexer, out *AssignResponsibleRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -2359,9 +2679,17 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto19(in *jlexer.L
 		case "responsible_id":
 			if in.IsNull() {
 				in.Skip()
+				out.ResponsibleID = nil
 			} else {
-				if data := in.UnsafeBytes(); in.Ok() {
-					in.AddError((out.ResponsibleID).UnmarshalText(data))
+				if out.ResponsibleID == nil {
+					out.ResponsibleID = new(uuid.UUID)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					if data := in.UnsafeBytes(); in.Ok() {
+						in.AddError((*out.ResponsibleID).UnmarshalText(data))
+					}
 				}
 			}
 		default:
@@ -2374,7 +2702,7 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto19(in *jlexer.L
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto19(out *jwriter.Writer, in AssignResponsibleRequest) {
+func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto22(out *jwriter.Writer, in AssignResponsibleRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -2386,7 +2714,11 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto19(out *jwriter
 	{
 		const prefix string = ",\"responsible_id\":"
 		out.RawString(prefix)
-		out.RawText((in.ResponsibleID).MarshalText())
+		if in.ResponsibleID == nil {
+			out.RawString("null")
+		} else {
+			out.RawText((*in.ResponsibleID).MarshalText())
+		}
 	}
 	out.RawByte('}')
 }
@@ -2394,23 +2726,23 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto19(out *jwriter
 // MarshalJSON supports json.Marshaler interface
 func (v AssignResponsibleRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto19(&w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto22(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v AssignResponsibleRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto19(w, v)
+	easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto22(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *AssignResponsibleRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto19(&r, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto22(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *AssignResponsibleRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto19(l, v)
+	easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto22(l, v)
 }
