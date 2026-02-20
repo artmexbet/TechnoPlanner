@@ -29,6 +29,11 @@ type Postgres interface {
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error
 	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
 	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
+	// RawRequests
+	CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error)
+	GetRawRequests(ctx context.Context, status string, limit, offset int32) ([]domain.RawRequest, error)
+	GetRawRequestByID(ctx context.Context, id uuid.UUID) (*domain.RawRequest, error)
+	MarkRawRequestProcessed(ctx context.Context, id uuid.UUID, requestID uuid.UUID) (*domain.RawRequest, error)
 }
 
 type Publisher interface {
@@ -171,4 +176,24 @@ func (r *Repository) UpdateRequest(ctx context.Context, requestID uuid.UUID, upd
 // SaveResponsible сохраняет или обновляет ответственного
 func (r *Repository) SaveResponsible(ctx context.Context, id uuid.UUID, username string) error {
 	return r.pg.SaveResponsible(ctx, id, username)
+}
+
+// CreateRawRequest сохраняет сырой запрос от Telegram-бота
+func (r *Repository) CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error) {
+	return r.pg.CreateRawRequest(ctx, req)
+}
+
+// GetRawRequests возвращает список сырых запросов
+func (r *Repository) GetRawRequests(ctx context.Context, status string, limit, offset int32) ([]domain.RawRequest, error) {
+	return r.pg.GetRawRequests(ctx, status, limit, offset)
+}
+
+// GetRawRequestByID возвращает сырой запрос по ID
+func (r *Repository) GetRawRequestByID(ctx context.Context, id uuid.UUID) (*domain.RawRequest, error) {
+	return r.pg.GetRawRequestByID(ctx, id)
+}
+
+// MarkRawRequestProcessed помечает сырой запрос как обработанный
+func (r *Repository) MarkRawRequestProcessed(ctx context.Context, id uuid.UUID, requestID uuid.UUID) (*domain.RawRequest, error) {
+	return r.pg.MarkRawRequestProcessed(ctx, id, requestID)
 }

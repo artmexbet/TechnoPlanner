@@ -95,3 +95,50 @@ type EquipmentItem struct {
 	Name     string `json:"name"`
 	Quantity int    `json:"quantity"`
 }
+
+// RawRequestCreateRequest DTO сырого запроса от Telegram-бота
+//
+//easyjson:json
+type RawRequestCreateRequest struct {
+	TelegramID int64   `json:"telegram_id" validate:"required"`
+	Username   string  `json:"username"`
+	FirstName  string  `json:"first_name"`
+	LastName   *string `json:"last_name,omitempty"`
+	RawText    string  `json:"raw_text" validate:"required"`
+}
+
+// RawRequest DTO сырого запроса (ответ)
+//
+//easyjson:json
+type RawRequest struct {
+	ID                 string  `json:"id"`
+	TelegramID         int64   `json:"telegram_id"`
+	Username           string  `json:"username"`
+	FirstName          string  `json:"first_name"`
+	LastName           *string `json:"last_name,omitempty"`
+	RawText            string  `json:"raw_text"`
+	Status             string  `json:"status"`
+	ProcessedRequestID *string `json:"processed_request_id,omitempty"`
+	CreatedAt          string  `json:"created_at"`
+}
+
+// RawRequestListRequest DTO запроса списка сырых запросов
+//
+//easyjson:json
+type RawRequestListRequest struct {
+	Status string `json:"status"` // "new", "processed" или "" (все)
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+}
+
+// RawRequestProcessRequest DTO запроса на обработку сырого запроса (создание нормальной заявки)
+//
+//easyjson:json
+type RawRequestProcessRequest struct {
+	RawRequestID    string          `json:"raw_request_id" validate:"required,uuid4"`
+	RequestText     *string         `json:"request_text,omitempty"`
+	ScheduleTime    string          `json:"schedule_time" validate:"required"`
+	Address         string          `json:"address" validate:"required"`
+	Equipments      []EquipmentInfo `json:"equipments,omitempty"`
+	EquipmentString *string         `json:"equipment_string,omitempty"`
+}

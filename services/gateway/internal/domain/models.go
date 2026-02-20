@@ -130,3 +130,16 @@ type RequestUpdate struct {
 	Address       *string
 	ResponsibleID *uuid.UUID
 }
+
+// RawRequest — необработанный запрос от Telegram-бота
+type RawRequest struct {
+	ID                 uuid.UUID
+	TelegramID         int64
+	Username           string
+	FirstName          string
+	LastName           *string
+	RawText            string
+	Status             string
+	ProcessedRequestID *uuid.UUID
+	CreatedAt          time.Time
+}

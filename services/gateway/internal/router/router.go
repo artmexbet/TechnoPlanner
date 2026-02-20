@@ -73,6 +73,12 @@ type ResponsibleService interface {
 	Create(ctx context.Context, id uuid.UUID, username string) (domain.Responsible, error)
 }
 
+type RawRequestService interface {
+	List(ctx context.Context, status string, limit, offset int32) ([]domain.RawRequest, error)
+	Get(ctx context.Context, id uuid.UUID) (domain.RawRequest, error)
+	Process(ctx context.Context, rawID uuid.UUID, req models.RawRequestProcessRequest) (domain.Request, domain.RawRequest, error)
+}
+
 type Config struct {
 	Address string `yaml:"address" env:"ADDRESS"`
 	Port    string `yaml:"port" env:"PORT"`
@@ -91,6 +97,7 @@ type Router struct {
 	requestSvc     RequestService
 	historySvc     HistoryService
 	responsibleSvc ResponsibleService
+	rawRequestSvc  RawRequestService
 }
 
 func NewRouter(
@@ -103,6 +110,7 @@ func NewRouter(
 	requestSvc RequestService,
 	historySvc HistoryService,
 	responsibleSvc ResponsibleService,
+	rawRequestSvc RawRequestService,
 ) *Router {
 	return &Router{
 		r:              fiber.New(),
@@ -116,6 +124,7 @@ func NewRouter(
 		requestSvc:     requestSvc,
 		historySvc:     historySvc,
 		responsibleSvc: responsibleSvc,
+		rawRequestSvc:  rawRequestSvc,
 	}
 }
 

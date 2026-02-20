@@ -75,6 +75,18 @@ type EquipmentToRequest struct {
 	UpdatedAt   time.Time
 }
 
+type RawRequest struct {
+	ID                 uuid.UUID
+	TelegramID         int64
+	Username           string
+	FirstName          string
+	LastName           *string
+	RawText            string
+	Status             string
+	ProcessedRequestID *uuid.UUID
+	CreatedAt          time.Time
+}
+
 type Request struct {
 	ID             uuid.UUID
 	TelegramUserID uuid.UUID

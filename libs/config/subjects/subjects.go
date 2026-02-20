@@ -78,4 +78,15 @@ const (
 	SubjectBotRequestGet     = "bot.requests.get"
 	SubjectBotRequestList    = "bot.requests.list"
 	SubjectBotRequestCancel  = "bot.requests.cancel"
+
+	// Raw request subjects (сырые запросы от бота)
+
+	// SubjectBotRawRequestCreated — бот отправляет сырой запрос
+	SubjectBotRawRequestCreated = "bot.raw_requests.created"
+	// GatewayRawRequestList — gateway запрашивает список сырых запросов
+	GatewayRawRequestList = "gateway.raw_requests.list"
+	// GatewayRawRequestGet — gateway запрашивает сырой запрос по ID
+	GatewayRawRequestGet = "gateway.raw_requests.get"
+	// GatewayRawRequestProcess — gateway запрашивает создание нормальной заявки из сырого запроса
+	GatewayRawRequestProcess = "gateway.raw_requests.process"
 )

@@ -88,3 +88,24 @@ type Responsible struct {
 	ID       uuid.UUID `json:"id"`
 	Username string    `json:"username"`
 }
+
+// RawRequestStatus статус сырого запроса от бота
+type RawRequestStatus string
+
+const (
+	RawRequestStatusNew       RawRequestStatus = "new"
+	RawRequestStatusProcessed RawRequestStatus = "processed"
+)
+
+// RawRequest — необработанный запрос от Telegram-бота
+type RawRequest struct {
+	ID                 uuid.UUID        `json:"id"`
+	TelegramID         int64            `json:"telegram_id"`
+	Username           string           `json:"username"`
+	FirstName          string           `json:"first_name"`
+	LastName           *string          `json:"last_name,omitempty"`
+	RawText            string           `json:"raw_text"`
+	Status             RawRequestStatus `json:"status"`
+	ProcessedRequestID *uuid.UUID       `json:"processed_request_id,omitempty"`
+	CreatedAt          time.Time        `json:"created_at"`
+}

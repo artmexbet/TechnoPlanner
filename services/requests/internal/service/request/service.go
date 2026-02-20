@@ -21,6 +21,11 @@ type Repository interface {
 	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
 	ListResponsibles(ctx context.Context) ([]domain.Responsible, error)
 	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
+	// RawRequests
+	CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error)
+	GetRawRequests(ctx context.Context, status string, limit, offset int32) ([]domain.RawRequest, error)
+	GetRawRequestByID(ctx context.Context, id uuid.UUID) (*domain.RawRequest, error)
+	MarkRawRequestProcessed(ctx context.Context, id uuid.UUID, requestID uuid.UUID) (*domain.RawRequest, error)
 }
 
 // UserProvider интерфейс для получения информации о пользователе по ID
@@ -151,4 +156,62 @@ func (s *Service) ListResponsibles(ctx context.Context) ([]domain.Responsible, e
 // SaveResponsible сохраняет или обновляет ответственного
 func (s *Service) SaveResponsible(ctx context.Context, id uuid.UUID, username string) error {
 	return s.repository.SaveResponsible(ctx, id, username)
+}
+
+// CreateRawRequest сохраняет сырой запрос от Telegram-бота
+func (s *Service) CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error) {
+	created, err := s.repository.CreateRawRequest(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("create raw request: %w", err)
+	}
+	return created, nil
+}
+
+// ListRawRequests возвращает список сырых запросов с фильтрацией по статусу
+func (s *Service) ListRawRequests(ctx context.Context, status string, limit, offset int32) ([]domain.RawRequest, error) {
+	requests, err := s.repository.GetRawRequests(ctx, status, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("list raw requests: %w", err)
+	}
+	return requests, nil
+}
+
+// GetRawRequest возвращает сырой запрос по ID
+func (s *Service) GetRawRequest(ctx context.Context, id uuid.UUID) (*domain.RawRequest, error) {
+	req, err := s.repository.GetRawRequestByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get raw request: %w", err)
+	}
+	return req, nil
+}
+
+// ProcessRawRequest создаёт нормальную заявку на основе сырого запроса и помечает его как обработанный
+func (s *Service) ProcessRawRequest(ctx context.Context, rawID uuid.UUID, newRequest domain.Request) (*domain.Request, *domain.RawRequest, error) {
+	raw, err := s.repository.GetRawRequestByID(ctx, rawID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("get raw request: %w", err)
+	}
+	if raw.Status == domain.RawRequestStatusProcessed {
+		return nil, nil, fmt.Errorf("raw request already processed")
+	}
+
+	// Заполняем информацию об отправителе из сырого запроса, если не указана
+	if newRequest.Issuer.TelegramID == 0 {
+		newRequest.Issuer.TelegramID = raw.TelegramID
+		newRequest.Issuer.Username = raw.Username
+		newRequest.Issuer.FirstName = raw.FirstName
+		newRequest.Issuer.LastName = raw.LastName
+	}
+
+	createdReq, err := s.Add(ctx, newRequest)
+	if err != nil {
+		return nil, nil, fmt.Errorf("create request from raw: %w", err)
+	}
+
+	updatedRaw, err := s.repository.MarkRawRequestProcessed(ctx, rawID, createdReq.ID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("mark raw request processed: %w", err)
+	}
+
+	return createdReq, updatedRaw, nil
 }

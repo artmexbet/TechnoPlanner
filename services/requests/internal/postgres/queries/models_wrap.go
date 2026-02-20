@@ -83,3 +83,17 @@ func EquipmentFromDomain(t domain.Equipment) *Equipment {
 		UpdatedAt:   t.UpdatedAt,
 	}
 }
+
+func (r *RawRequest) ToDomain() *domain.RawRequest {
+	return &domain.RawRequest{
+		ID:                 r.ID,
+		TelegramID:         r.TelegramID,
+		Username:           r.Username,
+		FirstName:          r.FirstName,
+		LastName:           r.LastName,
+		RawText:            r.RawText,
+		Status:             domain.RawRequestStatus(r.Status),
+		ProcessedRequestID: r.ProcessedRequestID,
+		CreatedAt:          r.CreatedAt,
+	}
+}
