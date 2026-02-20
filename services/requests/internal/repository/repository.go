@@ -25,6 +25,8 @@ type Postgres interface {
 	ListRequests(ctx context.Context, offset, limit int32) ([]domain.Request, error)
 	// Responsibles
 	ListResponsibles(ctx context.Context) ([]domain.Responsible, error)
+	GetResponsible(ctx context.Context, id uuid.UUID) (domain.Responsible, error)
+	DeleteResponsible(ctx context.Context, id uuid.UUID) error
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error
 	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
 	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
@@ -160,6 +162,16 @@ func (r *Repository) ListRequests(ctx context.Context, offset, limit int32) ([]d
 // ListResponsibles возвращает список всех ответственных
 func (r *Repository) ListResponsibles(ctx context.Context) ([]domain.Responsible, error) {
 	return r.pg.ListResponsibles(ctx)
+}
+
+// GetResponsible возвращает ответственного по ID
+func (r *Repository) GetResponsible(ctx context.Context, id uuid.UUID) (domain.Responsible, error) {
+	return r.pg.GetResponsible(ctx, id)
+}
+
+// DeleteResponsible удаляет ответственного по ID
+func (r *Repository) DeleteResponsible(ctx context.Context, id uuid.UUID) error {
+	return r.pg.DeleteResponsible(ctx, id)
 }
 
 // AssignResponsible назначает ответственного за заявку

@@ -20,6 +20,8 @@ type Repository interface {
 	ListRequests(ctx context.Context, limit, offset int32) ([]domain.Request, error)
 	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
 	ListResponsibles(ctx context.Context) ([]domain.Responsible, error)
+	GetResponsible(ctx context.Context, id uuid.UUID) (domain.Responsible, error)
+	DeleteResponsible(ctx context.Context, id uuid.UUID) error
 	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
 	// RawRequests
 	CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error)
@@ -156,6 +158,20 @@ func (s *Service) ListResponsibles(ctx context.Context) ([]domain.Responsible, e
 // SaveResponsible сохраняет или обновляет ответственного
 func (s *Service) SaveResponsible(ctx context.Context, id uuid.UUID, username string) error {
 	return s.repository.SaveResponsible(ctx, id, username)
+}
+
+// GetResponsible возвращает ответственного по ID
+func (s *Service) GetResponsible(ctx context.Context, id uuid.UUID) (domain.Responsible, error) {
+	resp, err := s.repository.GetResponsible(ctx, id)
+	if err != nil {
+		return domain.Responsible{}, fmt.Errorf("get responsible: %w", err)
+	}
+	return resp, nil
+}
+
+// DeleteResponsible удаляет ответственного по ID
+func (s *Service) DeleteResponsible(ctx context.Context, id uuid.UUID) error {
+	return s.repository.DeleteResponsible(ctx, id)
 }
 
 // CreateRawRequest сохраняет сырой запрос от Telegram-бота

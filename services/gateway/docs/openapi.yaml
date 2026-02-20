@@ -206,6 +206,40 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      security:
+        - bearerAuth: []
+      tags: [porters]
+      summary: Update porter by ID
+      description: Updates the username and email of an existing porter. Requires admin role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PorterUpdateRequest'
+      responses:
+        '200':
+          description: Porter updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PorterResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      security:
+        - bearerAuth: []
+      tags: [porters]
+      summary: Delete porter by ID
+      description: Removes a porter from the system. Requires admin role.
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /api/v1/equipment/categories:
     get:
       security:
@@ -534,6 +568,42 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '500': { $ref: '#/components/responses/InternalError' }
+  /api/v1/responsibles/{responsibleId}:
+    parameters:
+      - name: responsibleId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      security:
+        - bearerAuth: []
+      tags: [responsibles]
+      summary: Get responsible person by ID
+      responses:
+        '200':
+          description: Responsible person found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsibleResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      security:
+        - bearerAuth: []
+      tags: [responsibles]
+      summary: Delete responsible person by ID
+      description: Removes a responsible person from the system. Requires admin role.
+      responses:
+        '204': { description: Deleted }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /api/v1/raw-requests:
     get:
       security:
@@ -781,6 +851,19 @@ components:
           type: string
           minLength: 6
           example: securePassword123
+    PorterUpdateRequest:
+      type: object
+      required: [username, email]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          example: porter1_updated
+        email:
+          type: string
+          format: email
+          example: porter1_updated@example.com
     EquipmentCategoryResponse:
       type: object
       properties:

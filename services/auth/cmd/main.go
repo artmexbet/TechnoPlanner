@@ -16,6 +16,7 @@ import (
 	"github.com/artmexbet/TechnoPlanner/libs/proto"
 
 	natsPublisher "github.com/artmexbet/TechnoPlanner/services/auth/internal/nats-publisher"
+	natsSubscriber "github.com/artmexbet/TechnoPlanner/services/auth/internal/nats-subscriber"
 	"github.com/artmexbet/TechnoPlanner/services/auth/internal/postgres"
 	"github.com/artmexbet/TechnoPlanner/services/auth/internal/repository"
 	"github.com/artmexbet/TechnoPlanner/services/auth/internal/server"
@@ -87,6 +88,15 @@ func main() {
 	repo, err := repository.New(cfg.Repository, redisClient, pg, publisher)
 	if err != nil {
 		panic(err)
+	}
+
+	// Запускаем NATS subscriber для обработки запросов от gateway
+	natsSub, err := natsSubscriber.NewSubscriber(cfg.Publisher, repo)
+	if err != nil {
+		slog.Warn("failed to start nats subscriber", "error", err)
+	} else {
+		natsSub.HandleMsgs()
+		defer natsSub.Close()
 	}
 
 	gen := service.NewTokenizer(cfg.Repository.AccessTokenTTL, cfg.Repository.RefreshTokenTTL, cfg.JWTSecret)

@@ -39,6 +39,8 @@ type PorterService interface {
 	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
 	GetCurrentUser(ctx context.Context, id uuid.UUID) (domain.User, error)
 	Create(ctx context.Context, username, email, password string) (string, error)
+	Update(ctx context.Context, id uuid.UUID, username, email string) (domain.User, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type EquipmentService interface {
@@ -71,6 +73,8 @@ type HistoryService interface {
 type ResponsibleService interface {
 	List(ctx context.Context) ([]domain.Responsible, error)
 	Create(ctx context.Context, id uuid.UUID, username string) (domain.Responsible, error)
+	Get(ctx context.Context, id uuid.UUID) (domain.Responsible, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type RawRequestService interface {

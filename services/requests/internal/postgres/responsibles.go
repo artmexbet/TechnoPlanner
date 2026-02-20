@@ -45,3 +45,20 @@ func (p *Postgres) ListResponsibles(ctx context.Context) ([]domain.Responsible, 
 	}
 	return res, nil
 }
+
+// GetResponsible возвращает ответственного по ID
+func (p *Postgres) GetResponsible(ctx context.Context, id uuid.UUID) (domain.Responsible, error) {
+	r, err := p.q.GetResponsibleByID(ctx, id)
+	if err != nil {
+		return domain.Responsible{}, fmt.Errorf("get responsible: %w", err)
+	}
+	return domain.Responsible{
+		ID:       r.ID,
+		Username: r.Username,
+	}, nil
+}
+
+// DeleteResponsible удаляет ответственного по ID
+func (p *Postgres) DeleteResponsible(ctx context.Context, id uuid.UUID) error {
+	return p.q.DeleteResponsible(ctx, id)
+}

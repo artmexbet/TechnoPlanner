@@ -28,6 +28,8 @@ type RequestService interface {
 	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
 	ListResponsibles(ctx context.Context) ([]domain.Responsible, error)
 	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
+	GetResponsible(ctx context.Context, id uuid.UUID) (domain.Responsible, error)
+	DeleteResponsible(ctx context.Context, id uuid.UUID) error
 	// Raw request methods
 	CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error)
 	ListRawRequests(ctx context.Context, status string, limit, offset int32) ([]domain.RawRequest, error)
@@ -96,6 +98,8 @@ func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 		// Responsible handlers
 		subjects.GatewayResponsibleList:   w.handleGatewayListResponsibles,
 		subjects.GatewayResponsibleCreate: w.handleGatewayCreateResponsible,
+		subjects.GatewayResponsibleGet:    w.handleGatewayGetResponsible,
+		subjects.GatewayResponsibleDelete: w.handleGatewayDeleteResponsible,
 		// Event handlers
 		subjects.UserCreated: w.handleUserCreated,
 		// Raw request handlers (для gateway)

@@ -12,6 +12,8 @@ import (
 type PorterStorage interface {
 	List(ctx context.Context, roleID int32) ([]domain.User, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
+	Update(ctx context.Context, id uuid.UUID, username, email string) (domain.User, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type AuthServiceConnector interface {
@@ -79,4 +81,38 @@ func (s *PorterService) Create(ctx context.Context, username, email, password st
 		return "", err
 	}
 	return userID, nil
+}
+
+func (s *PorterService) Update(ctx context.Context, id uuid.UUID, username, email string) (domain.User, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return domain.User{}, err
+	}
+	if s.storage == nil {
+		return domain.User{}, errors.New("porter storage not implemented")
+	}
+	user, err := s.storage.Get(ctx, id)
+	if err != nil {
+		return domain.User{}, err
+	}
+	if user.RoleID != porterRoleID {
+		return domain.User{}, domain.ErrNotFound
+	}
+	return s.storage.Update(ctx, id, username, email)
+}
+
+func (s *PorterService) Delete(ctx context.Context, id uuid.UUID) error {
+	if err := requireAdmin(ctx); err != nil {
+		return err
+	}
+	if s.storage == nil {
+		return errors.New("porter storage not implemented")
+	}
+	user, err := s.storage.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+	if user.RoleID != porterRoleID {
+		return domain.ErrNotFound
+	}
+	return s.storage.Delete(ctx, id)
 }

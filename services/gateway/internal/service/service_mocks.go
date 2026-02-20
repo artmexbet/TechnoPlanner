@@ -7,6 +7,7 @@ package service
 import (
 	"context"
 
+	"github.com/artmexbet/TechnoPlanner/libs/dto"
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
@@ -661,6 +662,63 @@ func (_m *MockPorterStorage) EXPECT() *MockPorterStorage_Expecter {
 	return &MockPorterStorage_Expecter{mock: &_m.Mock}
 }
 
+// Delete provides a mock function for the type MockPorterStorage
+func (_mock *MockPorterStorage) Delete(ctx context.Context, id uuid.UUID) error {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockPorterStorage_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type MockPorterStorage_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+func (_e *MockPorterStorage_Expecter) Delete(ctx interface{}, id interface{}) *MockPorterStorage_Delete_Call {
+	return &MockPorterStorage_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
+}
+
+func (_c *MockPorterStorage_Delete_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockPorterStorage_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPorterStorage_Delete_Call) Return(err error) *MockPorterStorage_Delete_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockPorterStorage_Delete_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) error) *MockPorterStorage_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function for the type MockPorterStorage
 func (_mock *MockPorterStorage) Get(ctx context.Context, id uuid.UUID) (domain.User, error) {
 	ret := _mock.Called(ctx, id)
@@ -795,6 +853,84 @@ func (_c *MockPorterStorage_List_Call) RunAndReturn(run func(ctx context.Context
 	return _c
 }
 
+// Update provides a mock function for the type MockPorterStorage
+func (_mock *MockPorterStorage) Update(ctx context.Context, id uuid.UUID, username string, email string) (domain.User, error) {
+	ret := _mock.Called(ctx, id, username, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
+
+	var r0 domain.User
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, string, string) (domain.User, error)); ok {
+		return returnFunc(ctx, id, username, email)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, string, string) domain.User); ok {
+		r0 = returnFunc(ctx, id, username, email)
+	} else {
+		r0 = ret.Get(0).(domain.User)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, string, string) error); ok {
+		r1 = returnFunc(ctx, id, username, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockPorterStorage_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
+type MockPorterStorage_Update_Call struct {
+	*mock.Call
+}
+
+// Update is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+//   - username string
+//   - email string
+func (_e *MockPorterStorage_Expecter) Update(ctx interface{}, id interface{}, username interface{}, email interface{}) *MockPorterStorage_Update_Call {
+	return &MockPorterStorage_Update_Call{Call: _e.mock.On("Update", ctx, id, username, email)}
+}
+
+func (_c *MockPorterStorage_Update_Call) Run(run func(ctx context.Context, id uuid.UUID, username string, email string)) *MockPorterStorage_Update_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 string
+		if args[3] != nil {
+			arg3 = args[3].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPorterStorage_Update_Call) Return(user domain.User, err error) *MockPorterStorage_Update_Call {
+	_c.Call.Return(user, err)
+	return _c
+}
+
+func (_c *MockPorterStorage_Update_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID, username string, email string) (domain.User, error)) *MockPorterStorage_Update_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockAuthServiceConnector creates a new instance of MockAuthServiceConnector. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockAuthServiceConnector(t interface {
@@ -896,6 +1032,251 @@ func (_c *MockAuthServiceConnector_RegisterPorter_Call) Return(s string, err err
 }
 
 func (_c *MockAuthServiceConnector_RegisterPorter_Call) RunAndReturn(run func(ctx context.Context, username string, password string, email string) (string, error)) *MockAuthServiceConnector_RegisterPorter_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// NewMockRawRequestStorage creates a new instance of MockRawRequestStorage. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMockRawRequestStorage(t interface {
+	mock.TestingT
+	Cleanup(func())
+}) *MockRawRequestStorage {
+	mock := &MockRawRequestStorage{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
+}
+
+// MockRawRequestStorage is an autogenerated mock type for the RawRequestStorage type
+type MockRawRequestStorage struct {
+	mock.Mock
+}
+
+type MockRawRequestStorage_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *MockRawRequestStorage) EXPECT() *MockRawRequestStorage_Expecter {
+	return &MockRawRequestStorage_Expecter{mock: &_m.Mock}
+}
+
+// GetRawRequest provides a mock function for the type MockRawRequestStorage
+func (_mock *MockRawRequestStorage) GetRawRequest(ctx context.Context, id uuid.UUID) (domain.RawRequest, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetRawRequest")
+	}
+
+	var r0 domain.RawRequest
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (domain.RawRequest, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) domain.RawRequest); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Get(0).(domain.RawRequest)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRawRequestStorage_GetRawRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRawRequest'
+type MockRawRequestStorage_GetRawRequest_Call struct {
+	*mock.Call
+}
+
+// GetRawRequest is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+func (_e *MockRawRequestStorage_Expecter) GetRawRequest(ctx interface{}, id interface{}) *MockRawRequestStorage_GetRawRequest_Call {
+	return &MockRawRequestStorage_GetRawRequest_Call{Call: _e.mock.On("GetRawRequest", ctx, id)}
+}
+
+func (_c *MockRawRequestStorage_GetRawRequest_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockRawRequestStorage_GetRawRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRawRequestStorage_GetRawRequest_Call) Return(rawRequest domain.RawRequest, err error) *MockRawRequestStorage_GetRawRequest_Call {
+	_c.Call.Return(rawRequest, err)
+	return _c
+}
+
+func (_c *MockRawRequestStorage_GetRawRequest_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (domain.RawRequest, error)) *MockRawRequestStorage_GetRawRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListRawRequests provides a mock function for the type MockRawRequestStorage
+func (_mock *MockRawRequestStorage) ListRawRequests(ctx context.Context, status string, limit int32, offset int32) ([]domain.RawRequest, error) {
+	ret := _mock.Called(ctx, status, limit, offset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListRawRequests")
+	}
+
+	var r0 []domain.RawRequest
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, int32, int32) ([]domain.RawRequest, error)); ok {
+		return returnFunc(ctx, status, limit, offset)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, int32, int32) []domain.RawRequest); ok {
+		r0 = returnFunc(ctx, status, limit, offset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.RawRequest)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, int32, int32) error); ok {
+		r1 = returnFunc(ctx, status, limit, offset)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRawRequestStorage_ListRawRequests_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListRawRequests'
+type MockRawRequestStorage_ListRawRequests_Call struct {
+	*mock.Call
+}
+
+// ListRawRequests is a helper method to define mock.On call
+//   - ctx context.Context
+//   - status string
+//   - limit int32
+//   - offset int32
+func (_e *MockRawRequestStorage_Expecter) ListRawRequests(ctx interface{}, status interface{}, limit interface{}, offset interface{}) *MockRawRequestStorage_ListRawRequests_Call {
+	return &MockRawRequestStorage_ListRawRequests_Call{Call: _e.mock.On("ListRawRequests", ctx, status, limit, offset)}
+}
+
+func (_c *MockRawRequestStorage_ListRawRequests_Call) Run(run func(ctx context.Context, status string, limit int32, offset int32)) *MockRawRequestStorage_ListRawRequests_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 int32
+		if args[2] != nil {
+			arg2 = args[2].(int32)
+		}
+		var arg3 int32
+		if args[3] != nil {
+			arg3 = args[3].(int32)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRawRequestStorage_ListRawRequests_Call) Return(rawRequests []domain.RawRequest, err error) *MockRawRequestStorage_ListRawRequests_Call {
+	_c.Call.Return(rawRequests, err)
+	return _c
+}
+
+func (_c *MockRawRequestStorage_ListRawRequests_Call) RunAndReturn(run func(ctx context.Context, status string, limit int32, offset int32) ([]domain.RawRequest, error)) *MockRawRequestStorage_ListRawRequests_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ProcessRawRequest provides a mock function for the type MockRawRequestStorage
+func (_mock *MockRawRequestStorage) ProcessRawRequest(ctx context.Context, req dto.RawRequestProcessRequest) (domain.Request, domain.RawRequest, error) {
+	ret := _mock.Called(ctx, req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ProcessRawRequest")
+	}
+
+	var r0 domain.Request
+	var r1 domain.RawRequest
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, dto.RawRequestProcessRequest) (domain.Request, domain.RawRequest, error)); ok {
+		return returnFunc(ctx, req)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, dto.RawRequestProcessRequest) domain.Request); ok {
+		r0 = returnFunc(ctx, req)
+	} else {
+		r0 = ret.Get(0).(domain.Request)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, dto.RawRequestProcessRequest) domain.RawRequest); ok {
+		r1 = returnFunc(ctx, req)
+	} else {
+		r1 = ret.Get(1).(domain.RawRequest)
+	}
+	if returnFunc, ok := ret.Get(2).(func(context.Context, dto.RawRequestProcessRequest) error); ok {
+		r2 = returnFunc(ctx, req)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
+}
+
+// MockRawRequestStorage_ProcessRawRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ProcessRawRequest'
+type MockRawRequestStorage_ProcessRawRequest_Call struct {
+	*mock.Call
+}
+
+// ProcessRawRequest is a helper method to define mock.On call
+//   - ctx context.Context
+//   - req dto.RawRequestProcessRequest
+func (_e *MockRawRequestStorage_Expecter) ProcessRawRequest(ctx interface{}, req interface{}) *MockRawRequestStorage_ProcessRawRequest_Call {
+	return &MockRawRequestStorage_ProcessRawRequest_Call{Call: _e.mock.On("ProcessRawRequest", ctx, req)}
+}
+
+func (_c *MockRawRequestStorage_ProcessRawRequest_Call) Run(run func(ctx context.Context, req dto.RawRequestProcessRequest)) *MockRawRequestStorage_ProcessRawRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 dto.RawRequestProcessRequest
+		if args[1] != nil {
+			arg1 = args[1].(dto.RawRequestProcessRequest)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRawRequestStorage_ProcessRawRequest_Call) Return(request domain.Request, rawRequest domain.RawRequest, err error) *MockRawRequestStorage_ProcessRawRequest_Call {
+	_c.Call.Return(request, rawRequest, err)
+	return _c
+}
+
+func (_c *MockRawRequestStorage_ProcessRawRequest_Call) RunAndReturn(run func(ctx context.Context, req dto.RawRequestProcessRequest) (domain.Request, domain.RawRequest, error)) *MockRawRequestStorage_ProcessRawRequest_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1467,6 +1848,129 @@ func (_c *MockResponsibleStorage_Create_Call) Return(responsible domain.Responsi
 }
 
 func (_c *MockResponsibleStorage_Create_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID, username string) (domain.Responsible, error)) *MockResponsibleStorage_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Delete provides a mock function for the type MockResponsibleStorage
+func (_mock *MockResponsibleStorage) Delete(ctx context.Context, id uuid.UUID) error {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockResponsibleStorage_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type MockResponsibleStorage_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+func (_e *MockResponsibleStorage_Expecter) Delete(ctx interface{}, id interface{}) *MockResponsibleStorage_Delete_Call {
+	return &MockResponsibleStorage_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
+}
+
+func (_c *MockResponsibleStorage_Delete_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockResponsibleStorage_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockResponsibleStorage_Delete_Call) Return(err error) *MockResponsibleStorage_Delete_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockResponsibleStorage_Delete_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) error) *MockResponsibleStorage_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Get provides a mock function for the type MockResponsibleStorage
+func (_mock *MockResponsibleStorage) Get(ctx context.Context, id uuid.UUID) (domain.Responsible, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Get")
+	}
+
+	var r0 domain.Responsible
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (domain.Responsible, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) domain.Responsible); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Get(0).(domain.Responsible)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockResponsibleStorage_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type MockResponsibleStorage_Get_Call struct {
+	*mock.Call
+}
+
+// Get is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+func (_e *MockResponsibleStorage_Expecter) Get(ctx interface{}, id interface{}) *MockResponsibleStorage_Get_Call {
+	return &MockResponsibleStorage_Get_Call{Call: _e.mock.On("Get", ctx, id)}
+}
+
+func (_c *MockResponsibleStorage_Get_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockResponsibleStorage_Get_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockResponsibleStorage_Get_Call) Return(responsible domain.Responsible, err error) *MockResponsibleStorage_Get_Call {
+	_c.Call.Return(responsible, err)
+	return _c
+}
+
+func (_c *MockResponsibleStorage_Get_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (domain.Responsible, error)) *MockResponsibleStorage_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }

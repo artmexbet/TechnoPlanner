@@ -13,6 +13,8 @@ func (r *Router) InitResponsibleRoutes() *Router {
 	group.Use(middlwares.CheckJWTMiddleware(r.authSvc))
 	group.Get("/", r.listResponsibles())
 	group.Post("/", r.createResponsible())
+	group.Get(":id", r.getResponsible())
+	group.Delete(":id", r.deleteResponsible())
 	return r
 }
 
@@ -31,6 +33,24 @@ func (r *Router) listResponsibles() fiber.Handler {
 			})
 		}
 		return c.Status(fiber.StatusOK).JSON(resp)
+	}
+}
+
+func (r *Router) getResponsible() fiber.Handler {
+	return func(c fiber.Ctx) error {
+		id, err := uuid.Parse(c.Params("id"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid responsible id"})
+		}
+		ctx := r.userContext(c)
+		responsible, err := r.responsibleSvc.Get(ctx, id)
+		if err != nil {
+			return handleServiceError(c, err)
+		}
+		return c.Status(fiber.StatusOK).JSON(models.ResponsibleResponse{
+			ID:       responsible.ID.String(),
+			Username: responsible.Username,
+		})
 	}
 }
 
@@ -57,5 +77,19 @@ func (r *Router) createResponsible() fiber.Handler {
 			Username: responsible.Username,
 		}
 		return c.Status(fiber.StatusCreated).JSON(resp)
+	}
+}
+
+func (r *Router) deleteResponsible() fiber.Handler {
+	return func(c fiber.Ctx) error {
+		id, err := uuid.Parse(c.Params("id"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid responsible id"})
+		}
+		ctx := r.userContext(c)
+		if err := r.responsibleSvc.Delete(ctx, id); err != nil {
+			return handleServiceError(c, err)
+		}
+		return c.SendStatus(fiber.StatusNoContent)
 	}
 }

@@ -19,3 +19,7 @@ WHERE username = $1;
 SELECT *
 FROM responsibles
 ORDER BY username;
+
+-- name: DeleteResponsible :exec
+DELETE FROM responsibles
+WHERE id = $1;

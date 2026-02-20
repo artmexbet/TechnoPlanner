@@ -100,3 +100,70 @@ func (c *ResponsibleClient) Create(ctx context.Context, id uuid.UUID, username s
 		Username: result.Username,
 	}, nil
 }
+
+// Get получает ответственного по ID
+func (c *ResponsibleClient) Get(ctx context.Context, id uuid.UUID) (domain.Responsible, error) {
+	req := dto.UUIDRequest{ID: id}
+	data, err := req.MarshalJSON()
+	if err != nil {
+		return domain.Responsible{}, fmt.Errorf("marshal request: %w", err)
+	}
+
+	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayResponsibleGet, data)
+	if err != nil {
+		if errors.Is(err, nats.ErrNoResponders) {
+			return domain.Responsible{}, domain.ErrNotFound
+		}
+		return domain.Responsible{}, fmt.Errorf("nats request: %w", err)
+	}
+
+	var resp dto.GatewayResponse
+	if err := json.Unmarshal(msg.Data, &resp); err != nil {
+		return domain.Responsible{}, fmt.Errorf("unmarshal response: %w", err)
+	}
+
+	if !resp.Success {
+		if resp.Message == "not found" {
+			return domain.Responsible{}, domain.ErrNotFound
+		}
+		return domain.Responsible{}, fmt.Errorf("service error: %s", resp.Message)
+	}
+
+	var result dto.Responsible
+	if err := json.Unmarshal(resp.Data, &result); err != nil {
+		return domain.Responsible{}, fmt.Errorf("unmarshal responsible: %w", err)
+	}
+
+	return domain.Responsible{
+		ID:       result.ID,
+		Username: result.Username,
+	}, nil
+}
+
+// Delete удаляет ответственного по ID
+func (c *ResponsibleClient) Delete(ctx context.Context, id uuid.UUID) error {
+	req := dto.UUIDRequest{ID: id}
+	data, err := req.MarshalJSON()
+	if err != nil {
+		return fmt.Errorf("marshal request: %w", err)
+	}
+
+	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayResponsibleDelete, data)
+	if err != nil {
+		if errors.Is(err, nats.ErrNoResponders) {
+			return domain.ErrNotFound
+		}
+		return fmt.Errorf("nats request: %w", err)
+	}
+
+	var resp dto.GatewayResponse
+	if err := json.Unmarshal(msg.Data, &resp); err != nil {
+		return fmt.Errorf("unmarshal response: %w", err)
+	}
+
+	if !resp.Success {
+		return fmt.Errorf("service error: %s", resp.Message)
+	}
+
+	return nil
+}

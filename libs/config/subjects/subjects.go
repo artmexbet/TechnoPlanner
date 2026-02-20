@@ -32,20 +32,18 @@ const (
 	GatewayResponsibleList = "gateway.responsibles.list"
 	// GatewayResponsibleCreate - создание ответственного
 	GatewayResponsibleCreate = "gateway.responsibles.create"
-
-	// Category subjects (старое API)
-
-	GatewayCategoryList   = "gateway.category.list"
-	GatewayCategoryGet    = "gateway.category.get"
-	GatewayCategoryCreate = "gateway.category.create"
-	GatewayCategoryUpdate = "gateway.category.update"
-	GatewayCategoryDelete = "gateway.category.delete"
+	// GatewayResponsibleGet - получение ответственного по ID
+	GatewayResponsibleGet = "gateway.responsibles.get"
+	// GatewayResponsibleDelete - удаление ответственного
+	GatewayResponsibleDelete = "gateway.responsibles.delete"
 
 	// User subjects
 
 	GatewayUserList   = "gateway.user.list"
 	GatewayUserGet    = "gateway.user.get"
 	GatewayUserCreate = "gateway.user.create"
+	GatewayUserUpdate = "gateway.user.update"
+	GatewayUserDelete = "gateway.user.delete"
 
 	// History subjects
 

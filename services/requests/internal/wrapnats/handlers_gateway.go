@@ -134,3 +134,41 @@ func (w *NatsWrapper) handleGatewayCreateResponsible(msg *broker.Msg) error {
 		Username: req.Username,
 	})
 }
+
+func (w *NatsWrapper) handleGatewayGetResponsible(msg *broker.Msg) error {
+	ctx := msg.Context()
+
+	var req dto.UUIDRequest
+	if err := json.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling get responsible request", "error", err)
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
+	}
+
+	responsible, err := w.reqService.GetResponsible(ctx, req.ID)
+	if err != nil {
+		slog.ErrorContext(ctx, "error getting responsible", "error", err)
+		return respondError(msg.Msg, "not found", "responsible not found", statusNotFound)
+	}
+
+	return respondSuccess(msg.Msg, "success", dto.Responsible{
+		ID:       responsible.ID,
+		Username: responsible.Username,
+	})
+}
+
+func (w *NatsWrapper) handleGatewayDeleteResponsible(msg *broker.Msg) error {
+	ctx := msg.Context()
+
+	var req dto.UUIDRequest
+	if err := json.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling delete responsible request", "error", err)
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
+	}
+
+	if err := w.reqService.DeleteResponsible(ctx, req.ID); err != nil {
+		slog.ErrorContext(ctx, "error deleting responsible", "error", err)
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
+	}
+
+	return respondSuccess(msg.Msg, "success", nil)
+}

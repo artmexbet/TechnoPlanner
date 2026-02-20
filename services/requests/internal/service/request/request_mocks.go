@@ -102,6 +102,74 @@ func (_c *MockRepository_AssignResponsible_Call) RunAndReturn(run func(ctx conte
 	return _c
 }
 
+// CreateRawRequest provides a mock function for the type MockRepository
+func (_mock *MockRepository) CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error) {
+	ret := _mock.Called(ctx, req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateRawRequest")
+	}
+
+	var r0 *domain.RawRequest
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.RawRequest) (*domain.RawRequest, error)); ok {
+		return returnFunc(ctx, req)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.RawRequest) *domain.RawRequest); ok {
+		r0 = returnFunc(ctx, req)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.RawRequest)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.RawRequest) error); ok {
+		r1 = returnFunc(ctx, req)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_CreateRawRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateRawRequest'
+type MockRepository_CreateRawRequest_Call struct {
+	*mock.Call
+}
+
+// CreateRawRequest is a helper method to define mock.On call
+//   - ctx context.Context
+//   - req domain.RawRequest
+func (_e *MockRepository_Expecter) CreateRawRequest(ctx interface{}, req interface{}) *MockRepository_CreateRawRequest_Call {
+	return &MockRepository_CreateRawRequest_Call{Call: _e.mock.On("CreateRawRequest", ctx, req)}
+}
+
+func (_c *MockRepository_CreateRawRequest_Call) Run(run func(ctx context.Context, req domain.RawRequest)) *MockRepository_CreateRawRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.RawRequest
+		if args[1] != nil {
+			arg1 = args[1].(domain.RawRequest)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_CreateRawRequest_Call) Return(rawRequest *domain.RawRequest, err error) *MockRepository_CreateRawRequest_Call {
+	_c.Call.Return(rawRequest, err)
+	return _c
+}
+
+func (_c *MockRepository_CreateRawRequest_Call) RunAndReturn(run func(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error)) *MockRepository_CreateRawRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateRequest provides a mock function for the type MockRepository
 func (_mock *MockRepository) CreateRequest(ctx context.Context, req domain.Request) (*domain.Request, error) {
 	ret := _mock.Called(ctx, req)
@@ -166,6 +234,211 @@ func (_c *MockRepository_CreateRequest_Call) Return(request *domain.Request, err
 }
 
 func (_c *MockRepository_CreateRequest_Call) RunAndReturn(run func(ctx context.Context, req domain.Request) (*domain.Request, error)) *MockRepository_CreateRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteResponsible provides a mock function for the type MockRepository
+func (_mock *MockRepository) DeleteResponsible(ctx context.Context, id uuid.UUID) error {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteResponsible")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockRepository_DeleteResponsible_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteResponsible'
+type MockRepository_DeleteResponsible_Call struct {
+	*mock.Call
+}
+
+// DeleteResponsible is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+func (_e *MockRepository_Expecter) DeleteResponsible(ctx interface{}, id interface{}) *MockRepository_DeleteResponsible_Call {
+	return &MockRepository_DeleteResponsible_Call{Call: _e.mock.On("DeleteResponsible", ctx, id)}
+}
+
+func (_c *MockRepository_DeleteResponsible_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockRepository_DeleteResponsible_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_DeleteResponsible_Call) Return(err error) *MockRepository_DeleteResponsible_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockRepository_DeleteResponsible_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) error) *MockRepository_DeleteResponsible_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetRawRequestByID provides a mock function for the type MockRepository
+func (_mock *MockRepository) GetRawRequestByID(ctx context.Context, id uuid.UUID) (*domain.RawRequest, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetRawRequestByID")
+	}
+
+	var r0 *domain.RawRequest
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*domain.RawRequest, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *domain.RawRequest); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.RawRequest)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_GetRawRequestByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRawRequestByID'
+type MockRepository_GetRawRequestByID_Call struct {
+	*mock.Call
+}
+
+// GetRawRequestByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+func (_e *MockRepository_Expecter) GetRawRequestByID(ctx interface{}, id interface{}) *MockRepository_GetRawRequestByID_Call {
+	return &MockRepository_GetRawRequestByID_Call{Call: _e.mock.On("GetRawRequestByID", ctx, id)}
+}
+
+func (_c *MockRepository_GetRawRequestByID_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockRepository_GetRawRequestByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_GetRawRequestByID_Call) Return(rawRequest *domain.RawRequest, err error) *MockRepository_GetRawRequestByID_Call {
+	_c.Call.Return(rawRequest, err)
+	return _c
+}
+
+func (_c *MockRepository_GetRawRequestByID_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (*domain.RawRequest, error)) *MockRepository_GetRawRequestByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetRawRequests provides a mock function for the type MockRepository
+func (_mock *MockRepository) GetRawRequests(ctx context.Context, status string, limit int32, offset int32) ([]domain.RawRequest, error) {
+	ret := _mock.Called(ctx, status, limit, offset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetRawRequests")
+	}
+
+	var r0 []domain.RawRequest
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, int32, int32) ([]domain.RawRequest, error)); ok {
+		return returnFunc(ctx, status, limit, offset)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, int32, int32) []domain.RawRequest); ok {
+		r0 = returnFunc(ctx, status, limit, offset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.RawRequest)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, int32, int32) error); ok {
+		r1 = returnFunc(ctx, status, limit, offset)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_GetRawRequests_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRawRequests'
+type MockRepository_GetRawRequests_Call struct {
+	*mock.Call
+}
+
+// GetRawRequests is a helper method to define mock.On call
+//   - ctx context.Context
+//   - status string
+//   - limit int32
+//   - offset int32
+func (_e *MockRepository_Expecter) GetRawRequests(ctx interface{}, status interface{}, limit interface{}, offset interface{}) *MockRepository_GetRawRequests_Call {
+	return &MockRepository_GetRawRequests_Call{Call: _e.mock.On("GetRawRequests", ctx, status, limit, offset)}
+}
+
+func (_c *MockRepository_GetRawRequests_Call) Run(run func(ctx context.Context, status string, limit int32, offset int32)) *MockRepository_GetRawRequests_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 int32
+		if args[2] != nil {
+			arg2 = args[2].(int32)
+		}
+		var arg3 int32
+		if args[3] != nil {
+			arg3 = args[3].(int32)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_GetRawRequests_Call) Return(rawRequests []domain.RawRequest, err error) *MockRepository_GetRawRequests_Call {
+	_c.Call.Return(rawRequests, err)
+	return _c
+}
+
+func (_c *MockRepository_GetRawRequests_Call) RunAndReturn(run func(ctx context.Context, status string, limit int32, offset int32) ([]domain.RawRequest, error)) *MockRepository_GetRawRequests_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -386,6 +659,72 @@ func (_c *MockRepository_GetRequestsByUserID_Call) RunAndReturn(run func(ctx con
 	return _c
 }
 
+// GetResponsible provides a mock function for the type MockRepository
+func (_mock *MockRepository) GetResponsible(ctx context.Context, id uuid.UUID) (domain.Responsible, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetResponsible")
+	}
+
+	var r0 domain.Responsible
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (domain.Responsible, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) domain.Responsible); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Get(0).(domain.Responsible)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_GetResponsible_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetResponsible'
+type MockRepository_GetResponsible_Call struct {
+	*mock.Call
+}
+
+// GetResponsible is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+func (_e *MockRepository_Expecter) GetResponsible(ctx interface{}, id interface{}) *MockRepository_GetResponsible_Call {
+	return &MockRepository_GetResponsible_Call{Call: _e.mock.On("GetResponsible", ctx, id)}
+}
+
+func (_c *MockRepository_GetResponsible_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockRepository_GetResponsible_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_GetResponsible_Call) Return(responsible domain.Responsible, err error) *MockRepository_GetResponsible_Call {
+	_c.Call.Return(responsible, err)
+	return _c
+}
+
+func (_c *MockRepository_GetResponsible_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (domain.Responsible, error)) *MockRepository_GetResponsible_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListRequests provides a mock function for the type MockRepository
 func (_mock *MockRepository) ListRequests(ctx context.Context, limit int32, offset int32) ([]domain.Request, error) {
 	ret := _mock.Called(ctx, limit, offset)
@@ -518,6 +857,80 @@ func (_c *MockRepository_ListResponsibles_Call) Return(responsibles []domain.Res
 }
 
 func (_c *MockRepository_ListResponsibles_Call) RunAndReturn(run func(ctx context.Context) ([]domain.Responsible, error)) *MockRepository_ListResponsibles_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// MarkRawRequestProcessed provides a mock function for the type MockRepository
+func (_mock *MockRepository) MarkRawRequestProcessed(ctx context.Context, id uuid.UUID, requestID uuid.UUID) (*domain.RawRequest, error) {
+	ret := _mock.Called(ctx, id, requestID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkRawRequestProcessed")
+	}
+
+	var r0 *domain.RawRequest
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (*domain.RawRequest, error)); ok {
+		return returnFunc(ctx, id, requestID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) *domain.RawRequest); ok {
+		r0 = returnFunc(ctx, id, requestID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.RawRequest)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, id, requestID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_MarkRawRequestProcessed_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MarkRawRequestProcessed'
+type MockRepository_MarkRawRequestProcessed_Call struct {
+	*mock.Call
+}
+
+// MarkRawRequestProcessed is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+//   - requestID uuid.UUID
+func (_e *MockRepository_Expecter) MarkRawRequestProcessed(ctx interface{}, id interface{}, requestID interface{}) *MockRepository_MarkRawRequestProcessed_Call {
+	return &MockRepository_MarkRawRequestProcessed_Call{Call: _e.mock.On("MarkRawRequestProcessed", ctx, id, requestID)}
+}
+
+func (_c *MockRepository_MarkRawRequestProcessed_Call) Run(run func(ctx context.Context, id uuid.UUID, requestID uuid.UUID)) *MockRepository_MarkRawRequestProcessed_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_MarkRawRequestProcessed_Call) Return(rawRequest *domain.RawRequest, err error) *MockRepository_MarkRawRequestProcessed_Call {
+	_c.Call.Return(rawRequest, err)
+	return _c
+}
+
+func (_c *MockRepository_MarkRawRequestProcessed_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID, requestID uuid.UUID) (*domain.RawRequest, error)) *MockRepository_MarkRawRequestProcessed_Call {
 	_c.Call.Return(run)
 	return _c
 }

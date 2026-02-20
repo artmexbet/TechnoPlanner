@@ -17,6 +17,8 @@ func (r *Router) InitPorterRoutes() *Router {
 	group.Get("/", r.listPorters())
 	group.Post("/", r.createPorter())
 	group.Get(":id", r.getPorter())
+	group.Put(":id", r.updatePorter())
+	group.Delete(":id", r.deletePorter())
 	return r
 }
 
@@ -65,6 +67,42 @@ func (r *Router) createPorter() fiber.Handler {
 			return handleServiceError(c, err)
 		}
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"id": userID})
+	}
+}
+
+func (r *Router) updatePorter() fiber.Handler {
+	return func(c fiber.Ctx) error {
+		id, err := uuid.Parse(c.Params("id"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid porter id"})
+		}
+		var req models.PorterUpdateRequest
+		if err := c.Bind().Body(&req); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid body", Details: err.Error()})
+		}
+		if err := r.validator.Struct(req); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
+		}
+		ctx := r.userContext(c)
+		user, err := r.porterSvc.Update(ctx, id, req.Username, req.Email)
+		if err != nil {
+			return handleServiceError(c, err)
+		}
+		return c.Status(fiber.StatusOK).JSON(toPorterResponse(user))
+	}
+}
+
+func (r *Router) deletePorter() fiber.Handler {
+	return func(c fiber.Ctx) error {
+		id, err := uuid.Parse(c.Params("id"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid porter id"})
+		}
+		ctx := r.userContext(c)
+		if err := r.porterSvc.Delete(ctx, id); err != nil {
+			return handleServiceError(c, err)
+		}
+		return c.SendStatus(fiber.StatusNoContent)
 	}
 }
 
