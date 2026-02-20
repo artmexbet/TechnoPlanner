@@ -2,17 +2,17 @@ package categoryservice
 
 import (
 	"context"
-	"tech/internal/domain"
 
-	"github.com/google/uuid"
+	"tech/internal/domain"
 )
 
 type IRepository interface {
-	GetTechnicByCategory(ctx context.Context, categoryID uuid.UUID) ([]domain.Technic, error)
-	AddCategory(ctx context.Context, categoryName string) (*domain.TechnicCategory, error)
-	UpdateCategoryName(ctx context.Context, category domain.TechnicCategory) (*domain.TechnicCategory, error)
-	DeleteCategory(ctx context.Context, categoryID uuid.UUID) error
-	GetAllCategories(ctx context.Context) ([]domain.TechnicCategory, error)
+	AddCategory(ctx context.Context, categoryName string, description string) (*domain.EquipmentCategory, error)
+	UpdateCategory(ctx context.Context, category domain.EquipmentCategory) (*domain.EquipmentCategory, error)
+	DeleteCategory(ctx context.Context, categoryID int) error
+	GetCategoryByID(ctx context.Context, categoryID int) (*domain.EquipmentCategory, error)
+	GetAllCategories(ctx context.Context) ([]domain.EquipmentCategory, error)
+	GetEquipmentByCategory(ctx context.Context, categoryID int) ([]domain.Equipment, error)
 }
 
 type Service struct {
@@ -25,22 +25,26 @@ func New(repository IRepository) *Service {
 	}
 }
 
-func (s *Service) GetTechnicByCategory(ctx context.Context, categoryID uuid.UUID) ([]domain.Technic, error) {
-	return s.repository.GetTechnicByCategory(ctx, categoryID)
+func (s *Service) AddCategory(ctx context.Context, categoryName string, description string) (*domain.EquipmentCategory, error) {
+	return s.repository.AddCategory(ctx, categoryName, description)
 }
 
-func (s *Service) AddCategory(ctx context.Context, categoryName string) (*domain.TechnicCategory, error) {
-	return s.repository.AddCategory(ctx, categoryName)
+func (s *Service) UpdateCategory(ctx context.Context, category domain.EquipmentCategory) (*domain.EquipmentCategory, error) {
+	return s.repository.UpdateCategory(ctx, category)
 }
 
-func (s *Service) UpdateCategoryName(ctx context.Context, category domain.TechnicCategory) (*domain.TechnicCategory, error) {
-	return s.repository.UpdateCategoryName(ctx, category)
-}
-
-func (s *Service) DeleteCategory(ctx context.Context, categoryID uuid.UUID) error {
+func (s *Service) DeleteCategory(ctx context.Context, categoryID int) error {
 	return s.repository.DeleteCategory(ctx, categoryID)
 }
 
-func (s *Service) GetAllCategories(ctx context.Context) ([]domain.TechnicCategory, error) {
+func (s *Service) GetCategoryByID(ctx context.Context, categoryID int) (*domain.EquipmentCategory, error) {
+	return s.repository.GetCategoryByID(ctx, categoryID)
+}
+
+func (s *Service) GetAllCategories(ctx context.Context) ([]domain.EquipmentCategory, error) {
 	return s.repository.GetAllCategories(ctx)
+}
+
+func (s *Service) GetEquipmentByCategory(ctx context.Context, categoryID int) ([]domain.Equipment, error) {
+	return s.repository.GetEquipmentByCategory(ctx, categoryID)
 }

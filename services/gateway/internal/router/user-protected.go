@@ -1,7 +1,8 @@
 package router
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/keyauth"
 
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/models"
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/router/middlwares"
@@ -16,9 +17,9 @@ func (r *Router) InitProtectedUserRoutes() *Router {
 }
 
 func (r *Router) LogoutUser() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		token := ctx.Locals("token").(string)
-		err := r.authSvc.Logout(ctx.Context(), token)
+	return func(ctx fiber.Ctx) error {
+		token := keyauth.TokenFromContext(ctx)
+		err := r.authSvc.Logout(ctx.RequestCtx(), token)
 		if err != nil {
 			return ctx.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
 				Error:   "could not logout user",
@@ -28,3 +29,5 @@ func (r *Router) LogoutUser() fiber.Handler {
 		return nil
 	}
 }
+
+// fiber:context-methods migrated

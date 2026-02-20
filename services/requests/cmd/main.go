@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel"
@@ -45,7 +46,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	tracer, shutdownFn := opentelemetry.NewTracerProvider(traceExp, "auth-service")
+	tracer, shutdownFn := opentelemetry.NewTracerProvider(traceExp, "requests-service")
 	defer func() {
 		if err := shutdownFn(ctx); err != nil {
 			panic(err)
@@ -67,7 +68,13 @@ func main() {
 	conn.Use(middleware.NewRequestIDMiddleware())
 	conn.Use(middleware.NewTimeoutMiddleware(cfg.Nats.RequestTimeout))
 
-	pool, err := pgxpool.New(ctx, cfg.Postgres.DSN())
+	pgCfg, err := pgxpool.ParseConfig(cfg.Postgres.DSN())
+	if err != nil {
+		panic(err)
+	}
+	pgCfg.ConnConfig.Tracer = otelpgx.NewTracer()
+
+	pool, err := pgxpool.NewWithConfig(ctx, pgCfg)
 	if err != nil {
 		panic(err)
 	}
@@ -77,10 +84,11 @@ func main() {
 	pg := postgres.New(pool)
 	repo := repository.NewRepository(pg, publisher)
 
-	requestService := request.New(repo)
+	userClient := wrapnats.NewUserClient(conn)
+	requestService := request.New(repo, userClient)
 	equipmentService := equipment.New(repo)
 
-	wrapper, err := wrapnats.New(cfg.Nats, conn, requestService, equipmentService)
+	wrapper, err := wrapnats.New(cfg.Nats, conn, requestService, equipmentService, pg)
 	if err != nil {
 		panic(err)
 	}

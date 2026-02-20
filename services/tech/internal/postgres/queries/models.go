@@ -6,19 +6,19 @@ package queries
 
 import (
 	"time"
-
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Category struct {
-	ID   uuid.UUID
-	Name string
+	ID          int32
+	Name        string
+	Description *string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
-type Technic struct {
-	ID                        uuid.UUID
-	CategoryID                pgtype.UUID
+type Equipment struct {
+	ID                        int32
+	CategoryID                *int32
 	Name                      string
 	Description               *string
 	AdditionalCharacteristics []byte

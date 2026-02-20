@@ -2,7 +2,7 @@
 select * from categories;
 
 -- name: GetTechnicByCategory :many
-select * from technics where category_id = $1;
+select * from equipment where category_id = $1;
 
 -- name: AddCategory :one
 insert into categories(name) values($1) returning id;

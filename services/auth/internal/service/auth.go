@@ -8,13 +8,13 @@ import (
 	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
 )
 
-type iTokenizer interface {
+type TokenGenerator interface {
 	GenerateTokenPair(ctx context.Context, userid string, role string) (models.TokenPair, error)
 	GenerateSession(u models.User, deviceID, userAgent, ip string) *models.Session
 	DecodeToken(ctx context.Context, tokenStr string) (*models.Claims, error)
 }
 
-type iRepository interface {
+type Repository interface {
 	GetUserByUsername(ctx context.Context, username string) (models.User, error)
 	StoreToken(ctx context.Context, session *models.Session, refreshToken string) error
 	CreateUser(ctx context.Context, username, email, passwordHash string, roleID int32) (models.User, error)
@@ -24,13 +24,13 @@ type iRepository interface {
 }
 
 type Auth struct {
-	tokenizer  iTokenizer
-	repository iRepository
+	tokenizer  TokenGenerator
+	repository Repository
 
 	tokenCost int
 }
 
-func NewAuth(tokenizer iTokenizer, repository iRepository, tokenCost int) *Auth {
+func NewAuth(tokenizer TokenGenerator, repository Repository, tokenCost int) *Auth {
 	return &Auth{
 		tokenizer:  tokenizer,
 		repository: repository,

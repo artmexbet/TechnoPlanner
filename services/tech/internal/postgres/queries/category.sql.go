@@ -7,18 +7,15 @@ package queries
 
 import (
 	"context"
-
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const AddCategory = `-- name: AddCategory :one
 insert into categories(name) values($1) returning id
 `
 
-func (q *Queries) AddCategory(ctx context.Context, name string) (uuid.UUID, error) {
+func (q *Queries) AddCategory(ctx context.Context, name string) (int32, error) {
 	row := q.db.QueryRow(ctx, AddCategory, name)
-	var id uuid.UUID
+	var id int32
 	err := row.Scan(&id)
 	return id, err
 }
@@ -27,13 +24,13 @@ const DeleteCategory = `-- name: DeleteCategory :exec
 delete from categories where id = $1
 `
 
-func (q *Queries) DeleteCategory(ctx context.Context, id uuid.UUID) error {
+func (q *Queries) DeleteCategory(ctx context.Context, id int32) error {
 	_, err := q.db.Exec(ctx, DeleteCategory, id)
 	return err
 }
 
 const GetAllCategories = `-- name: GetAllCategories :many
-select id, name from categories
+select id, name, description, created_at, updated_at from categories
 `
 
 func (q *Queries) GetAllCategories(ctx context.Context) ([]Category, error) {
@@ -45,7 +42,13 @@ func (q *Queries) GetAllCategories(ctx context.Context) ([]Category, error) {
 	var items []Category
 	for rows.Next() {
 		var i Category
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -57,18 +60,18 @@ func (q *Queries) GetAllCategories(ctx context.Context) ([]Category, error) {
 }
 
 const GetTechnicByCategory = `-- name: GetTechnicByCategory :many
-select id, category_id, name, description, additional_characteristics, created_at, updated_at from technics where category_id = $1
+select id, category_id, name, description, additional_characteristics, created_at, updated_at from equipment where category_id = $1
 `
 
-func (q *Queries) GetTechnicByCategory(ctx context.Context, categoryID pgtype.UUID) ([]Technic, error) {
+func (q *Queries) GetTechnicByCategory(ctx context.Context, categoryID *int32) ([]Equipment, error) {
 	rows, err := q.db.Query(ctx, GetTechnicByCategory, categoryID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Technic
+	var items []Equipment
 	for rows.Next() {
-		var i Technic
+		var i Equipment
 		if err := rows.Scan(
 			&i.ID,
 			&i.CategoryID,
@@ -94,7 +97,7 @@ update categories set name = $1 where id = $2
 
 type UpdateCategoryNameParams struct {
 	Name string
-	ID   uuid.UUID
+	ID   int32
 }
 
 func (q *Queries) UpdateCategoryName(ctx context.Context, arg UpdateCategoryNameParams) error {

@@ -3,7 +3,7 @@ package router
 import (
 	"log/slog"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
 	"github.com/mailru/easyjson"
 
@@ -23,7 +23,7 @@ func (r *Router) InitUserRoutes() *Router {
 }
 
 func (r *Router) RegisterUser() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
+	return func(ctx fiber.Ctx) error {
 		var req models.RegisterRequest
 		err := easyjson.Unmarshal(ctx.Body(), &req)
 		if err != nil {
@@ -40,7 +40,7 @@ func (r *Router) RegisterUser() fiber.Handler {
 			})
 		}
 
-		userID, err := r.authSvc.Register(ctx.UserContext(), req.Username, req.Password, req.Email)
+		userID, err := r.authSvc.Register(ctx.Context(), req.Username, req.Password, req.Email)
 		if err != nil {
 			return ctx.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
 				Error:   "could not register user",
@@ -55,8 +55,8 @@ func (r *Router) RegisterUser() fiber.Handler {
 }
 
 func (r *Router) LoginUser() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		slog.InfoContext(ctx.UserContext(), "LoginUser handler called", "context", ctx.UserContext())
+	return func(ctx fiber.Ctx) error {
+		slog.InfoContext(ctx.Context(), "LoginUser handler called", "context", ctx.Context())
 
 		var req models.LoginRequest
 		err := easyjson.Unmarshal(ctx.Body(), &req)
@@ -79,7 +79,7 @@ func (r *Router) LoginUser() fiber.Handler {
 		req.UserAgent = string(ctx.Request().Header.UserAgent())
 		req.DeviceID = string(ctx.Request().Header.Host())
 
-		tokens, err := r.authSvc.Login(ctx.UserContext(), req)
+		tokens, err := r.authSvc.Login(ctx.Context(), req)
 		if err != nil {
 			return ctx.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{
 				Error:   "invalid credentials",
@@ -92,7 +92,7 @@ func (r *Router) LoginUser() fiber.Handler {
 }
 
 func (r *Router) RefreshToken() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
+	return func(ctx fiber.Ctx) error {
 		var req models.TokenRefreshRequest
 		err := req.UnmarshalJSON(ctx.Body())
 		if err != nil {
@@ -114,7 +114,7 @@ func (r *Router) RefreshToken() fiber.Handler {
 		req.UserAgent = string(ctx.Request().Header.UserAgent())
 		req.DeviceID = string(ctx.Request().Header.Host())
 
-		tokens, err := r.authSvc.Refresh(ctx.UserContext(), req)
+		tokens, err := r.authSvc.Refresh(ctx.Context(), req)
 		if err != nil {
 			return ctx.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{
 				Error:   "could not refresh token",
@@ -127,7 +127,7 @@ func (r *Router) RefreshToken() fiber.Handler {
 }
 
 func (r *Router) Me() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		userID, _ := c.Locals(middlwares.ContextUserIDKey).(string)
 		role, _ := c.Locals(middlwares.ContextUserRoleKey).(string)
 
@@ -158,3 +158,5 @@ func (r *Router) Me() fiber.Handler {
 		})
 	}
 }
+
+// fiber:context-methods migrated

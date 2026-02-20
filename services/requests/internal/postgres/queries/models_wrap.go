@@ -1,6 +1,8 @@
 package queries
 
 import (
+	"encoding/json"
+
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
@@ -16,7 +18,7 @@ func RequestStatusFromDomain(s domain.StatusType) *RequestStatus {
 }
 
 func (r *Request) ToDomain() *domain.Request {
-	return &domain.Request{
+	req := &domain.Request{
 		ID:          r.ID,
 		RequestText: r.RequestText,
 		Status:      r.Status.ToDomain(),
@@ -24,17 +26,16 @@ func (r *Request) ToDomain() *domain.Request {
 		CreatedAt:   r.CreatedAt,
 		UpdatedAt:   r.UpdatedAt,
 	}
+
+	return req
 }
 
-func RequestFromDomain(r domain.Request) *Request {
-	return &Request{
-		ID:             r.ID,
-		TelegramUserID: r.Issuer.ID,
-		RequestText:    r.RequestText,
-		Status:         *RequestStatusFromDomain(r.Status),
-		CreatedAt:      r.CreatedAt,
-		UpdatedAt:      r.UpdatedAt,
+func ResponsibleInfoFromDomain(r *domain.ResponsibleInfo) []byte {
+	if r == nil {
+		return nil
 	}
+	data, _ := json.Marshal(r)
+	return data
 }
 
 func (u *TelegramUser) ToDomain() *domain.User {
@@ -80,5 +81,19 @@ func EquipmentFromDomain(t domain.Equipment) *Equipment {
 		Quantity:    int32(t.Quantity),
 		CreatedAt:   t.CreatedAt,
 		UpdatedAt:   t.UpdatedAt,
+	}
+}
+
+func (r *RawRequest) ToDomain() *domain.RawRequest {
+	return &domain.RawRequest{
+		ID:                 r.ID,
+		TelegramID:         r.TelegramID,
+		Username:           r.Username,
+		FirstName:          r.FirstName,
+		LastName:           r.LastName,
+		RawText:            r.RawText,
+		Status:             domain.RawRequestStatus(r.Status),
+		ProcessedRequestID: r.ProcessedRequestID,
+		CreatedAt:          r.CreatedAt,
 	}
 }

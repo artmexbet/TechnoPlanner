@@ -2,38 +2,38 @@ package techrepo
 
 import (
 	"context"
-	"tech/internal/domain"
 
 	"github.com/google/uuid"
+	"tech/internal/domain"
 )
 
-type IPostgres interface {
-	AddTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error)
-	DeleteTechnic(ctx context.Context, techID uuid.UUID) error
-	UpdateTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error)
-	GetTechnicByID(ctx context.Context, techID uuid.UUID) (*domain.Technic, error)
+type Postgres interface {
+	AddEquipment(ctx context.Context, technic domain.Equipment) (*domain.Equipment, error)
+	DeleteEquipment(ctx context.Context, techID uuid.UUID) error
+	UpdateEquipment(ctx context.Context, technic domain.Equipment) (*domain.Equipment, error)
+	GetEquipmentByID(ctx context.Context, techID uuid.UUID) (*domain.Equipment, error)
 }
 
 type Repository struct {
-	pg IPostgres
+	pg Postgres
 }
 
-func NewRepository(pg IPostgres) *Repository {
+func NewRepository(pg Postgres) *Repository {
 	return &Repository{pg: pg}
 }
 
-func (r *Repository) AddTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error) {
-	return r.pg.AddTechnic(ctx, technic)
+func (r *Repository) AddEquipment(ctx context.Context, technic domain.Equipment) (*domain.Equipment, error) {
+	return r.pg.AddEquipment(ctx, technic)
 }
 
-func (r *Repository) DeleteTechnic(ctx context.Context, techID uuid.UUID) error {
-	return r.pg.DeleteTechnic(ctx, techID)
+func (r *Repository) DeleteEquipment(ctx context.Context, techID uuid.UUID) error {
+	return r.pg.DeleteEquipment(ctx, techID)
 }
 
-func (r *Repository) UpdateTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error) {
-	return r.pg.UpdateTechnic(ctx, technic)
+func (r *Repository) UpdateEquipment(ctx context.Context, technic domain.Equipment) (*domain.Equipment, error) {
+	return r.pg.UpdateEquipment(ctx, technic)
 }
 
-func (r *Repository) GetTechnicByID(ctx context.Context, techID uuid.UUID) (*domain.Technic, error) {
-	return r.pg.GetTechnicByID(ctx, techID)
+func (r *Repository) GetEquipmentByID(ctx context.Context, techID uuid.UUID) (*domain.Equipment, error) {
+	return r.pg.GetEquipmentByID(ctx, techID)
 }

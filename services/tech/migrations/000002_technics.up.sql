@@ -1,6 +1,6 @@
-create table if not exists technics(
-    id uuid primary key default(uuid_generate_v4()),
-    category_id uuid references categories(id) default '00000000-0000-0000-0000-000000000000',
+create table if not exists equipment(
+    id serial primary key,
+    category_id int references categories(id) default 0,
     name varchar(256) not null,
     description text,
     additional_characteristics jsonb,
@@ -8,5 +8,5 @@ create table if not exists technics(
     updated_at timestamp with time zone not null default current_timestamp
 );
 
--- я думаю он не нужен...
-create index if not exists technics_category_index on technics(category);
+-- для быстрого поиска по категории
+create index if not exists equipment_category_index on equipment(category_id);

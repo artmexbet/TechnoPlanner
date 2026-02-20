@@ -138,3 +138,87 @@ func (p *Postgres) AssignEquipmentToRequest(ctx context.Context, requestID uuid.
 	})
 	return resultErrors
 }
+
+func (p *Postgres) GetRequestsByResponsibleID(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error) {
+	requests, err := p.q.GetRequestsByResponsibleID(ctx, responsibleID)
+	if err != nil {
+		return nil, fmt.Errorf("error getting requests by responsible ID: %w", err)
+	}
+
+	var result []domain.Request
+	for _, req := range requests {
+		result = append(result, *req.ToDomain())
+	}
+	return result, nil
+}
+
+func (p *Postgres) ListRequests(ctx context.Context, limit, offset int32) ([]domain.Request, error) {
+	params := queries.GetRequestsParams{Limit: limit, Offset: offset}
+	requests, err := p.q.GetRequests(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf("error getting requests: %w", err)
+	}
+	result := make([]domain.Request, len(requests))
+	for i, request := range requests {
+		result[i] = *request.ToDomain()
+	}
+	return result, nil
+}
+
+// AssignResponsible назначает ответственного за заявку
+func (p *Postgres) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error {
+	params := queries.AssignResponsibleParams{
+		ID:            requestID,
+		ResponsibleID: responsibleID,
+	}
+	_, err := p.q.AssignResponsible(ctx, params)
+	if err != nil {
+		return fmt.Errorf("error assigning responsible: %w", err)
+	}
+	return nil
+}
+
+// UpdateRequest обновляет заявку
+func (p *Postgres) UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error) {
+	// Получаем текущую заявку
+	currentReq, err := p.GetRequestByID(ctx, requestID)
+	if err != nil {
+		return nil, fmt.Errorf("error getting request: %w", err)
+	}
+
+	// Применяем обновления
+	if updates.RequestText != nil {
+		currentReq.RequestText = updates.RequestText
+	}
+	if updates.Status != nil {
+		err = p.UpdateRequestStatus(ctx, requestID, *updates.Status)
+		if err != nil {
+			return nil, fmt.Errorf("error updating status: %w", err)
+		}
+		currentReq.Status = *updates.Status
+	}
+	if updates.ScheduleTime != nil {
+		currentReq.ScheduleTime = *updates.ScheduleTime
+	}
+	if updates.Address != nil {
+		currentReq.Address = *updates.Address
+	}
+	if updates.ResponsibleID != nil {
+		err = p.AssignResponsible(ctx, requestID, updates.ResponsibleID)
+		if err != nil {
+			return nil, fmt.Errorf("error assigning responsible: %w", err)
+		}
+		if updates.ResponsibleID != nil {
+			resp, err := p.GetResponsibleByID(ctx, *updates.ResponsibleID)
+			if err != nil {
+				return nil, fmt.Errorf("error getting responsible: %w", err)
+			}
+			currentReq.ResponsibleInfo = &domain.ResponsibleInfo{
+				UserID:   resp.ID,
+				Username: resp.Username,
+			}
+		}
+	}
+
+	return currentReq, nil
+}

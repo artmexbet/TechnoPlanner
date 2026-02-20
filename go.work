@@ -3,6 +3,7 @@ go 1.25.4
 use (
 	./libs/broker
 	./libs/config
+	./libs/dto
 	./libs/observability
 	./libs/proto
 	./libs/utills

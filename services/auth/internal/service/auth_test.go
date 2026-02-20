@@ -34,7 +34,7 @@ func (s *ServiceTestSuite) TestLogin() {
 	tests := []struct {
 		name     string
 		loginReq models.LoginRequest
-		setup    func(repo *mockiRepository, tokenizer *mockiTokenizer)
+		setup    func(repo *MockRepository, tokenizer *MockTokenGenerator)
 		wantErr  bool
 	}{
 		{
@@ -46,7 +46,7 @@ func (s *ServiceTestSuite) TestLogin() {
 				UserAgent: "agent",
 				IP:        "127.0.0.1",
 			},
-			setup: func(repo *mockiRepository, tokenizer *mockiTokenizer) {
+			setup: func(repo *MockRepository, tokenizer *MockTokenGenerator) {
 				repo.EXPECT().
 					GetUserByUsername(mock.Anything, "user1").
 					Return(testUser, nil)
@@ -56,7 +56,7 @@ func (s *ServiceTestSuite) TestLogin() {
 					Return(models.TokenPair{AccessToken: "access", RefreshToken: "refresh"}, nil)
 
 				tokenizer.EXPECT().
-					GenerateSession(mock.Anything, "dev1", "agent", "127.0.0.1").
+					GenerateSession(testUser, "dev1", "agent", "127.0.0.1").
 					Return(&models.Session{})
 
 				repo.EXPECT().
@@ -74,7 +74,7 @@ func (s *ServiceTestSuite) TestLogin() {
 				UserAgent: "agent",
 				IP:        "127.0.0.1",
 			},
-			setup: func(repo *mockiRepository, tokenizer *mockiTokenizer) {
+			setup: func(repo *MockRepository, tokenizer *MockTokenGenerator) {
 				repo.EXPECT().
 					GetUserByUsername(mock.Anything, "user1").
 					Return(models.User{Username: "user1", PasswordHash: "$2a$10$7EqJtq98hPqEX7fNZaFWoO5r5h0g6vF2pQ5QyQp1pQ5QyQp1pQ5Qy"}, nil)
@@ -90,7 +90,7 @@ func (s *ServiceTestSuite) TestLogin() {
 				UserAgent: "agent",
 				IP:        "127.0.0.1",
 			},
-			setup: func(repo *mockiRepository, tokenizer *mockiTokenizer) {
+			setup: func(repo *MockRepository, tokenizer *MockTokenGenerator) {
 				repo.EXPECT().
 					GetUserByUsername(mock.Anything, "nouser").
 					Return(models.User{}, errors.New("not found"))
@@ -101,8 +101,8 @@ func (s *ServiceTestSuite) TestLogin() {
 
 	for _, tt := range tests {
 		s.T().Run(tt.name, func(t *testing.T) {
-			repo := newMockiRepository(t)
-			tokenizer := newMockiTokenizer(t)
+			repo := NewMockRepository(t)
+			tokenizer := NewMockTokenGenerator(t)
 			if tt.setup != nil {
 				tt.setup(repo, tokenizer)
 			}
@@ -119,7 +119,7 @@ func (s *ServiceTestSuite) TestRegister() {
 	tests := []struct {
 		name    string
 		regReq  models.RegisterRequest
-		setup   func(repo *mockiRepository)
+		setup   func(repo *MockRepository)
 		wantErr bool
 	}{
 		{
@@ -129,7 +129,7 @@ func (s *ServiceTestSuite) TestRegister() {
 				Email:    "new@user.com",
 				Password: "pass",
 			},
-			setup: func(repo *mockiRepository) {
+			setup: func(repo *MockRepository) {
 				repo.EXPECT().
 					CreateUser(mock.Anything, "newuser", "new@user.com", mock.Anything, int32(1)).
 					Return(models.User{Username: "newuser", Email: "new@user.com", RoleID: 1}, nil)
@@ -143,7 +143,7 @@ func (s *ServiceTestSuite) TestRegister() {
 				Email:    "fail@user.com",
 				Password: "pass",
 			},
-			setup: func(repo *mockiRepository) {
+			setup: func(repo *MockRepository) {
 				repo.EXPECT().
 					CreateUser(mock.Anything, "failuser", "fail@user.com", mock.Anything, int32(1)).
 					Return(models.User{}, errors.New("fail"))
@@ -154,11 +154,11 @@ func (s *ServiceTestSuite) TestRegister() {
 
 	for _, tt := range tests {
 		s.T().Run(tt.name, func(t *testing.T) {
-			repo := newMockiRepository(t)
+			repo := NewMockRepository(t)
 			if tt.setup != nil {
 				tt.setup(repo)
 			}
-			auth := NewAuth(newMockiTokenizer(t), repo, bcrypt.MinCost)
+			auth := NewAuth(NewMockTokenGenerator(t), repo, bcrypt.MinCost)
 			_, err := auth.Register(context.Background(), tt.regReq)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ожидалась ошибка: %v, получено: %v", tt.wantErr, err)
@@ -170,14 +170,14 @@ func (s *ServiceTestSuite) TestRegister() {
 func (s *ServiceTestSuite) TestValidateToken() {
 	tests := []struct {
 		name      string
-		setup     func(tokenizer *mockiTokenizer)
+		setup     func(tokenizer *MockTokenGenerator)
 		token     string
 		wantState models.TokenState
 		wantErr   bool
 	}{
 		{
 			name: "валидный токен",
-			setup: func(tokenizer *mockiTokenizer) {
+			setup: func(tokenizer *MockTokenGenerator) {
 				tokenizer.EXPECT().
 					DecodeToken(mock.Anything, "valid").
 					Return(&models.Claims{UserID: "id"}, nil)
@@ -188,7 +188,7 @@ func (s *ServiceTestSuite) TestValidateToken() {
 		},
 		{
 			name: "просроченный токен",
-			setup: func(tokenizer *mockiTokenizer) {
+			setup: func(tokenizer *MockTokenGenerator) {
 				tokenizer.EXPECT().
 					DecodeToken(mock.Anything, "expired").
 					Return(&models.Claims{UserID: "id"}, ErrTokenExpired)
@@ -199,7 +199,7 @@ func (s *ServiceTestSuite) TestValidateToken() {
 		},
 		{
 			name: "невалидный токен",
-			setup: func(tokenizer *mockiTokenizer) {
+			setup: func(tokenizer *MockTokenGenerator) {
 				tokenizer.EXPECT().
 					DecodeToken(mock.Anything, "invalid").
 					Return(nil, errors.New("invalid"))
@@ -212,11 +212,11 @@ func (s *ServiceTestSuite) TestValidateToken() {
 
 	for _, tt := range tests {
 		s.T().Run(tt.name, func(t *testing.T) {
-			tokenizer := newMockiTokenizer(t)
+			tokenizer := NewMockTokenGenerator(t)
 			if tt.setup != nil {
 				tt.setup(tokenizer)
 			}
-			auth := NewAuth(tokenizer, newMockiRepository(t), bcrypt.MinCost)
+			auth := NewAuth(tokenizer, NewMockRepository(t), bcrypt.MinCost)
 			res, err := auth.ValidateToken(context.Background(), tt.token)
 			if res.State != tt.wantState {
 				t.Errorf("ожидалось состояние %v, получено %v", tt.wantState, res.State)
@@ -232,7 +232,7 @@ func (s *ServiceTestSuite) TestRefresh() {
 	tests := []struct {
 		name       string
 		refreshReq models.TokenRefreshRequest
-		setup      func(repo *mockiRepository, tokenizer *mockiTokenizer)
+		setup      func(repo *MockRepository, tokenizer *MockTokenGenerator)
 		wantErr    bool
 	}{
 		{
@@ -243,7 +243,7 @@ func (s *ServiceTestSuite) TestRefresh() {
 				UserAgent: "agent",
 				IP:        "127.0.0.1",
 			},
-			setup: func(repo *mockiRepository, tokenizer *mockiTokenizer) {
+			setup: func(repo *MockRepository, tokenizer *MockTokenGenerator) {
 				repo.EXPECT().
 					GetSessionByRefreshToken(mock.Anything, "refresh").
 					Return(&models.Session{DeviceID: "dev1", UserAgent: "agent", IP: "127.0.0.1"}, nil)
@@ -261,7 +261,7 @@ func (s *ServiceTestSuite) TestRefresh() {
 				UserAgent: "agent",
 				IP:        "127.0.0.1",
 			},
-			setup: func(repo *mockiRepository, tokenizer *mockiTokenizer) {
+			setup: func(repo *MockRepository, tokenizer *MockTokenGenerator) {
 				tokenizer.EXPECT().
 					DecodeToken(mock.Anything, "bad").
 					Return(&models.Claims{
@@ -284,7 +284,7 @@ func (s *ServiceTestSuite) TestRefresh() {
 				UserAgent: "agent",
 				IP:        "127.0.0.1",
 			},
-			setup: func(repo *mockiRepository, tokenizer *mockiTokenizer) {
+			setup: func(repo *MockRepository, tokenizer *MockTokenGenerator) {
 				tokenizer.EXPECT().
 					DecodeToken(mock.Anything, "refresh").
 					Return(&models.Claims{
@@ -303,8 +303,8 @@ func (s *ServiceTestSuite) TestRefresh() {
 
 	for _, tt := range tests {
 		s.T().Run(tt.name, func(t *testing.T) {
-			repo := newMockiRepository(t)
-			tokenizer := newMockiTokenizer(t)
+			repo := NewMockRepository(t)
+			tokenizer := NewMockTokenGenerator(t)
 			if tt.setup != nil {
 				tt.setup(repo, tokenizer)
 			}

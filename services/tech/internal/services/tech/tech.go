@@ -2,37 +2,49 @@ package techservice
 
 import (
 	"context"
-	"tech/internal/domain"
 
-	"github.com/google/uuid"
+	"tech/internal/domain"
 )
 
-type IRepository interface {
-	AddTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error)
-	DeleteTechnic(ctx context.Context, techID uuid.UUID) error
-	UpdateTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error)
-	GetTechnicByID(ctx context.Context, techID uuid.UUID) (*domain.Technic, error)
+type Repository interface {
+	AddEquipment(ctx context.Context, equipment domain.Equipment) (*domain.Equipment, error)
+	DeleteEquipment(ctx context.Context, equipmentID int) error
+	UpdateEquipment(ctx context.Context, equipment domain.Equipment) (*domain.Equipment, error)
+	GetEquipmentByID(ctx context.Context, equipmentID int) (*domain.Equipment, error)
+	GetAllEquipment(ctx context.Context) ([]domain.Equipment, error)
+	GetEquipmentByCategory(ctx context.Context, categoryID int) ([]domain.Equipment, error)
 }
 
 type Service struct {
-	repository IRepository
+	repository Repository
 }
 
-func New(repository IRepository) *Service {
+func New(repository Repository) *Service {
 	return &Service{
 		repository: repository,
 	}
 }
 
-func (s *Service) AddTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error) {
-	return s.repository.AddTechnic(ctx, technic)
+func (s *Service) AddEquipment(ctx context.Context, equipment domain.Equipment) (*domain.Equipment, error) {
+	return s.repository.AddEquipment(ctx, equipment)
 }
-func (s *Service) DeleteTechnic(ctx context.Context, techID uuid.UUID) error {
-	return s.repository.DeleteTechnic(ctx, techID)
+
+func (s *Service) DeleteEquipment(ctx context.Context, equipmentID int) error {
+	return s.repository.DeleteEquipment(ctx, equipmentID)
 }
-func (s *Service) UpdateTechnic(ctx context.Context, technic domain.Technic) (*domain.Technic, error) {
-	return s.repository.UpdateTechnic(ctx, technic)
+
+func (s *Service) UpdateEquipment(ctx context.Context, equipment domain.Equipment) (*domain.Equipment, error) {
+	return s.repository.UpdateEquipment(ctx, equipment)
 }
-func (s *Service) GetTechnicByID(ctx context.Context, techID uuid.UUID) (*domain.Technic, error) {
-	return s.repository.GetTechnicByID(ctx, techID)
+
+func (s *Service) GetEquipmentByID(ctx context.Context, equipmentID int) (*domain.Equipment, error) {
+	return s.repository.GetEquipmentByID(ctx, equipmentID)
+}
+
+func (s *Service) GetAllEquipment(ctx context.Context) ([]domain.Equipment, error) {
+	return s.repository.GetAllEquipment(ctx)
+}
+
+func (s *Service) GetEquipmentByCategory(ctx context.Context, categoryID int) ([]domain.Equipment, error) {
+	return s.repository.GetEquipmentByCategory(ctx, categoryID)
 }

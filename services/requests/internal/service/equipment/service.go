@@ -6,15 +6,15 @@ import (
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
-type iRepository interface {
+type Repository interface {
 	CreateEquipment(ctx context.Context, technics []domain.Equipment) error
 }
 
 type Service struct {
-	repository iRepository
+	repository Repository
 }
 
-func New(repository iRepository) *Service {
+func New(repository Repository) *Service {
 	return &Service{
 		repository: repository,
 	}

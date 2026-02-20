@@ -9,7 +9,7 @@ import (
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 )
 
-type iPostgres interface {
+type Postgres interface {
 	CreateRequest(ctx context.Context, req domain.Request) (*domain.Request, error)
 	CreateEquipment(ctx context.Context, technics []domain.Equipment) error
 	GetRequestsByUserID(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]domain.Request, error)
@@ -21,9 +21,21 @@ type iPostgres interface {
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (domain.User, error)
 	SaveTelegramUser(ctx context.Context, user domain.User) (domain.User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
+	GetRequestsByResponsibleID(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)
+	ListRequests(ctx context.Context, offset, limit int32) ([]domain.Request, error)
+	// Responsibles
+	ListResponsibles(ctx context.Context) ([]domain.Responsible, error)
+	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error
+	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
+	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
+	// RawRequests
+	CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error)
+	GetRawRequests(ctx context.Context, status string, limit, offset int32) ([]domain.RawRequest, error)
+	GetRawRequestByID(ctx context.Context, id uuid.UUID) (*domain.RawRequest, error)
+	MarkRawRequestProcessed(ctx context.Context, id uuid.UUID, requestID uuid.UUID) (*domain.RawRequest, error)
 }
 
-type iPublisher interface {
+type Publisher interface {
 	PublishRequestCreated(req domain.Request) error
 	PublishRequestCanceled(req domain.Request) error
 	PublishUserAdded(user domain.User) error
@@ -32,11 +44,11 @@ type iPublisher interface {
 // Repository struct that interacts with the databases.
 // We will be in need of sending data to broker in the future, so having a repository wrapper is a good idea.
 type Repository struct {
-	pg        iPostgres
-	publisher iPublisher
+	pg        Postgres
+	publisher Publisher
 }
 
-func NewRepository(pg iPostgres, publisher iPublisher) *Repository {
+func NewRepository(pg Postgres, publisher Publisher) *Repository {
 	return &Repository{pg: pg, publisher: publisher}
 }
 
@@ -117,4 +129,70 @@ func (r *Repository) SaveTelegramUser(ctx context.Context, user domain.User) (do
 		return domain.User{}, fmt.Errorf("error publishing user added event: %w", err)
 	}
 	return u, nil
+}
+
+func (r *Repository) GetRequestsByResponsibleID(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error) {
+	requests, err := r.pg.GetRequestsByResponsibleID(ctx, responsibleID)
+	if err != nil {
+		return nil, fmt.Errorf("get requests by responsible id: %w", err)
+	}
+
+	// Enrich requests with equipment and issuer info
+	for i := range requests {
+		// todo: use batch queries
+		requests[i].Issuer, err = r.pg.GetUserByID(ctx, requests[i].Issuer.ID)
+		if err != nil {
+			return nil, fmt.Errorf("get issuer for request %s: %w", requests[i].ID, err)
+		}
+		requests[i].Equipments, err = r.pg.GetEquipmentByRequestID(ctx, requests[i].ID)
+		if err != nil {
+			return nil, fmt.Errorf("get equipment for request %s: %w", requests[i].ID, err)
+		}
+	}
+
+	return requests, nil
+}
+
+func (r *Repository) ListRequests(ctx context.Context, offset, limit int32) ([]domain.Request, error) {
+	return r.pg.ListRequests(ctx, offset, limit)
+}
+
+// ListResponsibles возвращает список всех ответственных
+func (r *Repository) ListResponsibles(ctx context.Context) ([]domain.Responsible, error) {
+	return r.pg.ListResponsibles(ctx)
+}
+
+// AssignResponsible назначает ответственного за заявку
+func (r *Repository) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error {
+	return r.pg.AssignResponsible(ctx, requestID, responsibleID)
+}
+
+// UpdateRequest обновляет заявку
+func (r *Repository) UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error) {
+	return r.pg.UpdateRequest(ctx, requestID, updates)
+}
+
+// SaveResponsible сохраняет или обновляет ответственного
+func (r *Repository) SaveResponsible(ctx context.Context, id uuid.UUID, username string) error {
+	return r.pg.SaveResponsible(ctx, id, username)
+}
+
+// CreateRawRequest сохраняет сырой запрос от Telegram-бота
+func (r *Repository) CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error) {
+	return r.pg.CreateRawRequest(ctx, req)
+}
+
+// GetRawRequests возвращает список сырых запросов
+func (r *Repository) GetRawRequests(ctx context.Context, status string, limit, offset int32) ([]domain.RawRequest, error) {
+	return r.pg.GetRawRequests(ctx, status, limit, offset)
+}
+
+// GetRawRequestByID возвращает сырой запрос по ID
+func (r *Repository) GetRawRequestByID(ctx context.Context, id uuid.UUID) (*domain.RawRequest, error) {
+	return r.pg.GetRawRequestByID(ctx, id)
+}
+
+// MarkRawRequestProcessed помечает сырой запрос как обработанный
+func (r *Repository) MarkRawRequestProcessed(ctx context.Context, id uuid.UUID, requestID uuid.UUID) (*domain.RawRequest, error) {
+	return r.pg.MarkRawRequestProcessed(ctx, id, requestID)
 }

@@ -2,36 +2,36 @@ package categoryrepo
 
 import (
 	"context"
-	"tech/internal/domain"
 
 	"github.com/google/uuid"
+	"tech/internal/domain"
 )
 
-type IPostgres interface {
-	GetTechnicByCategory(ctx context.Context, categoryID uuid.UUID) ([]domain.Technic, error)
-	AddCategory(ctx context.Context, categoryName string) (*domain.TechnicCategory, error)
-	UpdateCategoryName(ctx context.Context, category domain.TechnicCategory) (*domain.TechnicCategory, error)
+type Postgres interface {
+	GetEquipmentByCategory(ctx context.Context, categoryID uuid.UUID) ([]domain.Equipment, error)
+	AddCategory(ctx context.Context, categoryName string) (*domain.EquipmentCategory, error)
+	UpdateCategoryName(ctx context.Context, category domain.EquipmentCategory) (*domain.EquipmentCategory, error)
 	DeleteCategory(ctx context.Context, categoryID uuid.UUID) error
-	GetAllCategories(ctx context.Context) ([]domain.TechnicCategory, error)
+	GetAllCategories(ctx context.Context) ([]domain.EquipmentCategory, error)
 }
 
 type Repository struct {
-	pg IPostgres
+	pg Postgres
 }
 
-func NewRepository(pg IPostgres) *Repository {
+func NewRepository(pg Postgres) *Repository {
 	return &Repository{pg: pg}
 }
 
-func (r *Repository) GetTechnicByCategory(ctx context.Context, categoryID uuid.UUID) ([]domain.Technic, error) {
-	return r.pg.GetTechnicByCategory(ctx, categoryID)
+func (r *Repository) GetEquipmentByCategory(ctx context.Context, categoryID uuid.UUID) ([]domain.Equipment, error) {
+	return r.pg.GetEquipmentByCategory(ctx, categoryID)
 }
 
-func (r *Repository) AddCategory(ctx context.Context, categoryName string) (*domain.TechnicCategory, error) {
+func (r *Repository) AddCategory(ctx context.Context, categoryName string) (*domain.EquipmentCategory, error) {
 	return r.pg.AddCategory(ctx, categoryName)
 }
 
-func (r *Repository) UpdateCategoryName(ctx context.Context, category domain.TechnicCategory) (*domain.TechnicCategory, error) {
+func (r *Repository) UpdateCategoryName(ctx context.Context, category domain.EquipmentCategory) (*domain.EquipmentCategory, error) {
 	return r.pg.UpdateCategoryName(ctx, category)
 }
 
@@ -39,6 +39,6 @@ func (r *Repository) DeleteCategory(ctx context.Context, categoryID uuid.UUID) e
 	return r.pg.DeleteCategory(ctx, categoryID)
 }
 
-func (r *Repository) GetAllCategories(ctx context.Context) ([]domain.TechnicCategory, error) {
+func (r *Repository) GetAllCategories(ctx context.Context) ([]domain.EquipmentCategory, error) {
 	return r.pg.GetAllCategories(ctx)
 }

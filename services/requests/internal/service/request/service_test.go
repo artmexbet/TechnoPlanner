@@ -16,13 +16,35 @@ var errMock = errors.New("repo error")
 
 type requestServiceTestSuite struct {
 	suite.Suite
-	repo    *mockiRepository
-	service *Service
+	repo         *MockRepository
+	userProvider *mockUserProvider
+	service      *Service
 }
 
 func (s *requestServiceTestSuite) SetupTest() {
-	s.repo = newMockiRepository(s.T())
-	s.service = New(s.repo)
+	s.repo = NewMockRepository(s.T())
+	s.userProvider = newMockUserProvider(s.T())
+	s.service = New(s.repo, s.userProvider)
+}
+
+// mockUserProvider - простой мок для UserProvider
+type mockUserProvider struct {
+	mock.Mock
+}
+
+func newMockUserProvider(t interface {
+	mock.TestingT
+	Cleanup(func())
+}) *mockUserProvider {
+	m := &mockUserProvider{}
+	m.Mock.Test(t)
+	t.Cleanup(func() { m.AssertExpectations(t) })
+	return m
+}
+
+func (m *mockUserProvider) GetUserByID(ctx context.Context, userID uuid.UUID) (domain.User, error) {
+	args := m.Called(ctx, userID)
+	return args.Get(0).(domain.User), args.Error(1)
 }
 
 func (s *requestServiceTestSuite) TestAddSuccess() {

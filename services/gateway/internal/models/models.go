@@ -53,7 +53,7 @@ type ErrorResponse struct {
 }
 
 type EquipmentCategory struct {
-	ID          int32   `json:"id"`
+	ID          int     `json:"id"`
 	Name        string  `json:"name"`
 	Description *string `json:"description,omitempty"`
 	CreatedAt   string  `json:"created_at"`
@@ -64,7 +64,7 @@ type EquipmentCategory struct {
 }
 
 type Equipment struct {
-	ID          int32               `json:"id"`
+	ID          int                 `json:"id"`
 	Name        string              `json:"name" validate:"required"`
 	Description *string             `json:"description,omitempty"`
 	Quantity    int32               `json:"quantity" validate:"gte=0"`
@@ -80,14 +80,14 @@ type EquipmentCreateRequest struct {
 	Name        string  `json:"name" validate:"required"`
 	Description *string `json:"description,omitempty"`
 	Quantity    int32   `json:"quantity" validate:"gte=0"`
-	CategoryIDs []int32 `json:"category_ids" validate:"dive,gt=0"`
+	CategoryIDs []int   `json:"category_ids" validate:"dive,gt=0"`
 }
 
 type EquipmentUpdateRequest struct {
 	Name        string  `json:"name" validate:"required"`
 	Description *string `json:"description,omitempty"`
 	Quantity    int32   `json:"quantity" validate:"gte=0"`
-	CategoryIDs []int32 `json:"category_ids" validate:"dive,gt=0"`
+	CategoryIDs []int   `json:"category_ids" validate:"dive,gt=0"`
 }
 
 type EquipmentCategoryCreateRequest struct {
@@ -169,4 +169,65 @@ type MeResponse struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Role     string `json:"role"`
+}
+
+type ResponsibleResponse struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+}
+
+type ResponsibleListResponse struct {
+	Items []ResponsibleResponse `json:"items"`
+}
+
+type ResponsibleCreateRequest struct {
+	ID       string `json:"id" validate:"required,uuid4"`
+	Username string `json:"username" validate:"required,min=3,max=30"`
+}
+
+type RequestUpdateRequest struct {
+	RequestText   *string `json:"request_text,omitempty"`
+	Status        *string `json:"status,omitempty" validate:"omitempty,oneof=canceled pending assigned in_progress completed rejected"`
+	ScheduleTime  *string `json:"schedule_time,omitempty"`
+	Address       *string `json:"address,omitempty"`
+	ResponsibleID *string `json:"responsible_id,omitempty" validate:"omitempty,uuid4"`
+}
+
+// RawRequestResponse — HTTP-ответ для сырого запроса от бота
+type RawRequestResponse struct {
+	ID                 string  `json:"id"`
+	TelegramID         int64   `json:"telegram_id"`
+	Username           string  `json:"username"`
+	FirstName          string  `json:"first_name"`
+	LastName           *string `json:"last_name,omitempty"`
+	RawText            string  `json:"raw_text"`
+	Status             string  `json:"status"`
+	ProcessedRequestID *string `json:"processed_request_id,omitempty"`
+	CreatedAt          string  `json:"created_at"`
+}
+
+// RawRequestListResponse — список сырых запросов
+type RawRequestListResponse struct {
+	Items []RawRequestResponse `json:"items"`
+}
+
+// RawRequestProcessRequest — запрос на создание нормальной заявки из сырого запроса
+type RawRequestProcessRequest struct {
+	RequestText     *string          `json:"request_text,omitempty"`
+	ScheduleTime    string           `json:"schedule_time" validate:"required"`
+	Address         string           `json:"address" validate:"required"`
+	EquipmentString *string          `json:"equipment_string,omitempty"`
+	Equipments      []EquipmentInReq `json:"equipments,omitempty"`
+}
+
+// EquipmentInReq — оборудование в запросе на создание заявки
+type EquipmentInReq struct {
+	ID       int `json:"id" validate:"required"`
+	Quantity int `json:"quantity" validate:"required,gt=0"`
+}
+
+// ProcessRawRequestResponse — ответ на обработку сырого запроса
+type ProcessRawRequestResponse struct {
+	Request    RequestResponse    `json:"request"`
+	RawRequest RawRequestResponse `json:"raw_request"`
 }
