@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
-	"github.com/artmexbet/TechnoPlanner/services/requests/internal/postgres/queries"
 )
 
 type Postgres interface {
@@ -25,7 +24,7 @@ type Postgres interface {
 	GetRequestsByResponsibleID(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)
 	ListRequests(ctx context.Context, offset, limit int32) ([]domain.Request, error)
 	// Responsibles
-	ListResponsibles(ctx context.Context) ([]queries.Responsible, error)
+	ListResponsibles(ctx context.Context) ([]domain.Responsible, error)
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error
 	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
 	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
@@ -159,7 +158,7 @@ func (r *Repository) ListRequests(ctx context.Context, offset, limit int32) ([]d
 }
 
 // ListResponsibles возвращает список всех ответственных
-func (r *Repository) ListResponsibles(ctx context.Context) ([]queries.Responsible, error) {
+func (r *Repository) ListResponsibles(ctx context.Context) ([]domain.Responsible, error) {
 	return r.pg.ListResponsibles(ctx)
 }
 

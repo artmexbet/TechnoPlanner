@@ -2,7 +2,9 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 	"github.com/google/uuid"
 
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/postgres/queries"
@@ -28,6 +30,18 @@ func (p *Postgres) GetResponsibleByUsername(ctx context.Context, username string
 }
 
 // ListResponsibles возвращает список всех ответственных
-func (p *Postgres) ListResponsibles(ctx context.Context) ([]queries.Responsible, error) {
-	return p.q.ListResponsibles(ctx)
+func (p *Postgres) ListResponsibles(ctx context.Context) ([]domain.Responsible, error) {
+	qResponsibles, err := p.q.ListResponsibles(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list responsibles: %w", err)
+	}
+
+	res := make([]domain.Responsible, len(qResponsibles))
+	for i, r := range qResponsibles {
+		res[i] = domain.Responsible{
+			ID:       r.ID,
+			Username: r.Username,
+		}
+	}
+	return res, nil
 }
