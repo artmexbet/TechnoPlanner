@@ -101,7 +101,14 @@ func (p *Postgres) GetEquipmentByCategory(ctx context.Context, categoryID int) (
 // Возвращает ошибку если хотя бы для одной позиции недостаточно свободных единиц.
 func (p *Postgres) ReserveEquipment(ctx context.Context, items []domain.ReserveItem) error {
 	for _, item := range items {
-		if err := p.q.ReserveEquipment(ctx, int32(item.EquipmentID), int32(item.Quantity)); err != nil {
+
+		if err := p.q.ReserveEquipment(
+			ctx,
+			queries.ReserveEquipmentParams{
+				ID:               int32(item.EquipmentID),
+				ReservedQuantity: int32(item.Quantity),
+			},
+		); err != nil {
 			return fmt.Errorf("ReserveEquipment id=%d qty=%d: %w", item.EquipmentID, item.Quantity, err)
 		}
 	}
@@ -111,7 +118,12 @@ func (p *Postgres) ReserveEquipment(ctx context.Context, items []domain.ReserveI
 // ReleaseEquipment освобождает зарезервированные единицы оборудования.
 func (p *Postgres) ReleaseEquipment(ctx context.Context, items []domain.ReserveItem) error {
 	for _, item := range items {
-		if err := p.q.ReleaseEquipment(ctx, int32(item.EquipmentID), int32(item.Quantity)); err != nil {
+		if err := p.q.ReleaseEquipment(ctx,
+			queries.ReleaseEquipmentParams{
+				ID:               int32(item.EquipmentID),
+				ReservedQuantity: int32(item.Quantity),
+			},
+		); err != nil {
 			return fmt.Errorf("ReleaseEquipment id=%d qty=%d: %w", item.EquipmentID, item.Quantity, err)
 		}
 	}
@@ -132,8 +144,6 @@ func (p *Postgres) CheckAvailability(ctx context.Context, items []domain.Reserve
 	}
 	return len(unavailable) == 0, unavailable, nil
 }
-
-// ─── helpers ────────────────────────────────────────────────────────────────
 
 func mapEquipment(r queries.Equipment) domain.Equipment {
 	var chars map[string]string

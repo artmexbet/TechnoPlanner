@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/mailru/easyjson"
-	"github.com/nats-io/nats.go"
 
 	"github.com/artmexbet/TechnoPlanner/libs/broker"
 	"github.com/artmexbet/TechnoPlanner/libs/config/subjects"
