@@ -162,26 +162,26 @@ services:
     networks:
       - tech-stage
 
-#  tech:
-#    build:
-#      context: ../
-#      dockerfile: ./deploy/build/Dockerfile
-#      args:
-#        service_name: tech
-#        cmd_path: cmd/app/main.go
-#    environment:
-#      CONFIG_PATH: ./stage.yaml
-#    volumes:
-#      - ../services/tech/cmd/config/stage.yaml:/app/stage.yaml:ro
-#    depends_on:
-#      db:
-#        condition: service_healthy
-#      broker:
-#        condition: service_started
+  equipment:
+    build:
+      context: ../
+      dockerfile: ./deploy/build/Dockerfile
+      args:
+        service_name: equipment
+        cmd_path: cmd/app/main.go
+    environment:
+      CONFIG_PATH: ./stage.yaml
+    volumes:
+      - ../services/equipment/cmd/config/stage.yaml:/app/stage.yaml:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      broker:
+        condition: service_started
 #      migrator:
 #        condition: service_completed_successfully
-#    networks:
-#      - tech-stage
+    networks:
+      - tech-stage
 
 networks:
   tech-stage:
