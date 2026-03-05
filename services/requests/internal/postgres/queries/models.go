@@ -75,6 +75,11 @@ type EquipmentToRequest struct {
 	UpdatedAt   time.Time
 }
 
+type Porter struct {
+	ID       uuid.UUID
+	Username string
+}
+
 type RawRequest struct {
 	ID                 uuid.UUID
 	TelegramID         int64
@@ -97,12 +102,7 @@ type Request struct {
 	Address        string
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	ResponsibleID  *uuid.UUID
-}
-
-type Porter struct {
-	ID       uuid.UUID
-	Username string
+	PorterID       *uuid.UUID
 }
 
 type TelegramUser struct {

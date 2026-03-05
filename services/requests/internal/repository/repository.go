@@ -12,6 +12,8 @@ import (
 type Postgres interface {
 	CreateRequest(ctx context.Context, req domain.Request) (*domain.Request, error)
 	CreateEquipment(ctx context.Context, technics []domain.Equipment) error
+	UpsertEquipment(ctx context.Context, eq domain.Equipment) error
+	DeleteEquipment(ctx context.Context, id int) error
 	GetRequestsByUserID(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]domain.Request, error)
 	UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status domain.StatusType) error
 	GetRequestByID(ctx context.Context, requestID uuid.UUID) (*domain.Request, error)
@@ -69,6 +71,14 @@ func (r *Repository) CreateRequest(ctx context.Context, req domain.Request) (*do
 
 func (r *Repository) CreateEquipment(ctx context.Context, technics []domain.Equipment) error {
 	return r.pg.CreateEquipment(ctx, technics)
+}
+
+func (r *Repository) UpsertEquipment(ctx context.Context, eq domain.Equipment) error {
+	return r.pg.UpsertEquipment(ctx, eq)
+}
+
+func (r *Repository) DeleteEquipment(ctx context.Context, id int) error {
+	return r.pg.DeleteEquipment(ctx, id)
 }
 
 func (r *Repository) GetRequestsByUserID(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]domain.Request, error) {

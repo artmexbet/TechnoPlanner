@@ -10,5 +10,5 @@ use (
 	./services/auth
 	./services/gateway
 	./services/requests
-	./services/tech
+	./services/equipment
 )

@@ -61,3 +61,18 @@ func (p *Postgres) CreateEquipment(ctx context.Context, technics []domain.Equipm
 	})
 	return errors.Join(errs...)
 }
+
+// UpsertEquipment выполняет INSERT ON CONFLICT UPDATE для синхронизации с equipment сервисом.
+func (p *Postgres) UpsertEquipment(ctx context.Context, eq domain.Equipment) error {
+	return p.q.UpsertEquipment(ctx, queries.UpsertEquipmentParams{
+		ID:          int32(eq.ID),
+		Name:        eq.Name,
+		Description: eq.Description,
+		Quantity:    int32(eq.Quantity),
+	})
+}
+
+// DeleteEquipment удаляет оборудование из локальной копии.
+func (p *Postgres) DeleteEquipment(ctx context.Context, id int) error {
+	return p.q.DeleteEquipmentByID(ctx, int32(id))
+}

@@ -59,6 +59,11 @@ const (
 	GatewayEquipmentDelete        = "gateway.equipment.delete"
 	GatewayEquipmentGetByCategory = "gateway.equipment.get.by_category"
 
+	// Equipment reservation subjects (Request-Reply, equipment service)
+	GatewayEquipmentReserve           = "gateway.equipment.reserve"
+	GatewayEquipmentRelease           = "gateway.equipment.release"
+	GatewayEquipmentCheckAvailability = "gateway.equipment.check"
+
 	// Equipment Category subjects (новое API Equipment Service)
 
 	GatewayEquipmentCategoryList   = "gateway.equipment_category.list"

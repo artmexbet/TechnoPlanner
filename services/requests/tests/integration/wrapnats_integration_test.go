@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 	"log/slog"
 	"testing"
 	"time"
 
+	"github.com/artmexbet/TechnoPlanner/libs/broker"
+	"github.com/artmexbet/TechnoPlanner/services/requests/internal/domain"
 	"github.com/artmexbet/TechnoPlanner/services/requests/internal/wrapnats"
 
 	"github.com/google/uuid"
@@ -76,6 +77,74 @@ func (m *MockRequestService) AssignResponsible(ctx context.Context, requestID uu
 	return args.Get(0).(*domain.Request), args.Error(1)
 }
 
+func (m *MockRequestService) UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error) {
+	args := m.Called(ctx, requestID, updates)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*domain.Request), args.Error(1)
+}
+
+func (m *MockRequestService) ListResponsibles(ctx context.Context) ([]domain.Porter, error) {
+	args := m.Called(ctx)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]domain.Porter), args.Error(1)
+}
+
+func (m *MockRequestService) SaveResponsible(ctx context.Context, id uuid.UUID, username string) error {
+	args := m.Called(ctx, id, username)
+	return args.Error(0)
+}
+
+func (m *MockRequestService) GetResponsible(ctx context.Context, id uuid.UUID) (domain.Porter, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).(domain.Porter), args.Error(1)
+}
+
+func (m *MockRequestService) DeleteResponsible(ctx context.Context, id uuid.UUID) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
+
+func (m *MockRequestService) CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*domain.RawRequest), args.Error(1)
+}
+
+func (m *MockRequestService) ListRawRequests(ctx context.Context, status string, limit, offset int32) ([]domain.RawRequest, error) {
+	args := m.Called(ctx, status, limit, offset)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]domain.RawRequest), args.Error(1)
+}
+
+func (m *MockRequestService) GetRawRequest(ctx context.Context, id uuid.UUID) (*domain.RawRequest, error) {
+	args := m.Called(ctx, id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*domain.RawRequest), args.Error(1)
+}
+
+func (m *MockRequestService) ProcessRawRequest(ctx context.Context, rawID uuid.UUID, newRequest domain.Request) (*domain.Request, *domain.RawRequest, error) {
+	args := m.Called(ctx, rawID, newRequest)
+	var req *domain.Request
+	var raw *domain.RawRequest
+	if args.Get(0) != nil {
+		req = args.Get(0).(*domain.Request)
+	}
+	if args.Get(1) != nil {
+		raw = args.Get(1).(*domain.RawRequest)
+	}
+	return req, raw, args.Error(2)
+}
+
 type MockEquipmentService struct {
 	mock.Mock
 }
@@ -85,7 +154,22 @@ func (m *MockEquipmentService) Add(ctx context.Context, technics []domain.Equipm
 	return args.Error(0)
 }
 
-// Вспомогательные функции
+func (m *MockEquipmentService) SyncCreate(ctx context.Context, eq domain.Equipment) error {
+	args := m.Called(ctx, eq)
+	return args.Error(0)
+}
+
+func (m *MockEquipmentService) SyncUpdate(ctx context.Context, eq domain.Equipment) error {
+	args := m.Called(ctx, eq)
+	return args.Error(0)
+}
+
+func (m *MockEquipmentService) SyncDelete(ctx context.Context, id int) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
+
+// setupNATSContainer возвращает нативный *nats.Conn для прямых подписок в тестах.
 func setupNATSContainer(t *testing.T) (*nats.Conn, func()) {
 	ctx := context.Background()
 	container, err := nContainer.Run(
@@ -115,16 +199,22 @@ func setupNATSContainer(t *testing.T) (*nats.Conn, func()) {
 	return natsConn, cleanup
 }
 
+// wrapConn оборачивает нативный *nats.Conn в *broker.NATS.
+func wrapConn(nc *nats.Conn) *broker.NATS {
+	return broker.WrapConn(nc)
+}
+
 func setupNATSWrapper(t *testing.T, natsConn *nats.Conn, mockReqSvc *MockRequestService, mockEqSvc *MockEquipmentService) *wrapnats.NatsWrapper {
 	cfg := &wrapnats.Config{
 		RequestTimeout: 5 * time.Second,
 	}
 
-	wrapper, err := wrapnats.New(cfg, natsConn, mockReqSvc, mockEqSvc)
+	brokerConn := wrapConn(natsConn)
+	wrapper, err := wrapnats.New(cfg, brokerConn, mockReqSvc, mockEqSvc)
 	require.NoError(t, err)
 
 	wrapper.HandleMsgs()
-	time.Sleep(200 * time.Millisecond) // Даем время подписчикам зарегистрироваться
+	time.Sleep(200 * time.Millisecond)
 
 	return wrapper
 }
@@ -138,7 +228,7 @@ func TestPublishRequestCreated(t *testing.T) {
 	natsConn, cleanup := setupNATSContainer(t)
 	defer cleanup()
 
-	publisher := wrapnats.NewNatsPublisher(natsConn)
+	publisher := wrapnats.NewNatsPublisher(wrapConn(natsConn))
 	received := make(chan domain.Request, 1)
 
 	_, err := natsConn.Subscribe("events.request.created", func(msg *nats.Msg) {
@@ -174,7 +264,7 @@ func TestPublishRequestCanceled(t *testing.T) {
 	natsConn, cleanup := setupNATSContainer(t)
 	defer cleanup()
 
-	publisher := wrapnats.NewNatsPublisher(natsConn)
+	publisher := wrapnats.NewNatsPublisher(wrapConn(natsConn))
 	received := make(chan domain.Request, 1)
 
 	_, err := natsConn.Subscribe("events.request.canceled", func(msg *nats.Msg) {
@@ -209,7 +299,7 @@ func TestPublishUserAdded(t *testing.T) {
 	natsConn, cleanup := setupNATSContainer(t)
 	defer cleanup()
 
-	publisher := wrapnats.NewNatsPublisher(natsConn)
+	publisher := wrapnats.NewNatsPublisher(wrapConn(natsConn))
 	received := make(chan domain.User, 1)
 
 	_, err := natsConn.Subscribe("events.user.added", func(msg *nats.Msg) {

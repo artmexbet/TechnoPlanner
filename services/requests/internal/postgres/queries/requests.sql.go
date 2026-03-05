@@ -14,23 +14,23 @@ import (
 
 const AssignResponsible = `-- name: AssignResponsible :one
 UPDATE requests
-SET responsible_id = $2,
+SET porter_id = $2,
     status         = CASE
                          WHEN status = 'pending' THEN 'assigned'::request_status
                          ELSE status
         END,
     updated_at     = NOW()
 WHERE id = $1
-RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
+RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, porter_id
 `
 
 type AssignResponsibleParams struct {
-	ID            uuid.UUID
-	ResponsibleID *uuid.UUID
+	ID       uuid.UUID
+	PorterID *uuid.UUID
 }
 
 func (q *Queries) AssignResponsible(ctx context.Context, arg AssignResponsibleParams) (Request, error) {
-	row := q.db.QueryRow(ctx, AssignResponsible, arg.ID, arg.ResponsibleID)
+	row := q.db.QueryRow(ctx, AssignResponsible, arg.ID, arg.PorterID)
 	var i Request
 	err := row.Scan(
 		&i.ID,
@@ -42,7 +42,7 @@ func (q *Queries) AssignResponsible(ctx context.Context, arg AssignResponsiblePa
 		&i.Address,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.ResponsibleID,
+		&i.PorterID,
 	)
 	return i, err
 }
@@ -50,7 +50,7 @@ func (q *Queries) AssignResponsible(ctx context.Context, arg AssignResponsiblePa
 const CreateRequest = `-- name: CreateRequest :one
 INSERT INTO requests (telegram_user_id, request_text, schedule_time, address, end_time)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
+RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, porter_id
 `
 
 type CreateRequestParams struct {
@@ -80,13 +80,13 @@ func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (R
 		&i.Address,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.ResponsibleID,
+		&i.PorterID,
 	)
 	return i, err
 }
 
 const GetRequestByID = `-- name: GetRequestByID :one
-SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, porter_id
 FROM requests
 WHERE id = $1
 `
@@ -104,13 +104,13 @@ func (q *Queries) GetRequestByID(ctx context.Context, id uuid.UUID) (Request, er
 		&i.Address,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.ResponsibleID,
+		&i.PorterID,
 	)
 	return i, err
 }
 
 const GetRequests = `-- name: GetRequests :many
-SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, porter_id
 FROM requests
 ORDER BY created_at DESC
 OFFSET $1 LIMIT $2
@@ -140,7 +140,7 @@ func (q *Queries) GetRequests(ctx context.Context, arg GetRequestsParams) ([]Req
 			&i.Address,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.ResponsibleID,
+			&i.PorterID,
 		); err != nil {
 			return nil, err
 		}
@@ -153,14 +153,14 @@ func (q *Queries) GetRequests(ctx context.Context, arg GetRequestsParams) ([]Req
 }
 
 const GetRequestsByResponsibleID = `-- name: GetRequestsByResponsibleID :many
-SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, porter_id
 FROM requests
-WHERE responsible_id = $1
+WHERE porter_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) GetRequestsByResponsibleID(ctx context.Context, responsibleID *uuid.UUID) ([]Request, error) {
-	rows, err := q.db.Query(ctx, GetRequestsByResponsibleID, responsibleID)
+func (q *Queries) GetRequestsByResponsibleID(ctx context.Context, porterID *uuid.UUID) ([]Request, error) {
+	rows, err := q.db.Query(ctx, GetRequestsByResponsibleID, porterID)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +178,7 @@ func (q *Queries) GetRequestsByResponsibleID(ctx context.Context, responsibleID 
 			&i.Address,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.ResponsibleID,
+			&i.PorterID,
 		); err != nil {
 			return nil, err
 		}
@@ -191,7 +191,7 @@ func (q *Queries) GetRequestsByResponsibleID(ctx context.Context, responsibleID 
 }
 
 const GetRequestsByTelegramUserID = `-- name: GetRequestsByTelegramUserID :many
-SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
+SELECT id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, porter_id
 FROM requests
 WHERE telegram_user_id = $1
 ORDER BY created_at DESC
@@ -223,7 +223,7 @@ func (q *Queries) GetRequestsByTelegramUserID(ctx context.Context, arg GetReques
 			&i.Address,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.ResponsibleID,
+			&i.PorterID,
 		); err != nil {
 			return nil, err
 		}
@@ -240,7 +240,7 @@ UPDATE requests
 SET status     = $2,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, responsible_id
+RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, porter_id
 `
 
 type UpdateRequestStatusParams struct {
@@ -261,7 +261,7 @@ func (q *Queries) UpdateRequestStatus(ctx context.Context, arg UpdateRequestStat
 		&i.Address,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.ResponsibleID,
+		&i.PorterID,
 	)
 	return i, err
 }

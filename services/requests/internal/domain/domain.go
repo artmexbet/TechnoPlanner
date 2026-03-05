@@ -89,6 +89,12 @@ type Porter struct {
 	Username string    `json:"username"`
 }
 
+// EquipmentReserveItem — позиция для резервации/освобождения оборудования
+type EquipmentReserveItem struct {
+	EquipmentID int `json:"equipment_id"`
+	Quantity    int `json:"quantity"`
+}
+
 // RawRequestStatus статус сырого запроса от бота
 type RawRequestStatus string
 
