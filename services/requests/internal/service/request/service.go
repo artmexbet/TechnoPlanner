@@ -35,20 +35,28 @@ type UserProvider interface {
 	GetUserByID(ctx context.Context, userID uuid.UUID) (domain.User, error)
 }
 
-type Service struct {
-	repository   Repository
-	userProvider UserProvider
+// EquipmentReserver интерфейс для резервации оборудования через equipment сервис
+type EquipmentReserver interface {
+	ReserveEquipment(ctx context.Context, items []domain.EquipmentReserveItem) error
+	ReleaseEquipment(ctx context.Context, items []domain.EquipmentReserveItem) error
 }
 
-func New(repository Repository, userProvider UserProvider) *Service {
+type Service struct {
+	repository        Repository
+	userProvider      UserProvider
+	equipmentReserver EquipmentReserver
+}
+
+func New(repository Repository, userProvider UserProvider, equipmentReserver EquipmentReserver) *Service {
 	return &Service{
-		repository:   repository,
-		userProvider: userProvider,
+		repository:        repository,
+		userProvider:      userProvider,
+		equipmentReserver: equipmentReserver,
 	}
 }
 
 func (s *Service) Add(ctx context.Context, newRequest domain.Request) (*domain.Request, error) {
-	issuer, err := s.repository.SaveTelegramUser(ctx, newRequest.Issuer) // Save or retrieve the user from db
+	issuer, err := s.repository.SaveTelegramUser(ctx, newRequest.Issuer)
 	if err != nil {
 		return nil, fmt.Errorf("add request: %w", err)
 	}
@@ -57,6 +65,22 @@ func (s *Service) Add(ctx context.Context, newRequest domain.Request) (*domain.R
 	request, err := s.repository.CreateRequest(ctx, newRequest)
 	if err != nil {
 		return nil, fmt.Errorf("add request: %w", err)
+	}
+
+	// Резервируем оборудование если есть и есть reserver
+	if s.equipmentReserver != nil && len(newRequest.Equipments) > 0 {
+		items := make([]domain.EquipmentReserveItem, len(newRequest.Equipments))
+		for i, eq := range newRequest.Equipments {
+			items[i] = domain.EquipmentReserveItem{
+				EquipmentID: eq.ID,
+				Quantity:    eq.Quantity,
+			}
+		}
+		if err := s.equipmentReserver.ReserveEquipment(ctx, items); err != nil {
+			// Компенсируем: отменяем созданную заявку если резервация провалилась
+			_ = s.repository.UpdateRequestStatus(ctx, request.ID, domain.StatusCanceled)
+			return nil, fmt.Errorf("reserve equipment: %w", err)
+		}
 	}
 
 	return request, nil
@@ -86,10 +110,31 @@ func (s *Service) Get(ctx context.Context, requestID uuid.UUID) (*domain.Request
 }
 
 func (s *Service) Cancel(ctx context.Context, requestID uuid.UUID) error {
-	err := s.repository.UpdateRequestStatus(ctx, requestID, domain.StatusCanceled)
+	// Получаем заявку чтобы знать список оборудования для освобождения
+	req, err := s.repository.GetRequestByID(ctx, requestID)
 	if err != nil {
+		return fmt.Errorf("cancel request: get request: %w", err)
+	}
+
+	if err := s.repository.UpdateRequestStatus(ctx, requestID, domain.StatusCanceled); err != nil {
 		return fmt.Errorf("cancel request: %w", err)
 	}
+
+	// Освобождаем зарезервированное оборудование
+	if s.equipmentReserver != nil && len(req.Equipments) > 0 {
+		items := make([]domain.EquipmentReserveItem, len(req.Equipments))
+		for i, eq := range req.Equipments {
+			items[i] = domain.EquipmentReserveItem{
+				EquipmentID: eq.ID,
+				Quantity:    eq.Quantity,
+			}
+		}
+		if err := s.equipmentReserver.ReleaseEquipment(ctx, items); err != nil {
+			// Логируем, но не возвращаем ошибку — заявка уже отменена
+			fmt.Printf("cancel request: release equipment warning: %v\n", err)
+		}
+	}
+
 	return nil
 }
 

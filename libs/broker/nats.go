@@ -112,6 +112,14 @@ func Connect(url string, options ...nats.Option) (*NATS, error) {
 	}, nil
 }
 
+// WrapConn оборачивает существующий *nats.Conn в *NATS (удобно в тестах).
+func WrapConn(nc *nats.Conn) *NATS {
+	return &NATS{
+		Conn:       nc,
+		propagator: otel.GetTextMapPropagator(),
+	}
+}
+
 func (n *NATS) Use(mw Middleware) {
 	n.middlewares = append(n.middlewares, mw)
 }

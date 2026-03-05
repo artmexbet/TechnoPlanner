@@ -11,6 +11,15 @@ import (
 	uuid "github.com/google/uuid"
 )
 
+const DeleteEquipmentByID = `-- name: DeleteEquipmentByID :exec
+DELETE FROM equipment WHERE id = $1
+`
+
+func (q *Queries) DeleteEquipmentByID(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, DeleteEquipmentByID, id)
+	return err
+}
+
 const GetEquipmentByRequestID = `-- name: GetEquipmentByRequestID :many
 SELECT t.id, t.name, t.description, t.quantity, t.created_at, t.updated_at FROM equipment_to_requests tr
 JOIN equipment t ON tr.equipment_id = t.id AND t.quantity > 0
@@ -43,4 +52,31 @@ func (q *Queries) GetEquipmentByRequestID(ctx context.Context, requestID uuid.UU
 		return nil, err
 	}
 	return items, nil
+}
+
+const UpsertEquipment = `-- name: UpsertEquipment :exec
+INSERT INTO equipment (id, name, description, quantity)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (id) DO UPDATE
+    SET name        = EXCLUDED.name,
+        description = EXCLUDED.description,
+        quantity    = EXCLUDED.quantity,
+        updated_at  = CURRENT_TIMESTAMP
+`
+
+type UpsertEquipmentParams struct {
+	ID          int32
+	Name        string
+	Description *string
+	Quantity    int32
+}
+
+func (q *Queries) UpsertEquipment(ctx context.Context, arg UpsertEquipmentParams) error {
+	_, err := q.db.Exec(ctx, UpsertEquipment,
+		arg.ID,
+		arg.Name,
+		arg.Description,
+		arg.Quantity,
+	)
+	return err
 }

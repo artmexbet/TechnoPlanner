@@ -39,6 +39,9 @@ type RequestService interface {
 
 type EquipmentService interface {
 	Add(ctx context.Context, technics []domain.Equipment) error
+	SyncCreate(ctx context.Context, eq domain.Equipment) error
+	SyncUpdate(ctx context.Context, eq domain.Equipment) error
+	SyncDelete(ctx context.Context, id int) error
 }
 
 // ResponsibleStorage интерфейс для работы с портерами при событии UserCreated
@@ -100,6 +103,10 @@ func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 		subjects.GatewayPorterSave:   w.handleGatewayCreateResponsible,
 		// Event handlers
 		subjects.UserCreated: w.handleUserCreated,
+		// Equipment sync events (pub/sub от Equipment Service)
+		subjects.EquipmentCreated: w.handleEquipmentCreatedEvent,
+		subjects.EquipmentUpdated: w.handleEquipmentUpdatedEvent,
+		subjects.EquipmentDeleted: w.handleEquipmentDeletedEvent,
 		// Raw request handlers (для gateway)
 		subjects.GatewayRawRequestList:    w.handleGatewayListRawRequests,
 		subjects.GatewayRawRequestGet:     w.handleGatewayGetRawRequest,

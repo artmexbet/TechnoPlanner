@@ -13,6 +13,8 @@ type TechEquipment struct {
 	Name                      string            `json:"name"`
 	Description               string            `json:"description"`
 	AdditionalCharacteristics map[string]string `json:"additional_characteristics,omitempty"`
+	Quantity                  int               `json:"quantity"`
+	ReservedQuantity          int               `json:"reserved_quantity,omitempty"`
 	CreatedAt                 time.Time         `json:"created_at,omitempty"`
 	UpdatedAt                 time.Time         `json:"updated_at,omitempty"`
 }
@@ -45,6 +47,7 @@ type TechEquipmentCreateRequest struct {
 	Name                      string            `json:"name"`
 	Description               string            `json:"description,omitempty"`
 	AdditionalCharacteristics map[string]string `json:"additional_characteristics,omitempty"`
+	Quantity                  int               `json:"quantity"`
 }
 
 // TechEquipmentUpdateRequest DTO запроса на обновление оборудования
@@ -56,6 +59,7 @@ type TechEquipmentUpdateRequest struct {
 	Name                      string            `json:"name"`
 	Description               string            `json:"description,omitempty"`
 	AdditionalCharacteristics map[string]string `json:"additional_characteristics,omitempty"`
+	Quantity                  int               `json:"quantity"`
 }
 
 // TechEquipmentDeleteRequest DTO запроса на удаление оборудования
@@ -107,6 +111,64 @@ type TechEquipmentCategoryDeleteRequest struct {
 //
 //easyjson:json
 type TechEquipmentCategoryGetByIDRequest struct {
+	ID int `json:"id"`
+}
+
+// ─── Резервация оборудования ──────────────────────────────────────────────────
+
+// EquipmentReserveItem — одна позиция резервации/освобождения
+//
+//easyjson:json
+type EquipmentReserveItem struct {
+	EquipmentID int `json:"equipment_id"`
+	Quantity    int `json:"quantity"`
+}
+
+// TechEquipmentReserveRequest — запрос на резервацию оборудования
+//
+//easyjson:json
+type TechEquipmentReserveRequest struct {
+	Items []EquipmentReserveItem `json:"items"`
+}
+
+// TechEquipmentReleaseRequest — запрос на освобождение оборудования
+//
+//easyjson:json
+type TechEquipmentReleaseRequest struct {
+	Items []EquipmentReserveItem `json:"items"`
+}
+
+// TechEquipmentCheckRequest — запрос на проверку доступности
+//
+//easyjson:json
+type TechEquipmentCheckRequest struct {
+	Items []EquipmentReserveItem `json:"items"`
+}
+
+// TechEquipmentCheckResponse — ответ на проверку доступности
+//
+//easyjson:json
+type TechEquipmentCheckResponse struct {
+	Available      bool  `json:"available"`
+	UnavailableIDs []int `json:"unavailable_ids,omitempty"`
+}
+
+// ─── События синхронизации (Equipment Service → Requests Service) ─────────────
+
+// EquipmentSyncEvent — событие создания/обновления оборудования
+//
+//easyjson:json
+type EquipmentSyncEvent struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Quantity    int    `json:"quantity"`
+}
+
+// EquipmentDeletedEvent — событие удаления оборудования
+//
+//easyjson:json
+type EquipmentDeletedEvent struct {
 	ID int `json:"id"`
 }
 

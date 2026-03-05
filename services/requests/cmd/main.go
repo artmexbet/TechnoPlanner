@@ -85,7 +85,8 @@ func main() {
 	repo := repository.NewRepository(pg, publisher)
 
 	userClient := wrapnats.NewUserClient(conn)
-	requestService := request.New(repo, userClient)
+	equipmentClient := wrapnats.NewEquipmentClient(conn)
+	requestService := request.New(repo, userClient, equipmentClient)
 	equipmentService := equipment.New(repo)
 
 	wrapper, err := wrapnats.New(cfg.Nats, conn, requestService, equipmentService)
