@@ -23,8 +23,10 @@ type Postgres interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 	GetRequestsByResponsibleID(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)
 	ListRequests(ctx context.Context, offset, limit int32) ([]domain.Request, error)
-	// Responsibles
-	ListResponsibles(ctx context.Context) ([]domain.Responsible, error)
+	// Porters
+	ListResponsibles(ctx context.Context) ([]domain.Porter, error)
+	GetResponsible(ctx context.Context, id uuid.UUID) (domain.Porter, error)
+	DeleteResponsible(ctx context.Context, id uuid.UUID) error
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error
 	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
 	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
@@ -157,9 +159,19 @@ func (r *Repository) ListRequests(ctx context.Context, offset, limit int32) ([]d
 	return r.pg.ListRequests(ctx, offset, limit)
 }
 
-// ListResponsibles возвращает список всех ответственных
-func (r *Repository) ListResponsibles(ctx context.Context) ([]domain.Responsible, error) {
+// ListResponsibles возвращает список всех портеров
+func (r *Repository) ListResponsibles(ctx context.Context) ([]domain.Porter, error) {
 	return r.pg.ListResponsibles(ctx)
+}
+
+// GetResponsible возвращает портера по ID
+func (r *Repository) GetResponsible(ctx context.Context, id uuid.UUID) (domain.Porter, error) {
+	return r.pg.GetResponsible(ctx, id)
+}
+
+// DeleteResponsible удаляет ответственного по ID
+func (r *Repository) DeleteResponsible(ctx context.Context, id uuid.UUID) error {
+	return r.pg.DeleteResponsible(ctx, id)
 }
 
 // AssignResponsible назначает ответственного за заявку

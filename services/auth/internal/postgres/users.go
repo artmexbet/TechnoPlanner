@@ -40,3 +40,22 @@ func (p *Postgres) FindUserByUsername(ctx context.Context, username string) (mod
 	}
 	return u.ToDomain(), nil
 }
+
+func (p *Postgres) UpdateUser(ctx context.Context, id uuid.UUID, username, email string) (models.User, error) {
+	u, err := p.q.UpdateUser(ctx, queries.UpdateUserParams{
+		ID:       id,
+		Username: username,
+		Email:    email,
+	})
+	if err != nil {
+		return models.User{}, fmt.Errorf("updateUser: %w", err)
+	}
+	return u.ToDomain(), nil
+}
+
+func (p *Postgres) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	if err := p.q.DeleteUser(ctx, id); err != nil {
+		return fmt.Errorf("deleteUser: %w", err)
+	}
+	return nil
+}

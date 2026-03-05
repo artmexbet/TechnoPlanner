@@ -24,7 +24,3 @@ packages:
     config:
       include-auto-generated: false
       all: true
-  github.com/artmexbet/TechnoPlanner/services/gateway/internal/service:
-    config:
-      include-auto-generated: false
-      all: true

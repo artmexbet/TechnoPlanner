@@ -1,0 +1,14 @@
+nats:
+  url: "nats://broker:4222"
+  request_timeout: 5s
+postgres:
+  host: "db"
+  port: 5432
+  user: "postgres"
+  password: "postgres"
+  db_name: "requests"
+  ssl_mode: "disable"
+trace:
+  insecure: true
+  endpoint: "jaeger:4318"
+

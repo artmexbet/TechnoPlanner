@@ -203,17 +203,17 @@ func (p *Postgres) UpdateRequest(ctx context.Context, requestID uuid.UUID, updat
 	if updates.Address != nil {
 		currentReq.Address = *updates.Address
 	}
-	if updates.ResponsibleID != nil {
-		err = p.AssignResponsible(ctx, requestID, updates.ResponsibleID)
+	if updates.PorterID != nil {
+		err = p.AssignResponsible(ctx, requestID, updates.PorterID)
 		if err != nil {
-			return nil, fmt.Errorf("error assigning responsible: %w", err)
+			return nil, fmt.Errorf("error assigning porter: %w", err)
 		}
-		if updates.ResponsibleID != nil {
-			resp, err := p.GetResponsibleByID(ctx, *updates.ResponsibleID)
+		if updates.PorterID != nil {
+			resp, err := p.GetResponsibleByID(ctx, *updates.PorterID)
 			if err != nil {
-				return nil, fmt.Errorf("error getting responsible: %w", err)
+				return nil, fmt.Errorf("error getting porter: %w", err)
 			}
-			currentReq.ResponsibleInfo = &domain.ResponsibleInfo{
+			currentReq.PorterInfo = &domain.PorterInfo{
 				UserID:   resp.ID,
 				Username: resp.Username,
 			}

@@ -100,7 +100,7 @@ type Request struct {
 	ResponsibleID  *uuid.UUID
 }
 
-type Responsible struct {
+type Porter struct {
 	ID       uuid.UUID
 	Username string
 }

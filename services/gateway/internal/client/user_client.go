@@ -140,6 +140,79 @@ func (c *UserClient) CreateUser(ctx context.Context, user domain.User) error {
 	return nil
 }
 
+// Update обновляет пользователя по ID
+func (c *UserClient) Update(ctx context.Context, id uuid.UUID, username, email string) (domain.User, error) {
+	req := dto.UserUpdateRequest{
+		ID:       id,
+		Username: username,
+		Email:    email,
+	}
+
+	data, err := req.MarshalJSON()
+	if err != nil {
+		return domain.User{}, fmt.Errorf("marshal request: %w", err)
+	}
+
+	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayUserUpdate, data)
+	if err != nil {
+		if errors.Is(err, nats.ErrNoResponders) {
+			return domain.User{}, domain.ErrNotFound
+		}
+		return domain.User{}, fmt.Errorf("nats request: %w", err)
+	}
+
+	var resp dto.GatewayResponse
+	if err := json.Unmarshal(msg.Data, &resp); err != nil {
+		return domain.User{}, fmt.Errorf("unmarshal response: %w", err)
+	}
+
+	if !resp.Success {
+		if resp.Message == "not found" {
+			return domain.User{}, domain.ErrNotFound
+		}
+		return domain.User{}, fmt.Errorf("service error: %s", resp.Message)
+	}
+
+	var result dto.User
+	if err := json.Unmarshal(resp.Data, &result); err != nil {
+		return domain.User{}, fmt.Errorf("unmarshal user: %w", err)
+	}
+
+	return mapUserFromDTO(result), nil
+}
+
+// Delete удаляет пользователя по ID
+func (c *UserClient) Delete(ctx context.Context, id uuid.UUID) error {
+	req := dto.UserDeleteRequest{ID: id}
+
+	data, err := req.MarshalJSON()
+	if err != nil {
+		return fmt.Errorf("marshal request: %w", err)
+	}
+
+	msg, err := c.conn.RequestWithContext(ctx, subjects.GatewayUserDelete, data)
+	if err != nil {
+		if errors.Is(err, nats.ErrNoResponders) {
+			return domain.ErrNotFound
+		}
+		return fmt.Errorf("nats request: %w", err)
+	}
+
+	var resp dto.GatewayResponse
+	if err := json.Unmarshal(msg.Data, &resp); err != nil {
+		return fmt.Errorf("unmarshal response: %w", err)
+	}
+
+	if !resp.Success {
+		if resp.Message == "not found" {
+			return domain.ErrNotFound
+		}
+		return fmt.Errorf("service error: %s", resp.Message)
+	}
+
+	return nil
+}
+
 func mapUserFromDTO(u dto.User) domain.User {
 	return domain.User{
 		ID:        u.ID,

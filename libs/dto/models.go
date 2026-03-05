@@ -208,8 +208,22 @@ type EquipmentUpdateRequest struct {
 	CategoryIDs []int32 `json:"category_ids,omitempty"`
 }
 
-// UserCreateRequest DTO запроса на создание пользователя
+// UserUpdateRequest DTO запроса на обновление пользователя
 //
+//easyjson:json
+type UserUpdateRequest struct {
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username,omitempty"`
+	Email    string    `json:"email,omitempty"`
+}
+
+// UserDeleteRequest DTO запроса на удаление пользователя
+//
+//easyjson:json
+type UserDeleteRequest struct {
+	ID uuid.UUID `json:"id"`
+}
+
 //easyjson:json
 type UserCreateRequest struct {
 	Username string `json:"username"`
@@ -227,18 +241,18 @@ type HistoryAddRequest struct {
 	Comment   string        `json:"comment,omitempty"`
 }
 
-// Responsible DTO ответственного
+// Porter DTO портера
 //
 //easyjson:json
-type Responsible struct {
+type Porter struct {
 	ID       uuid.UUID `json:"id"`
 	Username string    `json:"username"`
 }
 
-// ResponsibleCreateRequest DTO запроса на создание ответственного
+// PorterSaveRequest DTO запроса на сохранение портера (upsert)
 //
 //easyjson:json
-type ResponsibleCreateRequest struct {
+type PorterSaveRequest struct {
 	ID       uuid.UUID `json:"id"`
 	Username string    `json:"username"`
 }

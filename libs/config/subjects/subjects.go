@@ -26,26 +26,24 @@ const (
 	// GatewayRequestUpdate - обновление заявки от gateway
 	GatewayRequestUpdate = "gateway.requests.update"
 
-	// Responsible subjects
+	// Porter subjects (хранение портеров в Requests сервисе)
 
-	// GatewayResponsibleList - список всех ответственных
-	GatewayResponsibleList = "gateway.responsibles.list"
-	// GatewayResponsibleCreate - создание ответственного
-	GatewayResponsibleCreate = "gateway.responsibles.create"
-
-	// Category subjects (старое API)
-
-	GatewayCategoryList   = "gateway.category.list"
-	GatewayCategoryGet    = "gateway.category.get"
-	GatewayCategoryCreate = "gateway.category.create"
-	GatewayCategoryUpdate = "gateway.category.update"
-	GatewayCategoryDelete = "gateway.category.delete"
+	// GatewayPorterList - список всех портеров
+	GatewayPorterList = "gateway.porters.list"
+	// GatewayPorterGet - получение портера по ID
+	GatewayPorterGet = "gateway.porters.get"
+	// GatewayPorterDelete - удаление портера
+	GatewayPorterDelete = "gateway.porters.delete"
+	// GatewayPorterSave - сохранение (upsert) портера
+	GatewayPorterSave = "gateway.porters.save"
 
 	// User subjects
 
 	GatewayUserList   = "gateway.user.list"
 	GatewayUserGet    = "gateway.user.get"
 	GatewayUserCreate = "gateway.user.create"
+	GatewayUserUpdate = "gateway.user.update"
+	GatewayUserDelete = "gateway.user.delete"
 
 	// History subjects
 

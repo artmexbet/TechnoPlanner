@@ -118,7 +118,7 @@ func NewAuditFields(createdAt, updatedAt time.Time, createdBy, updatedBy *uuid.U
 	}
 }
 
-type Responsible struct {
+type Porter struct {
 	ID       uuid.UUID
 	Username string
 }

@@ -79,11 +79,11 @@ func (w *NatsWrapper) handleGatewayUpdateRequest(msg *broker.Msg) error {
 	}
 
 	updates := domain.RequestUpdate{
-		RequestText:   req.RequestText,
-		Status:        (*domain.StatusType)(req.Status),
-		ScheduleTime:  req.ScheduleTime,
-		Address:       req.Address,
-		ResponsibleID: req.ResponsibleID,
+		RequestText:  req.RequestText,
+		Status:       (*domain.StatusType)(req.Status),
+		ScheduleTime: req.ScheduleTime,
+		Address:      req.Address,
+		PorterID:     req.ResponsibleID,
 	}
 
 	updatedReq, err := w.reqService.UpdateRequest(ctx, req.RequestID, updates)
@@ -100,13 +100,13 @@ func (w *NatsWrapper) handleGatewayListResponsibles(msg *broker.Msg) error {
 
 	responsibles, err := w.reqService.ListResponsibles(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "error listing responsibles", "error", err)
+		slog.ErrorContext(ctx, "error listing porters", "error", err)
 		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
-	respDTO := make([]dto.Responsible, len(responsibles))
+	respDTO := make([]dto.Porter, len(responsibles))
 	for i, r := range responsibles {
-		respDTO[i] = dto.Responsible{
+		respDTO[i] = dto.Porter{
 			ID:       r.ID,
 			Username: r.Username,
 		}
@@ -118,19 +118,57 @@ func (w *NatsWrapper) handleGatewayListResponsibles(msg *broker.Msg) error {
 func (w *NatsWrapper) handleGatewayCreateResponsible(msg *broker.Msg) error {
 	ctx := msg.Context()
 
-	var req dto.ResponsibleCreateRequest
+	var req dto.PorterSaveRequest
 	if err := json.Unmarshal(msg.Data, &req); err != nil {
-		slog.ErrorContext(ctx, "error unmarshaling create responsible request", "error", err)
+		slog.ErrorContext(ctx, "error unmarshaling save porter request", "error", err)
 		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
 	}
 
 	if err := w.reqService.SaveResponsible(ctx, req.ID, req.Username); err != nil {
-		slog.ErrorContext(ctx, "error saving responsible", "error", err)
+		slog.ErrorContext(ctx, "error saving porter", "error", err)
 		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
 	}
 
-	return respondSuccess(msg.Msg, "success", dto.Responsible{
+	return respondSuccess(msg.Msg, "success", dto.Porter{
 		ID:       req.ID,
 		Username: req.Username,
 	})
+}
+
+func (w *NatsWrapper) handleGatewayGetResponsible(msg *broker.Msg) error {
+	ctx := msg.Context()
+
+	var req dto.UUIDRequest
+	if err := json.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling get porter request", "error", err)
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
+	}
+
+	responsible, err := w.reqService.GetResponsible(ctx, req.ID)
+	if err != nil {
+		slog.ErrorContext(ctx, "error getting porter", "error", err)
+		return respondError(msg.Msg, "not found", "porter not found", statusNotFound)
+	}
+
+	return respondSuccess(msg.Msg, "success", dto.Porter{
+		ID:       responsible.ID,
+		Username: responsible.Username,
+	})
+}
+
+func (w *NatsWrapper) handleGatewayDeleteResponsible(msg *broker.Msg) error {
+	ctx := msg.Context()
+
+	var req dto.UUIDRequest
+	if err := json.Unmarshal(msg.Data, &req); err != nil {
+		slog.ErrorContext(ctx, "error unmarshaling delete porter request", "error", err)
+		return respondError(msg.Msg, "invalid request format", err.Error(), statusBadRequest)
+	}
+
+	if err := w.reqService.DeleteResponsible(ctx, req.ID); err != nil {
+		slog.ErrorContext(ctx, "error deleting porter", "error", err)
+		return respondError(msg.Msg, "internal server error", err.Error(), statusInternalServerError)
+	}
+
+	return respondSuccess(msg.Msg, "success", nil)
 }

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/artmexbet/TechnoPlanner/services/auth/internal/models"
+	"github.com/google/uuid"
 )
 
 type Config struct {
@@ -28,7 +29,10 @@ type Redis interface {
 
 type Postgres interface {
 	FindUserByUsername(ctx context.Context, username string) (models.User, error)
+	FindUserByID(ctx context.Context, id uuid.UUID) (models.User, error)
 	CreateUser(ctx context.Context, username, email, passwordHash string, roleID int32) (models.User, error)
+	UpdateUser(ctx context.Context, id uuid.UUID, username, email string) (models.User, error)
+	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
 type Publisher interface {
@@ -97,6 +101,18 @@ func (r *Repository) DeleteSession(ctx context.Context, sessionID, userID string
 
 func (r *Repository) DeleteAllUserSessions(ctx context.Context, userID string) error {
 	return r.r.DeleteAllUserSessions(ctx, userID)
+}
+
+func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (models.User, error) {
+	return r.p.FindUserByID(ctx, id)
+}
+
+func (r *Repository) UpdateUser(ctx context.Context, id uuid.UUID, username, email string) (models.User, error) {
+	return r.p.UpdateUser(ctx, id, username, email)
+}
+
+func (r *Repository) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	return r.p.DeleteUser(ctx, id)
 }
 
 func (r *Repository) GetUserSessions(ctx context.Context, userID string) ([]*models.Session, error) {

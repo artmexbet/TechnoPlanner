@@ -19,18 +19,21 @@ func RequestStatusFromDomain(s domain.StatusType) *RequestStatus {
 
 func (r *Request) ToDomain() *domain.Request {
 	req := &domain.Request{
-		ID:          r.ID,
-		RequestText: r.RequestText,
-		Status:      r.Status.ToDomain(),
-		Equipments:  nil,
-		CreatedAt:   r.CreatedAt,
-		UpdatedAt:   r.UpdatedAt,
+		ID:           r.ID,
+		RequestText:  r.RequestText,
+		Status:       r.Status.ToDomain(),
+		ScheduleTime: r.ScheduleTime,
+		EndTime:      r.EndTime,
+		Address:      r.Address,
+		Equipments:   nil,
+		CreatedAt:    r.CreatedAt,
+		UpdatedAt:    r.UpdatedAt,
 	}
 
 	return req
 }
 
-func ResponsibleInfoFromDomain(r *domain.ResponsibleInfo) []byte {
+func PorterInfoFromDomain(r *domain.PorterInfo) []byte {
 	if r == nil {
 		return nil
 	}

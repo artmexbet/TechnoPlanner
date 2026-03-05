@@ -19,7 +19,9 @@ type Repository interface {
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error
 	ListRequests(ctx context.Context, limit, offset int32) ([]domain.Request, error)
 	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
-	ListResponsibles(ctx context.Context) ([]domain.Responsible, error)
+	ListResponsibles(ctx context.Context) ([]domain.Porter, error)
+	GetResponsible(ctx context.Context, id uuid.UUID) (domain.Porter, error)
+	DeleteResponsible(ctx context.Context, id uuid.UUID) error
 	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
 	// RawRequests
 	CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error)
@@ -135,16 +137,16 @@ func (s *Service) UpdateRequest(ctx context.Context, requestID uuid.UUID, update
 	return s.repository.UpdateRequest(ctx, requestID, updates)
 }
 
-// ListResponsibles возвращает список всех ответственных
-func (s *Service) ListResponsibles(ctx context.Context) ([]domain.Responsible, error) {
+// ListResponsibles возвращает список всех портеров
+func (s *Service) ListResponsibles(ctx context.Context) ([]domain.Porter, error) {
 	responsibles, err := s.repository.ListResponsibles(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("list responsibles: %w", err)
+		return nil, fmt.Errorf("list porters: %w", err)
 	}
 
-	result := make([]domain.Responsible, len(responsibles))
+	result := make([]domain.Porter, len(responsibles))
 	for i, r := range responsibles {
-		result[i] = domain.Responsible{
+		result[i] = domain.Porter{
 			ID:       r.ID,
 			Username: r.Username,
 		}
@@ -156,6 +158,20 @@ func (s *Service) ListResponsibles(ctx context.Context) ([]domain.Responsible, e
 // SaveResponsible сохраняет или обновляет ответственного
 func (s *Service) SaveResponsible(ctx context.Context, id uuid.UUID, username string) error {
 	return s.repository.SaveResponsible(ctx, id, username)
+}
+
+// GetResponsible возвращает портера по ID
+func (s *Service) GetResponsible(ctx context.Context, id uuid.UUID) (domain.Porter, error) {
+	resp, err := s.repository.GetResponsible(ctx, id)
+	if err != nil {
+		return domain.Porter{}, fmt.Errorf("get porter: %w", err)
+	}
+	return resp, nil
+}
+
+// DeleteResponsible удаляет ответственного по ID
+func (s *Service) DeleteResponsible(ctx context.Context, id uuid.UUID) error {
+	return s.repository.DeleteResponsible(ctx, id)
 }
 
 // CreateRawRequest сохраняет сырой запрос от Telegram-бота
