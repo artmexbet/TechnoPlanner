@@ -2,22 +2,30 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
 
 	"github.com/artmexbet/TechnoPlanner/services/gateway/internal/domain"
 )
 
+// PorterStorage интерфейс для работы с хранилищем портеров (Requests сервис)
 type PorterStorage interface {
-	List(ctx context.Context, roleID int32) ([]domain.User, error)
+	List(ctx context.Context) ([]domain.Porter, error)
+	Get(ctx context.Context, id uuid.UUID) (domain.Porter, error)
+	Delete(ctx context.Context, id uuid.UUID) error
+	Save(ctx context.Context, id uuid.UUID, username string) error
+}
+
+// AuthServiceConnector используется для создания портера через auth сервис
+type AuthServiceConnector interface {
+	RegisterPorter(ctx context.Context, username, password, email string) (string, error)
+}
+
+// UserStorage используется для обновления/удаления пользователя через auth
+type UserStorage interface {
 	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
 	Update(ctx context.Context, id uuid.UUID, username, email string) (domain.User, error)
 	Delete(ctx context.Context, id uuid.UUID) error
-}
-
-type AuthServiceConnector interface {
-	RegisterPorter(ctx context.Context, username, password, email string) (string, error)
 }
 
 const porterRoleID int32 = 2
@@ -25,50 +33,36 @@ const porterRoleID int32 = 2
 var PorterRoleID int32 = porterRoleID
 
 type PorterService struct {
-	storage PorterStorage
-	authSvc AuthServiceConnector
+	storage     PorterStorage
+	userStorage UserStorage
+	authSvc     AuthServiceConnector
 }
 
-func NewPorterService(storage PorterStorage, authSvc AuthServiceConnector) *PorterService {
+func NewPorterService(storage PorterStorage, userStorage UserStorage, authSvc AuthServiceConnector) *PorterService {
 	return &PorterService{
-		storage: storage,
-		authSvc: authSvc,
+		storage:     storage,
+		userStorage: userStorage,
+		authSvc:     authSvc,
 	}
 }
 
-func (s *PorterService) List(ctx context.Context) ([]domain.User, error) {
+func (s *PorterService) List(ctx context.Context) ([]domain.Porter, error) {
 	if err := requireAdmin(ctx); err != nil {
 		return nil, err
 	}
-	if s.storage == nil {
-		return nil, errors.New("porter storage not implemented")
-	}
-	return s.storage.List(ctx, porterRoleID)
+	return s.storage.List(ctx)
 }
 
-func (s *PorterService) Get(ctx context.Context, id uuid.UUID) (domain.User, error) {
+func (s *PorterService) Get(ctx context.Context, id uuid.UUID) (domain.Porter, error) {
 	if err := requireAdmin(ctx); err != nil {
-		return domain.User{}, err
-	}
-	if s.storage == nil {
-		return domain.User{}, errors.New("porter storage not implemented")
-	}
-	user, err := s.storage.Get(ctx, id)
-	if err != nil {
-		return domain.User{}, err
-	}
-	if user.RoleID != porterRoleID {
-		return domain.User{}, domain.ErrNotFound
-	}
-	return user, nil
-}
-
-// GetCurrentUser returns user by ID without role check (for /me endpoint)
-func (s *PorterService) GetCurrentUser(ctx context.Context, id uuid.UUID) (domain.User, error) {
-	if s.storage == nil {
-		return domain.User{}, errors.New("porter storage not implemented")
+		return domain.Porter{}, err
 	}
 	return s.storage.Get(ctx, id)
+}
+
+// GetCurrentUser возвращает текущего пользователя по ID (для /me endpoint)
+func (s *PorterService) GetCurrentUser(ctx context.Context, id uuid.UUID) (domain.User, error) {
+	return s.userStorage.Get(ctx, id)
 }
 
 func (s *PorterService) Create(ctx context.Context, username, email, password string) (string, error) {
@@ -76,6 +70,7 @@ func (s *PorterService) Create(ctx context.Context, username, email, password st
 		return "", err
 	}
 	// Вызываем auth service для регистрации нового porter'а
+	// При создании auth публикует UserCreated → Requests сохраняет как Porter автоматически
 	userID, err := s.authSvc.RegisterPorter(ctx, username, password, email)
 	if err != nil {
 		return "", err
@@ -87,32 +82,17 @@ func (s *PorterService) Update(ctx context.Context, id uuid.UUID, username, emai
 	if err := requireAdmin(ctx); err != nil {
 		return domain.User{}, err
 	}
-	if s.storage == nil {
-		return domain.User{}, errors.New("porter storage not implemented")
-	}
-	user, err := s.storage.Get(ctx, id)
-	if err != nil {
-		return domain.User{}, err
-	}
-	if user.RoleID != porterRoleID {
-		return domain.User{}, domain.ErrNotFound
-	}
-	return s.storage.Update(ctx, id, username, email)
+	return s.userStorage.Update(ctx, id, username, email)
 }
 
 func (s *PorterService) Delete(ctx context.Context, id uuid.UUID) error {
 	if err := requireAdmin(ctx); err != nil {
 		return err
 	}
-	if s.storage == nil {
-		return errors.New("porter storage not implemented")
-	}
-	user, err := s.storage.Get(ctx, id)
-	if err != nil {
+	// Удаляем из хранилища портеров (Requests)
+	if err := s.storage.Delete(ctx, id); err != nil {
 		return err
 	}
-	if user.RoleID != porterRoleID {
-		return domain.ErrNotFound
-	}
-	return s.storage.Delete(ctx, id)
+	// Удаляем пользователя из auth сервиса
+	return s.userStorage.Delete(ctx, id)
 }

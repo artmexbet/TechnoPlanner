@@ -25,13 +25,13 @@ func (r *Router) InitPorterRoutes() *Router {
 func (r *Router) listPorters() fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := r.userContext(c)
-		users, err := r.porterSvc.List(ctx)
+		porters, err := r.porterSvc.List(ctx)
 		if err != nil {
 			return handleServiceError(c, err)
 		}
-		resp := models.PorterListResponse{Items: make([]models.PorterResponse, 0, len(users))}
-		for _, u := range users {
-			resp.Items = append(resp.Items, toPorterResponse(u))
+		resp := models.PorterListResponse{Items: make([]models.PorterResponse, 0, len(porters))}
+		for _, p := range porters {
+			resp.Items = append(resp.Items, toPorterResponseFromDomainPorter(p))
 		}
 		return c.Status(fiber.StatusOK).JSON(resp)
 	}
@@ -44,11 +44,11 @@ func (r *Router) getPorter() fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid porter id"})
 		}
 		ctx := r.userContext(c)
-		user, err := r.porterSvc.Get(ctx, id)
+		porter, err := r.porterSvc.Get(ctx, id)
 		if err != nil {
 			return handleServiceError(c, err)
 		}
-		return c.Status(fiber.StatusOK).JSON(toPorterResponse(user))
+		return c.Status(fiber.StatusOK).JSON(toPorterResponseFromDomainPorter(porter))
 	}
 }
 
@@ -113,5 +113,12 @@ func toPorterResponse(u domain.User) models.PorterResponse {
 		Email:     u.Email,
 		CreatedAt: u.CreatedAt.Format(time.RFC3339),
 		UpdatedAt: u.UpdatedAt.Format(time.RFC3339),
+	}
+}
+
+func toPorterResponseFromDomainPorter(p domain.Porter) models.PorterResponse {
+	return models.PorterResponse{
+		ID:       p.ID.String(),
+		Username: p.Username,
 	}
 }

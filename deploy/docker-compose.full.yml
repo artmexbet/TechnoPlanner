@@ -14,14 +14,19 @@ services:
     ports:
       - "5433:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres # todo: change to true values
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
     env_file:
       - ".env"
     volumes:
       - indie_data:/var/lib/postgresql/data
       - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - tech-stage
 
@@ -73,26 +78,23 @@ services:
     networks:
       - tech-stage
 
-  migrator:
-    build:
-      context: ./migrator
-      dockerfile: Dockerfile
-    depends_on:
-      - db
-    environment:
-      POSTGRES_HOST: db
-      POSTGRES_PORT: "5432"
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      AUTH_DB: auth
-      GATEWAY_DB: gateway
-      REQUESTS_DB: requests
-    volumes:
-      - ../services/auth/migrations:/migrations/auth:ro
-      - ../services/gateway/migrations:/migrations/gateway:ro
-      - ../services/requests/migrations:/migrations/requests:ro
-    networks:
-      - tech-stage
+#  migrator:
+#    build:
+#      context: ./migrator
+#      dockerfile: Dockerfile
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    environment:
+#      POSTGRES_HOST: db
+#      POSTGRES_PORT: "5432"
+#    volumes:
+#      - ../services/auth/migrations:/migrations/auth:ro
+#      - ../services/gateway/migrations:/migrations/gateway:ro
+#      - ../services/requests/migrations:/migrations/requests:ro
+#      - ../services/tech/migrations:/migrations/tech:ro
+#    networks:
+#      - tech-stage
 
   auth:
     build:
@@ -105,12 +107,16 @@ services:
     volumes:
       - ../services/auth/cmd/config/stage.yaml:/app/stage.yaml:ro
     ports:
-      - "8081:8081"
+      - "${AUTH_PORT:-8081}:8081"
     depends_on:
-      - db
-      - redis
-      - broker
-      - migrator
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      broker:
+        condition: service_started
+#      migrator:
+#        condition: service_completed_successfully
     networks:
       - tech-stage
 
@@ -125,13 +131,57 @@ services:
     volumes:
       - ../services/gateway/cmd/config/stage.yaml:/app/stage.yaml:ro
     ports:
-      - "8080:8080"
+      - "${GATEWAY_PORT:-8080}:8080"
     depends_on:
-      - auth
-      - broker
-      - migrator
+      auth:
+        condition: service_started
+      broker:
+        condition: service_started
+#      migrator:
+#        condition: service_completed_successfully
     networks:
       - tech-stage
+
+  requests:
+    build:
+      context: ../
+      dockerfile: ./deploy/build/Dockerfile
+      args:
+        service_name: requests
+    environment:
+      CONFIG_PATH: ./stage.yaml
+    volumes:
+      - ../services/requests/cmd/config/stage.yaml:/app/stage.yaml:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      broker:
+        condition: service_started
+#      migrator:
+#        condition: service_completed_successfully
+    networks:
+      - tech-stage
+
+#  tech:
+#    build:
+#      context: ../
+#      dockerfile: ./deploy/build/Dockerfile
+#      args:
+#        service_name: tech
+#        cmd_path: cmd/app/main.go
+#    environment:
+#      CONFIG_PATH: ./stage.yaml
+#    volumes:
+#      - ../services/tech/cmd/config/stage.yaml:/app/stage.yaml:ro
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#      broker:
+#        condition: service_started
+#      migrator:
+#        condition: service_completed_successfully
+#    networks:
+#      - tech-stage
 
 networks:
   tech-stage:

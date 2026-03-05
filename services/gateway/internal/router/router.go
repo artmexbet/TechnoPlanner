@@ -35,8 +35,8 @@ type AuthSvcConnector interface {
 }
 
 type PorterService interface {
-	List(ctx context.Context) ([]domain.User, error)
-	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
+	List(ctx context.Context) ([]domain.Porter, error)
+	Get(ctx context.Context, id uuid.UUID) (domain.Porter, error)
 	GetCurrentUser(ctx context.Context, id uuid.UUID) (domain.User, error)
 	Create(ctx context.Context, username, email, password string) (string, error)
 	Update(ctx context.Context, id uuid.UUID, username, email string) (domain.User, error)
@@ -70,13 +70,6 @@ type HistoryService interface {
 	Add(ctx context.Context, entry domain.RequestStatusHistory) (domain.RequestStatusHistory, error)
 }
 
-type ResponsibleService interface {
-	List(ctx context.Context) ([]domain.Responsible, error)
-	Create(ctx context.Context, id uuid.UUID, username string) (domain.Responsible, error)
-	Get(ctx context.Context, id uuid.UUID) (domain.Responsible, error)
-	Delete(ctx context.Context, id uuid.UUID) error
-}
-
 type RawRequestService interface {
 	List(ctx context.Context, status string, limit, offset int32) ([]domain.RawRequest, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.RawRequest, error)
@@ -92,16 +85,15 @@ type Router struct {
 	r         *fiber.App
 	validator *validator.Validate
 
-	cfg            Config
-	userSvc        UserService
-	authSvc        AuthSvcConnector
-	porterSvc      PorterService
-	equipmentSvc   EquipmentService
-	categorySvc    CategoryService
-	requestSvc     RequestService
-	historySvc     HistoryService
-	responsibleSvc ResponsibleService
-	rawRequestSvc  RawRequestService
+	cfg           Config
+	userSvc       UserService
+	authSvc       AuthSvcConnector
+	porterSvc     PorterService
+	equipmentSvc  EquipmentService
+	categorySvc   CategoryService
+	requestSvc    RequestService
+	historySvc    HistoryService
+	rawRequestSvc RawRequestService
 }
 
 func NewRouter(
@@ -113,22 +105,20 @@ func NewRouter(
 	categorySvc CategoryService,
 	requestSvc RequestService,
 	historySvc HistoryService,
-	responsibleSvc ResponsibleService,
 	rawRequestSvc RawRequestService,
 ) *Router {
 	return &Router{
-		r:              fiber.New(),
-		validator:      validator.New(validator.WithRequiredStructEnabled()),
-		cfg:            cfg,
-		userSvc:        userSvc,
-		authSvc:        authSvc,
-		porterSvc:      porterSvc,
-		equipmentSvc:   equipmentSvc,
-		categorySvc:    categorySvc,
-		requestSvc:     requestSvc,
-		historySvc:     historySvc,
-		responsibleSvc: responsibleSvc,
-		rawRequestSvc:  rawRequestSvc,
+		r:             fiber.New(),
+		validator:     validator.New(validator.WithRequiredStructEnabled()),
+		cfg:           cfg,
+		userSvc:       userSvc,
+		authSvc:       authSvc,
+		porterSvc:     porterSvc,
+		equipmentSvc:  equipmentSvc,
+		categorySvc:   categorySvc,
+		requestSvc:    requestSvc,
+		historySvc:    historySvc,
+		rawRequestSvc: rawRequestSvc,
 	}
 }
 

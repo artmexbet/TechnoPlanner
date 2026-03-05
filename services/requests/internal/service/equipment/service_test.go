@@ -15,12 +15,12 @@ var errRepo = errors.New("repo error")
 
 type equipmentServiceTestSuite struct {
 	suite.Suite
-	repo    *mockiRepository
+	repo    *MockRepository
 	service *Service
 }
 
 func (s *equipmentServiceTestSuite) SetupTest() {
-	s.repo = newMockiRepository(s.T())
+	s.repo = NewMockRepository(s.T())
 	s.service = New(s.repo)
 }
 

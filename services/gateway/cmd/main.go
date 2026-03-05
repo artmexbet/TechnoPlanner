@@ -75,7 +75,8 @@ func main() {
 
 	// Создаем клиенты для сервисов через NATS Request-Reply
 	userClient := client.NewUserClient(natsConn)
-	porterSvc := service.NewPorterService(userClient, authSvc)
+	porterClient := client.NewPorterClient(natsConn)
+	porterSvc := service.NewPorterService(porterClient, userClient, authSvc)
 	equipmentClient := client.NewEquipmentClient(natsConn)
 	equipmentSvc := service.NewEquipmentService(equipmentClient)
 	categoryClient := client.NewCategoryClient(natsConn)
@@ -83,11 +84,9 @@ func main() {
 	requestSvc := service.NewRequestService(requestClient)
 	historyClient := client.NewHistoryClient(natsConn)
 	historySvc := service.NewRequestHistoryService(historyClient)
-	responsibleClient := client.NewResponsibleClient(natsConn)
-	responsibleSvc := service.NewResponsibleService(responsibleClient)
 	rawRequestSvc := service.NewRawRequestService(requestClient)
 
-	r := router.NewRouter(cfg.Router, nil, authSvc, porterSvc, equipmentSvc, categorySvc, requestSvc, historySvc, responsibleSvc, rawRequestSvc).
+	r := router.NewRouter(cfg.Router, nil, authSvc, porterSvc, equipmentSvc, categorySvc, requestSvc, historySvc, rawRequestSvc).
 		InitMiddlewares(tracer).
 		InitBaseRoutes().
 		InitUserRoutes().
@@ -95,7 +94,6 @@ func main() {
 		InitPorterRoutes().
 		InitEquipmentRoutes().
 		InitRequestRoutes().
-		InitResponsibleRoutes().
 		InitRawRequestRoutes()
 	slog.Info("Starting HTTP server")
 	r.Run()

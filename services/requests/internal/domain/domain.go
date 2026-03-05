@@ -36,21 +36,21 @@ func (s *StatusType) Set(value interface{}) error {
 }
 
 type Request struct {
-	ID              uuid.UUID        `json:"id"`
-	RequestText     *string          `json:"request_text"`
-	Status          StatusType       `json:"status"`
-	Equipments      []Equipment      `json:"equipments"`
-	EquipmentString *string          `json:"equipment_string"`
-	Issuer          User             `json:"issuer"`
-	ScheduleTime    string           `json:"schedule_time"`
-	EndTime         time.Time        `json:"end_time"`
-	Address         string           `json:"address"`
-	ResponsibleInfo *ResponsibleInfo `json:"responsible_info,omitempty"`
-	CreatedAt       time.Time        `json:"created_at"`
-	UpdatedAt       time.Time        `json:"updated_at"`
+	ID              uuid.UUID   `json:"id"`
+	RequestText     *string     `json:"request_text"`
+	Status          StatusType  `json:"status"`
+	Equipments      []Equipment `json:"equipments"`
+	EquipmentString *string     `json:"equipment_string"`
+	Issuer          User        `json:"issuer"`
+	ScheduleTime    string      `json:"schedule_time"`
+	EndTime         time.Time   `json:"end_time"`
+	Address         string      `json:"address"`
+	PorterInfo      *PorterInfo `json:"porter_info,omitempty"`
+	CreatedAt       time.Time   `json:"created_at"`
+	UpdatedAt       time.Time   `json:"updated_at"`
 }
 
-type ResponsibleInfo struct {
+type PorterInfo struct {
 	UserID   uuid.UUID `json:"user_id"`
 	Username string    `json:"username"`
 }
@@ -77,14 +77,14 @@ type Equipment struct {
 }
 
 type RequestUpdate struct {
-	RequestText   *string     `json:"request_text,omitempty"`
-	Status        *StatusType `json:"status,omitempty"`
-	ScheduleTime  *string     `json:"schedule_time,omitempty"`
-	Address       *string     `json:"address,omitempty"`
-	ResponsibleID *uuid.UUID  `json:"responsible_id,omitempty"`
+	RequestText  *string     `json:"request_text,omitempty"`
+	Status       *StatusType `json:"status,omitempty"`
+	ScheduleTime *string     `json:"schedule_time,omitempty"`
+	Address      *string     `json:"address,omitempty"`
+	PorterID     *uuid.UUID  `json:"porter_id,omitempty"`
 }
 
-type Responsible struct {
+type Porter struct {
 	ID       uuid.UUID `json:"id"`
 	Username string    `json:"username"`
 }

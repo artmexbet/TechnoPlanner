@@ -88,7 +88,7 @@ func main() {
 	requestService := request.New(repo, userClient)
 	equipmentService := equipment.New(repo)
 
-	wrapper, err := wrapnats.New(cfg.Nats, conn, requestService, equipmentService, pg)
+	wrapper, err := wrapnats.New(cfg.Nats, conn, requestService, equipmentService)
 	if err != nil {
 		panic(err)
 	}

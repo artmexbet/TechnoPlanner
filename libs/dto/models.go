@@ -241,18 +241,18 @@ type HistoryAddRequest struct {
 	Comment   string        `json:"comment,omitempty"`
 }
 
-// Responsible DTO ответственного
+// Porter DTO портера
 //
 //easyjson:json
-type Responsible struct {
+type Porter struct {
 	ID       uuid.UUID `json:"id"`
 	Username string    `json:"username"`
 }
 
-// ResponsibleCreateRequest DTO запроса на создание ответственного
+// PorterSaveRequest DTO запроса на сохранение портера (upsert)
 //
 //easyjson:json
-type ResponsibleCreateRequest struct {
+type PorterSaveRequest struct {
 	ID       uuid.UUID `json:"id"`
 	Username string    `json:"username"`
 }

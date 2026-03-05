@@ -18,15 +18,13 @@ tags:
   - name: users
     description: User management
   - name: porters
-    description: Porter listings
+    description: Porter management (stored in Requests service)
   - name: equipment
     description: Equipment catalog management
   - name: categories
     description: Equipment categories
   - name: requests
     description: Equipment request workflows
-  - name: responsibles
-    description: Responsible persons management
   - name: raw-requests
     description: Raw (bot) requests management
 paths:
@@ -151,6 +149,9 @@ paths:
         - bearerAuth: []
       tags: [porters]
       summary: List porters
+      description: >
+        Returns the list of all porters stored in the Requests service.
+        Requires admin role.
       responses:
         '200':
           description: Porter list
@@ -165,7 +166,10 @@ paths:
         - bearerAuth: []
       tags: [porters]
       summary: Create a new porter
-      description: Creates a new porter user. Requires admin role.
+      description: >
+        Registers a new porter via the Auth service. On success the Auth service
+        publishes a `UserCreated` event (role_id=2) which the Requests service
+        persists automatically. Requires admin role.
       requestBody:
         required: true
         content:
@@ -183,7 +187,7 @@ paths:
                   id:
                     type: string
                     format: uuid
-                    description: ID of the created porter
+                    description: UUID of the created porter
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -196,6 +200,7 @@ paths:
         - bearerAuth: []
       tags: [porters]
       summary: Get porter by ID
+      description: Retrieves porter info from the Requests service. Requires admin role.
       responses:
         '200':
           description: Porter found
@@ -211,7 +216,9 @@ paths:
         - bearerAuth: []
       tags: [porters]
       summary: Update porter by ID
-      description: Updates the username and email of an existing porter. Requires admin role.
+      description: >
+        Updates the username and email of an existing porter via the Auth service.
+        Requires admin role.
       requestBody:
         required: true
         content:
@@ -224,7 +231,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PorterResponse'
+                $ref: '#/components/schemas/PorterFullResponse'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -234,7 +241,9 @@ paths:
         - bearerAuth: []
       tags: [porters]
       summary: Delete porter by ID
-      description: Removes a porter from the system. Requires admin role.
+      description: >
+        Removes the porter from the Requests service storage and deletes the
+        user account from the Auth service. Requires admin role.
       responses:
         '204': { description: Deleted }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -407,11 +416,11 @@ paths:
       summary: List requests
       parameters:
         - in: query
-          name: responsible_id
+          name: porter_id
           schema:
             type: string
             format: uuid
-          description: Filter by responsible porter
+          description: Filter by assigned porter UUID. Omit to get all requests (admin only).
       responses:
         '200':
           description: Requests list
@@ -465,20 +474,21 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
-  /api/v1/requests/{requestId}/responsible:
+  /api/v1/requests/{requestId}/porter:
     parameters:
       - $ref: '#/components/parameters/RequestId'
     post:
       security:
         - bearerAuth: []
       tags: [requests]
-      summary: Assign responsible porter
+      summary: Assign porter to request
+      description: Assigns or unassigns a porter to an equipment request. Requires admin role.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AssignResponsibleRequest'
+              $ref: '#/components/schemas/AssignPorterRequest'
       responses:
         '200':
           description: Assignment updated
@@ -526,80 +536,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RequestStatusHistoryResponse'
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-  /api/v1/responsibles:
-    get:
-      security:
-        - bearerAuth: []
-      tags: [responsibles]
-      summary: List responsible persons
-      responses:
-        '200':
-          description: Responsible persons list
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponsibleListResponse'
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-    post:
-      security:
-        - bearerAuth: []
-      tags: [responsibles]
-      summary: Create a responsible person
-      description: Registers an existing user as a responsible person for requests.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResponsibleCreateRequest'
-      responses:
-        '201':
-          description: Responsible person created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponsibleResponse'
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '500': { $ref: '#/components/responses/InternalError' }
-  /api/v1/responsibles/{responsibleId}:
-    parameters:
-      - name: responsibleId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      security:
-        - bearerAuth: []
-      tags: [responsibles]
-      summary: Get responsible person by ID
-      responses:
-        '200':
-          description: Responsible person found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponsibleResponse'
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-    delete:
-      security:
-        - bearerAuth: []
-      tags: [responsibles]
-      summary: Delete responsible person by ID
-      description: Removes a responsible person from the system. Requires admin role.
-      responses:
-        '204': { description: Deleted }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -709,6 +645,7 @@ components:
       schema:
         type: string
         format: uuid
+      description: UUID of the porter
     RawRequestId:
       name: rawRequestId
       in: path
@@ -812,6 +749,19 @@ components:
           enum: [admin, porter]
     PorterResponse:
       type: object
+      description: >
+        Porter info as stored in the Requests service.
+        Only id and username are guaranteed; email and timestamps are populated
+        only when the data originates from the Auth service (e.g. after PUT).
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+    PorterFullResponse:
+      type: object
+      description: Full porter info returned after create/update via Auth service.
       properties:
         id:
           type: string
@@ -1009,10 +959,11 @@ components:
           nullable: true
         address:
           type: string
-        responsible_id:
+        porter_id:
           type: string
           format: uuid
           nullable: true
+          description: UUID of the assigned porter
         equipment:
           type: array
           items:
@@ -1058,17 +1009,20 @@ components:
         address:
           type: string
           nullable: true
-        responsible_id:
+        porter_id:
           type: string
           format: uuid
           nullable: true
-    AssignResponsibleRequest:
+          description: UUID of the porter to assign (null to unassign)
+    AssignPorterRequest:
       type: object
-      required: [responsible_id]
+      required: [porter_id]
       properties:
-        responsible_id:
+        porter_id:
           type: string
           format: uuid
+          nullable: true
+          description: UUID of the porter to assign, or null to unassign
     RequestStatusUpdateRequest:
       type: object
       required: [status]
@@ -1106,33 +1060,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RequestStatusHistoryResponse'
-    ResponsibleResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        username:
-          type: string
-    ResponsibleListResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponsibleResponse'
-    ResponsibleCreateRequest:
-      type: object
-      required: [id, username]
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: UUID of the existing user to make responsible
-        username:
-          type: string
-          minLength: 3
-          maxLength: 30
     RawRequestResponse:
       type: object
       description: Raw request coming from the Telegram bot

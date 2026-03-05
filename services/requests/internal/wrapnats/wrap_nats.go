@@ -26,9 +26,9 @@ type RequestService interface {
 	ListByResponsible(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error)
 	AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) (*domain.Request, error)
 	UpdateRequest(ctx context.Context, requestID uuid.UUID, updates domain.RequestUpdate) (*domain.Request, error)
-	ListResponsibles(ctx context.Context) ([]domain.Responsible, error)
+	ListResponsibles(ctx context.Context) ([]domain.Porter, error)
 	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
-	GetResponsible(ctx context.Context, id uuid.UUID) (domain.Responsible, error)
+	GetResponsible(ctx context.Context, id uuid.UUID) (domain.Porter, error)
 	DeleteResponsible(ctx context.Context, id uuid.UUID) error
 	// Raw request methods
 	CreateRawRequest(ctx context.Context, req domain.RawRequest) (*domain.RawRequest, error)
@@ -41,8 +41,8 @@ type EquipmentService interface {
 	Add(ctx context.Context, technics []domain.Equipment) error
 }
 
-// ResponsibleStorage интерфейс для работы с ответственными пользователями
-type ResponsibleStorage interface {
+// ResponsibleStorage интерфейс для работы с портерами при событии UserCreated
+type PorterStorage interface {
 	SaveResponsible(ctx context.Context, id uuid.UUID, username string) error
 }
 
@@ -59,17 +59,15 @@ type NatsWrapper struct {
 
 	reqService RequestService
 	eqService  EquipmentService
-	respStore  ResponsibleStorage
 }
 
-func New(cfg *Config, conn *broker.NATS, reqService RequestService, eqService EquipmentService, respStore ResponsibleStorage) (*NatsWrapper, error) {
+func New(cfg *Config, conn *broker.NATS, reqService RequestService, eqService EquipmentService) (*NatsWrapper, error) {
 	return &NatsWrapper{
 		conn:       conn,
 		validator:  validator.New(validator.WithRequiredStructEnabled()),
 		cfg:        cfg,
 		reqService: reqService,
 		eqService:  eqService,
-		respStore:  respStore,
 	}, nil
 }
 
@@ -95,11 +93,11 @@ func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 		subjects.GatewayRequestGet:               w.handleGatewayGetRequest,
 		subjects.GatewayRequestAssignResponsible: w.handleGatewayAssignResponsible,
 		subjects.GatewayRequestUpdate:            w.handleGatewayUpdateRequest,
-		// Responsible handlers
-		subjects.GatewayResponsibleList:   w.handleGatewayListResponsibles,
-		subjects.GatewayResponsibleCreate: w.handleGatewayCreateResponsible,
-		subjects.GatewayResponsibleGet:    w.handleGatewayGetResponsible,
-		subjects.GatewayResponsibleDelete: w.handleGatewayDeleteResponsible,
+		// Porter handlers (хранение портеров в Requests)
+		subjects.GatewayPorterList:   w.handleGatewayListResponsibles,
+		subjects.GatewayPorterGet:    w.handleGatewayGetResponsible,
+		subjects.GatewayPorterDelete: w.handleGatewayDeleteResponsible,
+		subjects.GatewayPorterSave:   w.handleGatewayCreateResponsible,
 		// Event handlers
 		subjects.UserCreated: w.handleUserCreated,
 		// Raw request handlers (для gateway)
@@ -119,6 +117,7 @@ func (w *NatsWrapper) HandleMsgs() *NatsWrapper {
 }
 
 // handleUserCreated обрабатывает событие создания пользователя от auth сервиса
+// Сохраняет пользователя как портера только если у него роль porter (roleID=2)
 func (w *NatsWrapper) handleUserCreated(msg *broker.Msg) error {
 	ctx := msg.Context()
 
@@ -128,11 +127,17 @@ func (w *NatsWrapper) handleUserCreated(msg *broker.Msg) error {
 		return err
 	}
 
-	if err := w.respStore.SaveResponsible(ctx, event.ID, event.Username); err != nil {
-		slog.ErrorContext(ctx, "error saving responsible", "error", err, "user_id", event.ID, "username", event.Username)
+	// Сохраняем только портеров (role_id = 2)
+	if event.RoleID != 2 {
+		slog.InfoContext(ctx, "skipping non-porter user", "user_id", event.ID, "role_id", event.RoleID)
+		return nil
+	}
+
+	if err := w.reqService.SaveResponsible(ctx, event.ID, event.Username); err != nil {
+		slog.ErrorContext(ctx, "error saving porter", "error", err, "user_id", event.ID, "username", event.Username)
 		return err
 	}
 
-	slog.InfoContext(ctx, "responsible user saved", "user_id", event.ID, "username", event.Username)
+	slog.InfoContext(ctx, "porter saved", "user_id", event.ID, "username", event.Username)
 	return nil
 }

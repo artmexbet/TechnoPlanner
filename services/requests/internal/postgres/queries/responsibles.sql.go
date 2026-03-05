@@ -12,7 +12,7 @@ import (
 )
 
 const DeleteResponsible = `-- name: DeleteResponsible :exec
-DELETE FROM responsibles
+DELETE FROM porters
 WHERE id = $1
 `
 
@@ -23,45 +23,45 @@ func (q *Queries) DeleteResponsible(ctx context.Context, id uuid.UUID) error {
 
 const GetResponsibleByID = `-- name: GetResponsibleByID :one
 SELECT id, username
-FROM responsibles
+FROM porters
 WHERE id = $1
 `
 
-func (q *Queries) GetResponsibleByID(ctx context.Context, id uuid.UUID) (Responsible, error) {
+func (q *Queries) GetResponsibleByID(ctx context.Context, id uuid.UUID) (Porter, error) {
 	row := q.db.QueryRow(ctx, GetResponsibleByID, id)
-	var i Responsible
+	var i Porter
 	err := row.Scan(&i.ID, &i.Username)
 	return i, err
 }
 
 const GetResponsibleByUsername = `-- name: GetResponsibleByUsername :one
 SELECT id, username
-FROM responsibles
+FROM porters
 WHERE username = $1
 `
 
-func (q *Queries) GetResponsibleByUsername(ctx context.Context, username string) (Responsible, error) {
+func (q *Queries) GetResponsibleByUsername(ctx context.Context, username string) (Porter, error) {
 	row := q.db.QueryRow(ctx, GetResponsibleByUsername, username)
-	var i Responsible
+	var i Porter
 	err := row.Scan(&i.ID, &i.Username)
 	return i, err
 }
 
 const ListResponsibles = `-- name: ListResponsibles :many
 SELECT id, username
-FROM responsibles
+FROM porters
 ORDER BY username
 `
 
-func (q *Queries) ListResponsibles(ctx context.Context) ([]Responsible, error) {
+func (q *Queries) ListResponsibles(ctx context.Context) ([]Porter, error) {
 	rows, err := q.db.Query(ctx, ListResponsibles)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Responsible
+	var items []Porter
 	for rows.Next() {
-		var i Responsible
+		var i Porter
 		if err := rows.Scan(&i.ID, &i.Username); err != nil {
 			return nil, err
 		}
@@ -74,7 +74,7 @@ func (q *Queries) ListResponsibles(ctx context.Context) ([]Responsible, error) {
 }
 
 const SaveResponsible = `-- name: SaveResponsible :one
-INSERT INTO responsibles (id, username)
+INSERT INTO porters (id, username)
 VALUES ($1, $2)
 ON CONFLICT (id) DO UPDATE
 SET username = EXCLUDED.username
@@ -86,9 +86,9 @@ type SaveResponsibleParams struct {
 	Username string
 }
 
-func (q *Queries) SaveResponsible(ctx context.Context, arg SaveResponsibleParams) (Responsible, error) {
+func (q *Queries) SaveResponsible(ctx context.Context, arg SaveResponsibleParams) (Porter, error) {
 	row := q.db.QueryRow(ctx, SaveResponsible, arg.ID, arg.Username)
-	var i Responsible
+	var i Porter
 	err := row.Scan(&i.ID, &i.Username)
 	return i, err
 }
