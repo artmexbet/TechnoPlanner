@@ -168,8 +168,8 @@ func (p *Postgres) ListRequests(ctx context.Context, limit, offset int32) ([]dom
 // AssignResponsible назначает ответственного за заявку
 func (p *Postgres) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) error {
 	params := queries.AssignResponsibleParams{
-		ID:            requestID,
-		ResponsibleID: responsibleID,
+		ID:       requestID,
+		PorterID: responsibleID,
 	}
 	_, err := p.q.AssignResponsible(ctx, params)
 	if err != nil {
