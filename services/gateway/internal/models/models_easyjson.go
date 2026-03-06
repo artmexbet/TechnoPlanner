@@ -2395,14 +2395,10 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerServicesGatewayInterna
 		case "email":
 			if in.IsNull() {
 				in.Skip()
+				out.Email = nil
 			} else {
-				out.Email = string(in.String())
-			}
-		case "password":
-			if in.IsNull() {
-				in.Skip()
-			} else {
-				out.Password = string(in.String())
+				s := string(in.String())
+				out.Email = &s
 			}
 		default:
 			in.SkipRecursive()
@@ -2423,15 +2419,10 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerServicesGatewayInterna
 		out.RawString(prefix[1:])
 		out.String(string(in.Username))
 	}
-	{
+	if in.Email != nil {
 		const prefix string = ",\"email\":"
 		out.RawString(prefix)
-		out.String(string(in.Email))
-	}
-	{
-		const prefix string = ",\"password\":"
-		out.RawString(prefix)
-		out.String(string(in.Password))
+		out.String(string(*in.Email))
 	}
 	out.RawByte('}')
 }

@@ -32,6 +32,7 @@ func (c *EquipmentClient) Create(ctx context.Context, eq domain.Equipment) (doma
 		Name:                      eq.Name,
 		Description:               eq.Description,
 		AdditionalCharacteristics: eq.AdditionalCharacteristics,
+		Quantity:                  int(eq.Quantity),
 	}
 
 	data, err := json.Marshal(req)
@@ -75,6 +76,7 @@ func (c *EquipmentClient) Update(ctx context.Context, eq domain.Equipment) (doma
 		Name:                      eq.Name,
 		Description:               eq.Description,
 		AdditionalCharacteristics: eq.AdditionalCharacteristics,
+		Quantity:                  int(eq.Quantity),
 	}
 
 	data, err := json.Marshal(req)
@@ -217,6 +219,7 @@ func mapEquipmentFromDTO(eq dto.TechEquipment) domain.Equipment {
 		CategoryID:                eq.CategoryID,
 		Name:                      eq.Name,
 		Description:               eq.Description,
+		Quantity:                  int32(eq.Quantity),
 		AdditionalCharacteristics: eq.AdditionalCharacteristics,
 		CreatedAt:                 eq.CreatedAt,
 		UpdatedAt:                 eq.UpdatedAt,

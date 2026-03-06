@@ -37,6 +37,7 @@ type Equipment struct {
 	CategoryID                int
 	Name                      string
 	Description               string
+	Quantity                  int32
 	AdditionalCharacteristics map[string]string
 	CreatedAt                 time.Time
 	UpdatedAt                 time.Time
