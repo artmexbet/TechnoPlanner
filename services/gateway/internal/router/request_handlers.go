@@ -86,6 +86,14 @@ func (r *Router) updateRequest() fiber.Handler {
 			Address:      body.Address,
 		}
 
+		if body.EndTime != nil {
+			parsed, err := time.Parse(time.RFC3339, *body.EndTime)
+			if err != nil {
+				return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "invalid end_time format, expected RFC3339"})
+			}
+			updates.EndTime = &parsed
+		}
+
 		if body.Status != nil {
 			status := domain.RequestStatus(*body.Status)
 			updates.Status = &status

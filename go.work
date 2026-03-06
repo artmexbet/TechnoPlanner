@@ -8,7 +8,7 @@ use (
 	./libs/proto
 	./libs/utills
 	./services/auth
+	./services/equipment
 	./services/gateway
 	./services/requests
-	./services/equipment
 )

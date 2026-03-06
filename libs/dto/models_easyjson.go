@@ -777,6 +777,22 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto6(in *jlexer.Le
 					*out.ScheduleTime = string(in.String())
 				}
 			}
+		case "end_time":
+			if in.IsNull() {
+				in.Skip()
+				out.EndTime = nil
+			} else {
+				if out.EndTime == nil {
+					out.EndTime = new(time.Time)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					if err := (*out.EndTime).UnmarshalText(in.UnsafeBytes()); err != nil {
+						in.AddError(err)
+					}
+				}
+			}
 		case "address":
 			if in.IsNull() {
 				in.Skip()
@@ -840,6 +856,11 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto6(out *jwriter.
 		const prefix string = ",\"schedule_time\":"
 		out.RawString(prefix)
 		out.String(string(*in.ScheduleTime))
+	}
+	if in.EndTime != nil {
+		const prefix string = ",\"end_time\":"
+		out.RawString(prefix)
+		out.RawText((*in.EndTime).MarshalText())
 	}
 	if in.Address != nil {
 		const prefix string = ",\"address\":"

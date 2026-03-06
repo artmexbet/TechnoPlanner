@@ -93,6 +93,10 @@ func (w *NatsWrapper) handleGatewayProcessRawRequest(msg *broker.Msg) error {
 		EquipmentString: req.EquipmentString,
 	}
 
+	if req.EndTime != nil {
+		newRequest.EndTime = *req.EndTime
+	}
+
 	createdReq, updatedRaw, err := w.reqService.ProcessRawRequest(ctx, rawID, newRequest)
 	if err != nil {
 		slog.ErrorContext(ctx, "error processing raw request", "error", err)

@@ -193,6 +193,7 @@ type RequestUpdateRequest struct {
 	RequestText   *string `json:"request_text,omitempty"`
 	Status        *string `json:"status,omitempty" validate:"omitempty,oneof=canceled pending assigned in_progress completed rejected"`
 	ScheduleTime  *string `json:"schedule_time,omitempty"`
+	EndTime       *string `json:"end_time,omitempty"`
 	Address       *string `json:"address,omitempty"`
 	ResponsibleID *string `json:"responsible_id,omitempty" validate:"omitempty,uuid4"`
 }
@@ -219,6 +220,7 @@ type RawRequestListResponse struct {
 type RawRequestProcessRequest struct {
 	RequestText     *string          `json:"request_text,omitempty"`
 	ScheduleTime    string           `json:"schedule_time" validate:"required"`
+	EndTime         *string          `json:"end_time,omitempty"`
 	Address         string           `json:"address" validate:"required"`
 	EquipmentString *string          `json:"equipment_string,omitempty"`
 	Equipments      []EquipmentInReq `json:"equipments,omitempty"`

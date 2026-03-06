@@ -265,3 +265,34 @@ func (q *Queries) UpdateRequestStatus(ctx context.Context, arg UpdateRequestStat
 	)
 	return i, err
 }
+
+const UpdateEndTime = `-- name: UpdateEndTime :one
+UPDATE requests
+SET end_time   = $2,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, telegram_user_id, request_text, status, schedule_time, end_time, address, created_at, updated_at, porter_id
+`
+
+type UpdateEndTimeParams struct {
+	ID      uuid.UUID
+	EndTime *time.Time
+}
+
+func (q *Queries) UpdateEndTime(ctx context.Context, arg UpdateEndTimeParams) (Request, error) {
+	row := q.db.QueryRow(ctx, UpdateEndTime, arg.ID, arg.EndTime)
+	var i Request
+	err := row.Scan(
+		&i.ID,
+		&i.TelegramUserID,
+		&i.RequestText,
+		&i.Status,
+		&i.ScheduleTime,
+		&i.EndTime,
+		&i.Address,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PorterID,
+	)
+	return i, err
+}
