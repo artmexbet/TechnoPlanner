@@ -8,6 +8,7 @@ import (
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
+	time "time"
 )
 
 // suppress unused package warning
@@ -699,6 +700,22 @@ func easyjson11d1a9baDecodeGithubComArtmexbetTechnoPlannerLibsDto7(in *jlexer.Le
 			} else {
 				out.ScheduleTime = string(in.String())
 			}
+		case "end_time":
+			if in.IsNull() {
+				in.Skip()
+				out.EndTime = nil
+			} else {
+				if out.EndTime == nil {
+					out.EndTime = new(time.Time)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					if data := in.Raw(); in.Ok() {
+						in.AddError((*out.EndTime).UnmarshalJSON(data))
+					}
+				}
+			}
 		case "address":
 			if in.IsNull() {
 				in.Skip()
@@ -774,6 +791,11 @@ func easyjson11d1a9baEncodeGithubComArtmexbetTechnoPlannerLibsDto7(out *jwriter.
 		const prefix string = ",\"schedule_time\":"
 		out.RawString(prefix)
 		out.String(string(in.ScheduleTime))
+	}
+	if in.EndTime != nil {
+		const prefix string = ",\"end_time\":"
+		out.RawString(prefix)
+		out.Raw((*in.EndTime).MarshalJSON())
 	}
 	{
 		const prefix string = ",\"address\":"

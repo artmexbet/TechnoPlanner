@@ -81,6 +81,7 @@ type RequestUpdate struct {
 	RequestText  *string     `json:"request_text,omitempty"`
 	Status       *StatusType `json:"status,omitempty"`
 	ScheduleTime *string     `json:"schedule_time,omitempty"`
+	EndTime      *time.Time  `json:"end_time,omitempty"`
 	Address      *string     `json:"address,omitempty"`
 	PorterID     *uuid.UUID  `json:"porter_id,omitempty"`
 }

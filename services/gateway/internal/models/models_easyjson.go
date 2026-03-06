@@ -566,6 +566,20 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerServicesGatewayInterna
 					*out.ScheduleTime = string(in.String())
 				}
 			}
+		case "end_time":
+			if in.IsNull() {
+				in.Skip()
+				out.EndTime = nil
+			} else {
+				if out.EndTime == nil {
+					out.EndTime = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.EndTime = string(in.String())
+				}
+			}
 		case "address":
 			if in.IsNull() {
 				in.Skip()
@@ -633,6 +647,16 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerServicesGatewayInterna
 			out.RawString(prefix)
 		}
 		out.String(string(*in.ScheduleTime))
+	}
+	if in.EndTime != nil {
+		const prefix string = ",\"end_time\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(*in.EndTime))
 	}
 	if in.Address != nil {
 		const prefix string = ",\"address\":"
@@ -1790,6 +1814,20 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerServicesGatewayInterna
 			} else {
 				out.ScheduleTime = string(in.String())
 			}
+		case "end_time":
+			if in.IsNull() {
+				in.Skip()
+				out.EndTime = nil
+			} else {
+				if out.EndTime == nil {
+					out.EndTime = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.EndTime = string(in.String())
+				}
+			}
 		case "address":
 			if in.IsNull() {
 				in.Skip()
@@ -1866,6 +1904,11 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerServicesGatewayInterna
 			out.RawString(prefix)
 		}
 		out.String(string(in.ScheduleTime))
+	}
+	if in.EndTime != nil {
+		const prefix string = ",\"end_time\":"
+		out.RawString(prefix)
+		out.String(string(*in.EndTime))
 	}
 	{
 		const prefix string = ",\"address\":"
@@ -2397,8 +2440,14 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerServicesGatewayInterna
 				in.Skip()
 				out.Email = nil
 			} else {
-				s := string(in.String())
-				out.Email = &s
+				if out.Email == nil {
+					out.Email = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.Email = string(in.String())
+				}
 			}
 		default:
 			in.SkipRecursive()

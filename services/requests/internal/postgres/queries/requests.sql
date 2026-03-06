@@ -39,6 +39,13 @@ SET porter_id = $2,
 WHERE id = $1
 RETURNING *;
 
+-- name: UpdateEndTime :one
+UPDATE requests
+SET end_time   = $2,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING *;
+
 -- name: GetRequests :many
 SELECT *
 FROM requests

@@ -971,7 +971,15 @@ components:
           $ref: '#/components/schemas/RequestStatus'
         schedule_time:
           type: string
+          format: date-time
           nullable: true
+          example: "2026-03-10T09:00:00Z"
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+          description: End time of the request (RFC3339)
+          example: "2026-03-10T18:00:00Z"
         address:
           type: string
           nullable: true
@@ -1090,6 +1098,13 @@ components:
           type: string
           format: date-time
           description: Scheduled date/time for the request
+          example: "2026-03-10T09:00:00Z"
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+          description: End time of the request (RFC3339)
+          example: "2026-03-10T18:00:00Z"
         address:
           type: string
           description: Delivery/work address

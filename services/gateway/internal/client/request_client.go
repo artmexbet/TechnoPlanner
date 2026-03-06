@@ -163,6 +163,7 @@ func (c *RequestClient) UpdateRequest(ctx context.Context, requestID uuid.UUID, 
 		RequestText:   updates.RequestText,
 		Status:        status,
 		ScheduleTime:  updates.ScheduleTime,
+		EndTime:       updates.EndTime,
 		Address:       updates.Address,
 		ResponsibleID: updates.ResponsibleID,
 	}

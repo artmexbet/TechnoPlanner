@@ -267,6 +267,7 @@ type RequestUpdateRequest struct {
 	RequestText   *string        `json:"request_text,omitempty"`
 	Status        *RequestStatus `json:"status,omitempty"`
 	ScheduleTime  *string        `json:"schedule_time,omitempty"`
+	EndTime       *time.Time     `json:"end_time,omitempty"`
 	Address       *string        `json:"address,omitempty"`
 	ResponsibleID *uuid.UUID     `json:"responsible_id,omitempty"`
 }

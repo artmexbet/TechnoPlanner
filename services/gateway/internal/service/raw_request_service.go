@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -65,6 +66,14 @@ func (s *RawRequestService) Process(ctx context.Context, rawID uuid.UUID, body m
 		Address:         body.Address,
 		EquipmentString: body.EquipmentString,
 		Equipments:      equipments,
+	}
+
+	if body.EndTime != nil {
+		t, err := time.Parse(time.RFC3339, *body.EndTime)
+		if err != nil {
+			return domain.Request{}, domain.RawRequest{}, fmt.Errorf("invalid end_time format: %w", err)
+		}
+		dtoReq.EndTime = &t
 	}
 
 	createdReq, updatedRaw, err := s.storage.ProcessRawRequest(ctx, dtoReq)

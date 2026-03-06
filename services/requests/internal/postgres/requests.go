@@ -203,6 +203,16 @@ func (p *Postgres) UpdateRequest(ctx context.Context, requestID uuid.UUID, updat
 	if updates.Address != nil {
 		currentReq.Address = *updates.Address
 	}
+	if updates.EndTime != nil {
+		_, err = p.q.UpdateEndTime(ctx, queries.UpdateEndTimeParams{
+			ID:      requestID,
+			EndTime: updates.EndTime,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("error updating end_time: %w", err)
+		}
+		currentReq.EndTime = *updates.EndTime
+	}
 	if updates.PorterID != nil {
 		err = p.AssignResponsible(ctx, requestID, updates.PorterID)
 		if err != nil {

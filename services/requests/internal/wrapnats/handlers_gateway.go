@@ -82,6 +82,7 @@ func (w *NatsWrapper) handleGatewayUpdateRequest(msg *broker.Msg) error {
 		RequestText:  req.RequestText,
 		Status:       (*domain.StatusType)(req.Status),
 		ScheduleTime: req.ScheduleTime,
+		EndTime:      req.EndTime,
 		Address:      req.Address,
 		PorterID:     req.ResponsibleID,
 	}

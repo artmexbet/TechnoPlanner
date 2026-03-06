@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -138,6 +140,7 @@ type RawRequestProcessRequest struct {
 	RawRequestID    string          `json:"raw_request_id" validate:"required,uuid4"`
 	RequestText     *string         `json:"request_text,omitempty"`
 	ScheduleTime    string          `json:"schedule_time" validate:"required"`
+	EndTime         *time.Time      `json:"end_time,omitempty"`
 	Address         string          `json:"address" validate:"required"`
 	Equipments      []EquipmentInfo `json:"equipments,omitempty"`
 	EquipmentString *string         `json:"equipment_string,omitempty"`

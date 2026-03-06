@@ -130,6 +130,7 @@ type RequestUpdate struct {
 	RequestText   *string
 	Status        *RequestStatus
 	ScheduleTime  *string
+	EndTime       *time.Time
 	Address       *string
 	ResponsibleID *uuid.UUID
 }
