@@ -4,25 +4,28 @@ VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: BatchGetEquipmentByRequestID :batchmany
-SELECT t.* FROM equipment_to_requests tr
-JOIN equipment t ON tr.equipment_id = t.id AND t.quantity > 0
+SELECT t.id, t.name, t.description, tr.quantity, t.created_at, t.updated_at
+FROM equipment_to_requests tr
+JOIN equipment t ON tr.equipment_id = t.id
 WHERE tr.request_id = $1
 ORDER BY t.created_at DESC;
 
 -- name: GetEquipmentByRequestID :many
-SELECT t.* FROM equipment_to_requests tr
-JOIN equipment t ON tr.equipment_id = t.id AND t.quantity > 0
+SELECT t.id, t.name, t.description, tr.quantity, t.created_at, t.updated_at
+FROM equipment_to_requests tr
+JOIN equipment t ON tr.equipment_id = t.id
 WHERE tr.request_id = $1
 ORDER BY t.created_at DESC;
 
 -- name: UpsertEquipment :exec
-INSERT INTO equipment (id, name, description, quantity)
-VALUES ($1, $2, $3, $4)
+INSERT INTO equipment (id, name, description, quantity, reserved_quantity)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (id) DO UPDATE
-    SET name        = EXCLUDED.name,
-        description = EXCLUDED.description,
-        quantity    = EXCLUDED.quantity,
-        updated_at  = CURRENT_TIMESTAMP;
+    SET name              = EXCLUDED.name,
+        description       = EXCLUDED.description,
+        quantity          = EXCLUDED.quantity,
+        reserved_quantity = EXCLUDED.reserved_quantity,
+        updated_at        = CURRENT_TIMESTAMP;
 
 -- name: DeleteEquipmentByID :exec
 DELETE FROM equipment WHERE id = $1;

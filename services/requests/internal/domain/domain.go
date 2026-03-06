@@ -68,12 +68,13 @@ type User struct {
 }
 
 type Equipment struct {
-	ID          int       `json:"id"`
-	Name        string    `json:"name"`
-	Description *string   `json:"description"`
-	Quantity    int       `json:"quantity"`
-	CreatedAt   time.Time `json:"created_at,omitempty"`
-	UpdatedAt   time.Time `json:"updated_at,omitempty"`
+	ID               int       `json:"id"`
+	Name             string    `json:"name"`
+	Description      *string   `json:"description"`
+	Quantity         int       `json:"quantity"`
+	ReservedQuantity int       `json:"reserved_quantity"`
+	CreatedAt        time.Time `json:"created_at,omitempty"`
+	UpdatedAt        time.Time `json:"updated_at,omitempty"`
 }
 
 type RequestUpdate struct {

@@ -18,6 +18,10 @@ func RequestStatusFromDomain(s domain.StatusType) *RequestStatus {
 }
 
 func (r *Request) ToDomain() *domain.Request {
+	pInfo := &domain.PorterInfo{}
+	if r.PorterID != nil {
+		pInfo.UserID = *r.PorterID
+	}
 	req := &domain.Request{
 		ID:           r.ID,
 		RequestText:  r.RequestText,
@@ -26,6 +30,7 @@ func (r *Request) ToDomain() *domain.Request {
 		EndTime:      r.EndTime,
 		Address:      r.Address,
 		Equipments:   nil,
+		PorterInfo:   pInfo,
 		CreatedAt:    r.CreatedAt,
 		UpdatedAt:    r.UpdatedAt,
 	}
@@ -67,6 +72,29 @@ func TelegramUserFromDomain(u domain.User) *TelegramUser {
 
 func (t *Equipment) ToDomain() *domain.Equipment {
 	return &domain.Equipment{
+		ID:               int(t.ID),
+		Name:             t.Name,
+		Description:      t.Description,
+		Quantity:         int(t.Quantity),
+		ReservedQuantity: int(t.ReservedQuantity),
+		CreatedAt:        t.CreatedAt,
+		UpdatedAt:        t.UpdatedAt,
+	}
+}
+
+func (t *GetEquipmentByRequestIDRow) ToDomain() *domain.Equipment {
+	return &domain.Equipment{
+		ID:          int(t.ID),
+		Name:        t.Name,
+		Description: t.Description,
+		Quantity:    int(t.Quantity),
+		CreatedAt:   t.CreatedAt,
+		UpdatedAt:   t.UpdatedAt,
+	}
+}
+
+func (t *BatchGetEquipmentByRequestIDRow) ToDomain() *domain.Equipment {
+	return &domain.Equipment{
 		ID:          int(t.ID),
 		Name:        t.Name,
 		Description: t.Description,
@@ -78,12 +106,13 @@ func (t *Equipment) ToDomain() *domain.Equipment {
 
 func EquipmentFromDomain(t domain.Equipment) *Equipment {
 	return &Equipment{
-		ID:          int32(t.ID),
-		Name:        t.Name,
-		Description: t.Description,
-		Quantity:    int32(t.Quantity),
-		CreatedAt:   t.CreatedAt,
-		UpdatedAt:   t.UpdatedAt,
+		ID:               int32(t.ID),
+		Name:             t.Name,
+		Description:      t.Description,
+		Quantity:         int32(t.Quantity),
+		ReservedQuantity: int32(t.ReservedQuantity),
+		CreatedAt:        t.CreatedAt,
+		UpdatedAt:        t.UpdatedAt,
 	}
 }
 

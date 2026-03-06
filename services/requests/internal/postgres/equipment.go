@@ -28,7 +28,7 @@ func (p *Postgres) GetEquipmentByRequestIDs(ctx context.Context, requestIDs []uu
 	defer technicsRes.Close() //nolint:errcheck
 	result := make(map[uuid.UUID][]domain.Equipment, len(requestIDs))
 	errs := make([]error, len(requestIDs))
-	technicsRes.Query(func(i int, technics []queries.Equipment, err error) {
+	technicsRes.Query(func(i int, technics []queries.BatchGetEquipmentByRequestIDRow, err error) {
 		result[requestIDs[i]] = make([]domain.Equipment, 0, len(technics))
 		for _, t := range technics {
 			result[requestIDs[i]] = append(result[requestIDs[i]], *t.ToDomain())
@@ -65,10 +65,11 @@ func (p *Postgres) CreateEquipment(ctx context.Context, technics []domain.Equipm
 // UpsertEquipment выполняет INSERT ON CONFLICT UPDATE для синхронизации с equipment сервисом.
 func (p *Postgres) UpsertEquipment(ctx context.Context, eq domain.Equipment) error {
 	return p.q.UpsertEquipment(ctx, queries.UpsertEquipmentParams{
-		ID:          int32(eq.ID),
-		Name:        eq.Name,
-		Description: eq.Description,
-		Quantity:    int32(eq.Quantity),
+		ID:               int32(eq.ID),
+		Name:             eq.Name,
+		Description:      eq.Description,
+		Quantity:         int32(eq.Quantity),
+		ReservedQuantity: int32(eq.ReservedQuantity),
 	})
 }
 

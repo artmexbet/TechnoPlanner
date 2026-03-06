@@ -8,6 +8,7 @@ package queries
 import (
 	"context"
 	"errors"
+	"time"
 
 	uuid "github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -20,7 +21,7 @@ var (
 const AddEquipment = `-- name: AddEquipment :batchone
 INSERT INTO equipment (name, description, quantity)
 VALUES ($1, $2, $3)
-RETURNING id, name, description, quantity, created_at, updated_at
+RETURNING id, name, description, quantity, created_at, updated_at, reserved_quantity
 `
 
 type AddEquipmentBatchResults struct {
@@ -67,6 +68,7 @@ func (b *AddEquipmentBatchResults) QueryRow(f func(int, Equipment, error)) {
 			&i.Quantity,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ReservedQuantity,
 		)
 		if f != nil {
 			f(t, i, err)
@@ -141,8 +143,9 @@ func (b *AssignEquipmentToRequestBatchResults) Close() error {
 }
 
 const BatchGetEquipmentByRequestID = `-- name: BatchGetEquipmentByRequestID :batchmany
-SELECT t.id, t.name, t.description, t.quantity, t.created_at, t.updated_at FROM equipment_to_requests tr
-JOIN equipment t ON tr.equipment_id = t.id AND t.quantity > 0
+SELECT t.id, t.name, t.description, tr.quantity, t.created_at, t.updated_at
+FROM equipment_to_requests tr
+JOIN equipment t ON tr.equipment_id = t.id
 WHERE tr.request_id = $1
 ORDER BY t.created_at DESC
 `
@@ -151,6 +154,15 @@ type BatchGetEquipmentByRequestIDBatchResults struct {
 	br     pgx.BatchResults
 	tot    int
 	closed bool
+}
+
+type BatchGetEquipmentByRequestIDRow struct {
+	ID          int32
+	Name        string
+	Description *string
+	Quantity    int32
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (q *Queries) BatchGetEquipmentByRequestID(ctx context.Context, requestID []uuid.UUID) *BatchGetEquipmentByRequestIDBatchResults {
@@ -165,10 +177,10 @@ func (q *Queries) BatchGetEquipmentByRequestID(ctx context.Context, requestID []
 	return &BatchGetEquipmentByRequestIDBatchResults{br, len(requestID), false}
 }
 
-func (b *BatchGetEquipmentByRequestIDBatchResults) Query(f func(int, []Equipment, error)) {
+func (b *BatchGetEquipmentByRequestIDBatchResults) Query(f func(int, []BatchGetEquipmentByRequestIDRow, error)) {
 	defer b.br.Close()
 	for t := 0; t < b.tot; t++ {
-		var items []Equipment
+		var items []BatchGetEquipmentByRequestIDRow
 		if b.closed {
 			if f != nil {
 				f(t, items, ErrBatchAlreadyClosed)
@@ -182,7 +194,7 @@ func (b *BatchGetEquipmentByRequestIDBatchResults) Query(f func(int, []Equipment
 			}
 			defer rows.Close()
 			for rows.Next() {
-				var i Equipment
+				var i BatchGetEquipmentByRequestIDRow
 				if err := rows.Scan(
 					&i.ID,
 					&i.Name,

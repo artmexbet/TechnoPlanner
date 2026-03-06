@@ -94,3 +94,73 @@ func (_c *MockRepository_CreateEquipment_Call) RunAndReturn(run func(ctx context
 	_c.Call.Return(run)
 	return _c
 }
+
+// UpsertEquipment provides a mock function for the type MockRepository
+func (_mock *MockRepository) UpsertEquipment(ctx context.Context, eq domain.Equipment) error {
+	ret := _mock.Called(ctx, eq)
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Equipment) error); ok {
+		r0 = returnFunc(ctx, eq)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+type MockRepository_UpsertEquipment_Call struct{ *mock.Call }
+
+func (_e *MockRepository_Expecter) UpsertEquipment(ctx interface{}, eq interface{}) *MockRepository_UpsertEquipment_Call {
+	return &MockRepository_UpsertEquipment_Call{Call: _e.mock.On("UpsertEquipment", ctx, eq)}
+}
+
+func (_c *MockRepository_UpsertEquipment_Call) Run(run func(ctx context.Context, eq domain.Equipment)) *MockRepository_UpsertEquipment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(domain.Equipment))
+	})
+	return _c
+}
+
+func (_c *MockRepository_UpsertEquipment_Call) Return(err error) *MockRepository_UpsertEquipment_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockRepository_UpsertEquipment_Call) RunAndReturn(run func(context.Context, domain.Equipment) error) *MockRepository_UpsertEquipment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteEquipment provides a mock function for the type MockRepository
+func (_mock *MockRepository) DeleteEquipment(ctx context.Context, id int) error {
+	ret := _mock.Called(ctx, id)
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int) error); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+type MockRepository_DeleteEquipment_Call struct{ *mock.Call }
+
+func (_e *MockRepository_Expecter) DeleteEquipment(ctx interface{}, id interface{}) *MockRepository_DeleteEquipment_Call {
+	return &MockRepository_DeleteEquipment_Call{Call: _e.mock.On("DeleteEquipment", ctx, id)}
+}
+
+func (_c *MockRepository_DeleteEquipment_Call) Run(run func(ctx context.Context, id int)) *MockRepository_DeleteEquipment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int))
+	})
+	return _c
+}
+
+func (_c *MockRepository_DeleteEquipment_Call) Return(err error) *MockRepository_DeleteEquipment_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockRepository_DeleteEquipment_Call) RunAndReturn(run func(context.Context, int) error) *MockRepository_DeleteEquipment_Call {
+	_c.Call.Return(run)
+	return _c
+}

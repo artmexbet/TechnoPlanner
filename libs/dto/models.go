@@ -44,6 +44,8 @@ type Request struct {
 type RequestEquipment struct {
 	RequestID   uuid.UUID `json:"request_id"`
 	EquipmentID int32     `json:"equipment_id"`
+	Name        string    `json:"name"`
+	Description *string   `json:"description,omitempty"`
 	Quantity    int32     `json:"quantity"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`

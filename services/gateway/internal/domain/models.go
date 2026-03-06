@@ -67,6 +67,8 @@ type Request struct {
 type RequestEquipment struct {
 	RequestID   uuid.UUID
 	EquipmentID int32
+	Name        string
+	Description *string
 	Quantity    int32
 	CreatedAt   time.Time
 	UpdatedAt   time.Time

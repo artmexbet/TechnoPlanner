@@ -135,10 +135,11 @@ func (w *NatsWrapper) handleCreateEquipment(msg *broker.Msg) error {
 	}
 
 	w.publisher.PublishEquipmentCreated(dto.EquipmentSyncEvent{
-		ID:          createdReq.ID,
-		Name:        createdReq.Name,
-		Description: createdReq.Description,
-		Quantity:    createdReq.Quantity,
+		ID:               createdReq.ID,
+		Name:             createdReq.Name,
+		Description:      createdReq.Description,
+		Quantity:         createdReq.Quantity,
+		ReservedQuantity: createdReq.ReservedQuantity,
 	})
 	return nil
 }
@@ -185,10 +186,11 @@ func (w *NatsWrapper) handleUpdateEquipment(msg *broker.Msg) error {
 	}
 
 	w.publisher.PublishEquipmentUpdated(dto.EquipmentSyncEvent{
-		ID:          updatedReq.ID,
-		Name:        updatedReq.Name,
-		Description: updatedReq.Description,
-		Quantity:    updatedReq.Quantity,
+		ID:               updatedReq.ID,
+		Name:             updatedReq.Name,
+		Description:      updatedReq.Description,
+		Quantity:         updatedReq.Quantity,
+		ReservedQuantity: updatedReq.ReservedQuantity,
 	})
 	return nil
 }
@@ -534,6 +536,19 @@ func (w *NatsWrapper) handleReserveEquipment(msg *broker.Msg) error {
 	if err := respondSuccess(msg.Msg, "reserved", nil); err != nil {
 		slog.ErrorContext(ctx, "handleReserveEquipment: respond error", "error", err)
 	}
+
+	// Публикуем обновлённое состояние каждой единицы оборудования
+	for _, it := range items {
+		if eq, err := w.equipmentService.GetEquipmentByID(ctx, it.EquipmentID); err == nil {
+			w.publisher.PublishEquipmentUpdated(dto.EquipmentSyncEvent{
+				ID:               eq.ID,
+				Name:             eq.Name,
+				Description:      eq.Description,
+				Quantity:         eq.Quantity,
+				ReservedQuantity: eq.ReservedQuantity,
+			})
+		}
+	}
 	return nil
 }
 
@@ -559,6 +574,19 @@ func (w *NatsWrapper) handleReleaseEquipment(msg *broker.Msg) error {
 
 	if err := respondSuccess(msg.Msg, "released", nil); err != nil {
 		slog.ErrorContext(ctx, "handleReleaseEquipment: respond error", "error", err)
+	}
+
+	// Публикуем обновлённое состояние каждой единицы оборудования
+	for _, it := range items {
+		if eq, err := w.equipmentService.GetEquipmentByID(ctx, it.EquipmentID); err == nil {
+			w.publisher.PublishEquipmentUpdated(dto.EquipmentSyncEvent{
+				ID:               eq.ID,
+				Name:             eq.Name,
+				Description:      eq.Description,
+				Quantity:         eq.Quantity,
+				ReservedQuantity: eq.ReservedQuantity,
+			})
+		}
 	}
 	return nil
 }

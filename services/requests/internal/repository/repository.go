@@ -166,7 +166,24 @@ func (r *Repository) GetRequestsByResponsibleID(ctx context.Context, responsible
 }
 
 func (r *Repository) ListRequests(ctx context.Context, offset, limit int32) ([]domain.Request, error) {
-	return r.pg.ListRequests(ctx, offset, limit)
+	requests, err := r.pg.ListRequests(ctx, offset, limit)
+	if err != nil {
+		return nil, fmt.Errorf("list requests: %w", err)
+	}
+
+	// Batch-загрузка оборудования
+	ids := make([]uuid.UUID, len(requests))
+	for i, req := range requests {
+		ids[i] = req.ID
+	}
+	equipmentMap, err := r.pg.GetEquipmentByRequestIDs(ctx, ids)
+	if err != nil {
+		return nil, fmt.Errorf("get equipment for requests: %w", err)
+	}
+	for i := range requests {
+		requests[i].Equipments = equipmentMap[requests[i].ID]
+	}
+	return requests, nil
 }
 
 // ListResponsibles возвращает список всех портеров

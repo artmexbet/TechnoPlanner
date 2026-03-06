@@ -59,12 +59,13 @@ func (ns NullRequestStatus) Value() (driver.Value, error) {
 }
 
 type Equipment struct {
-	ID          int32
-	Name        string
-	Description *string
-	Quantity    int32
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID               int32
+	Name             string
+	Description      *string
+	Quantity         int32
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	ReservedQuantity int32
 }
 
 type EquipmentToRequest struct {
