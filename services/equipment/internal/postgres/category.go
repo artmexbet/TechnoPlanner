@@ -11,7 +11,14 @@ import (
 
 // AddCategory создаёт новую категорию оборудования.
 func (p *Postgres) AddCategory(ctx context.Context, categoryName string, description string) (*domain.EquipmentCategory, error) {
-	id, err := p.q.AddCategory(ctx, categoryName)
+	var descPtr *string
+	if description != "" {
+		descPtr = &description
+	}
+	id, err := p.q.AddCategory(ctx, queries.AddCategoryParams{
+		Name:        categoryName,
+		Description: descPtr,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("AddCategory query: %w", err)
 	}
@@ -24,13 +31,18 @@ func (p *Postgres) AddCategory(ctx context.Context, categoryName string, descrip
 	}, nil
 }
 
-// UpdateCategory обновляет имя категории.
+// UpdateCategory обновляет имя и описание категории.
 func (p *Postgres) UpdateCategory(ctx context.Context, category domain.EquipmentCategory) (*domain.EquipmentCategory, error) {
-	if err := p.q.UpdateCategoryName(ctx, queries.UpdateCategoryNameParams{
-		Name: category.Name,
-		ID:   int32(category.ID),
+	var descPtr *string
+	if category.Description != "" {
+		descPtr = &category.Description
+	}
+	if err := p.q.UpdateCategory(ctx, queries.UpdateCategoryParams{
+		Name:        category.Name,
+		Description: descPtr,
+		ID:          int32(category.ID),
 	}); err != nil {
-		return nil, fmt.Errorf("UpdateCategoryName query: %w", err)
+		return nil, fmt.Errorf("UpdateCategory query: %w", err)
 	}
 	return &category, nil
 }

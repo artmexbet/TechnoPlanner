@@ -108,7 +108,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TokenRefreshRequest'
+              $ref: '#/components/schemas/TokenPair'
       responses:
         '200':
           description: New token pair issued
@@ -120,11 +120,9 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
   /api/v1/users/me:
     get:
-      security:
-        - bearerAuth: []
       tags: [auth, users]
       summary: Get current user info
-      description: Returns information about the currently authenticated user
+      description: Returns information about the currently authenticated user.
       responses:
         '200':
           description: Current user info
@@ -135,18 +133,15 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
   /api/v1/users/logout:
     post:
-      security:
-        - bearerAuth: []
       tags: [auth, users]
       summary: Logout current session
       responses:
-        '204': { description: Logged out }
+        '200':
+          description: Logged out successfully
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/InternalError' }
   /api/v1/porters:
     get:
-      security:
-        - bearerAuth: []
       tags: [porters]
       summary: List porters
       description: >
@@ -162,14 +157,13 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
     post:
-      security:
-        - bearerAuth: []
       tags: [porters]
       summary: Create a new porter
       description: >
         Registers a new porter via the Auth service. On success the Auth service
         publishes a `UserCreated` event (role_id=2) which the Requests service
-        persists automatically. Requires admin role.
+        persists automatically. A random password is generated automatically.
+        Requires admin role.
       requestBody:
         required: true
         content:
@@ -196,8 +190,6 @@ paths:
     parameters:
       - $ref: '#/components/parameters/PorterId'
     get:
-      security:
-        - bearerAuth: []
       tags: [porters]
       summary: Get porter by ID
       description: Retrieves porter info from the Requests service. Requires admin role.
@@ -212,13 +204,11 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
     put:
-      security:
-        - bearerAuth: []
       tags: [porters]
       summary: Update porter by ID
       description: >
         Updates the username and email of an existing porter via the Auth service.
-        Requires admin role.
+        Returns full user info including email and timestamps. Requires admin role.
       requestBody:
         required: true
         content:
@@ -231,14 +221,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PorterFullResponse'
+                $ref: '#/components/schemas/PorterResponse'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
     delete:
-      security:
-        - bearerAuth: []
       tags: [porters]
       summary: Delete porter by ID
       description: >
@@ -251,8 +239,6 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
   /api/v1/equipment/categories:
     get:
-      security:
-        - bearerAuth: []
       tags: [categories]
       summary: List equipment categories
       responses:
@@ -264,10 +250,9 @@ paths:
                 $ref: '#/components/schemas/EquipmentCategoryListResponse'
         '401': { $ref: '#/components/responses/Unauthorized' }
     post:
-      security:
-        - bearerAuth: []
       tags: [categories]
       summary: Create equipment category
+      description: Requires admin role.
       requestBody:
         required: true
         content:
@@ -288,10 +273,9 @@ paths:
     parameters:
       - $ref: '#/components/parameters/CategoryId'
     put:
-      security:
-        - bearerAuth: []
       tags: [categories]
       summary: Update category
+      description: Requires admin role.
       requestBody:
         required: true
         content:
@@ -310,10 +294,9 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
     delete:
-      security:
-        - bearerAuth: []
       tags: [categories]
       summary: Delete category
+      description: Requires admin role.
       responses:
         '204': { description: Deleted }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -321,8 +304,6 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
   /api/v1/equipment:
     get:
-      security:
-        - bearerAuth: []
       tags: [equipment]
       summary: List equipment
       responses:
@@ -339,10 +320,9 @@ paths:
                       $ref: '#/components/schemas/EquipmentResponse'
         '401': { $ref: '#/components/responses/Unauthorized' }
     post:
-      security:
-        - bearerAuth: []
       tags: [equipment]
       summary: Create equipment
+      description: Requires admin role.
       requestBody:
         required: true
         content:
@@ -363,8 +343,6 @@ paths:
     parameters:
       - $ref: '#/components/parameters/EquipmentId'
     get:
-      security:
-        - bearerAuth: []
       tags: [equipment]
       summary: Get equipment item
       responses:
@@ -377,10 +355,9 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
     put:
-      security:
-        - bearerAuth: []
       tags: [equipment]
       summary: Update equipment item
+      description: Requires admin role.
       requestBody:
         required: true
         content:
@@ -399,10 +376,9 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
     delete:
-      security:
-        - bearerAuth: []
       tags: [equipment]
-      summary: Soft-delete equipment
+      summary: Delete equipment
+      description: Requires admin role.
       responses:
         '204': { description: Deleted }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -410,17 +386,23 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
   /api/v1/requests:
     get:
-      security:
-        - bearerAuth: []
       tags: [requests]
       summary: List requests
+      description: >
+        Returns a list of equipment requests.
+
+        - **Admin**: omit `responsible_id` to get all requests; pass `responsible_id` to filter by assigned porter.
+
+        - **Porter**: must pass their own UUID as `responsible_id`; omitting it returns 403.
       parameters:
         - in: query
-          name: porter_id
+          name: responsible_id
           schema:
             type: string
             format: uuid
-          description: Filter by assigned porter UUID. Omit to get all requests (admin only).
+          description: >
+            Filter by assigned responsible (porter) UUID.
+            Admin only: omit to get all requests.
       responses:
         '200':
           description: Requests list
@@ -435,10 +417,11 @@ paths:
     parameters:
       - $ref: '#/components/parameters/RequestId'
     get:
-      security:
-        - bearerAuth: []
       tags: [requests]
       summary: Get request by ID
+      description: >
+        Admin can access any request.
+        Porter can only access requests assigned to them.
       responses:
         '200':
           description: Request details
@@ -450,13 +433,12 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
     patch:
-      security:
-        - bearerAuth: []
       tags: [requests]
       summary: Partially update a request
       description: >
         Updates one or more fields of a request (status, address, schedule time,
         request text, responsible person). Only provided fields are changed.
+        Requires admin role.
       requestBody:
         required: true
         content:
@@ -474,24 +456,22 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
-  /api/v1/requests/{requestId}/porter:
+  /api/v1/requests/{requestId}/responsible:
     parameters:
       - $ref: '#/components/parameters/RequestId'
     post:
-      security:
-        - bearerAuth: []
       tags: [requests]
-      summary: Assign porter to request
-      description: Assigns or unassigns a porter to an equipment request. Requires admin role.
+      summary: Assign responsible (porter) to request
+      description: Assigns a porter to an equipment request. Requires admin role.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AssignPorterRequest'
+              $ref: '#/components/schemas/AssignResponsibleRequest'
       responses:
         '200':
-          description: Assignment updated
+          description: Assignment updated, returns the updated request
           content:
             application/json:
               schema:
@@ -504,8 +484,6 @@ paths:
     parameters:
       - $ref: '#/components/parameters/RequestId'
     get:
-      security:
-        - bearerAuth: []
       tags: [requests]
       summary: List request status history
       responses:
@@ -519,8 +497,6 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
     post:
-      security:
-        - bearerAuth: []
       tags: [requests]
       summary: Append status history entry
       requestBody:
@@ -542,10 +518,9 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
   /api/v1/raw-requests:
     get:
-      security:
-        - bearerAuth: []
       tags: [raw-requests]
       summary: List raw (bot) requests
+      description: Requires admin role.
       parameters:
         - in: query
           name: status
@@ -566,10 +541,9 @@ paths:
     parameters:
       - $ref: '#/components/parameters/RawRequestId'
     get:
-      security:
-        - bearerAuth: []
       tags: [raw-requests]
       summary: Get raw request by ID
+      description: Requires admin role.
       responses:
         '200':
           description: Raw request details
@@ -585,13 +559,12 @@ paths:
     parameters:
       - $ref: '#/components/parameters/RawRequestId'
     post:
-      security:
-        - bearerAuth: []
       tags: [raw-requests]
       summary: Process raw request into a formal request
       description: >
         Converts a raw Telegram bot request into a formal equipment request.
         The raw request status changes to "processed" and a new Request is created.
+        Requires admin role.
       requestBody:
         required: true
         content:
@@ -730,8 +703,6 @@ components:
           type: string
         refresh_token:
           type: string
-    TokenRefreshRequest:
-      $ref: '#/components/schemas/TokenPair'
     MeResponse:
       type: object
       required: [id, username, email, role]
@@ -750,18 +721,9 @@ components:
     PorterResponse:
       type: object
       description: >
-        Porter info as stored in the Requests service.
-        Only id and username are guaranteed; email and timestamps are populated
-        only when the data originates from the Auth service (e.g. after PUT).
-      properties:
-        id:
-          type: string
-          format: uuid
-        username:
-          type: string
-    PorterFullResponse:
-      type: object
-      description: Full porter info returned after create/update via Auth service.
+        Porter info. `id` and `username` are always present.
+        `email`, `created_at`, `updated_at` are populated when the response
+        originates from the Auth service (e.g. after PUT).
       properties:
         id:
           type: string
@@ -786,7 +748,7 @@ components:
             $ref: '#/components/schemas/PorterResponse'
     PorterCreateRequest:
       type: object
-      required: [username, email, password]
+      required: [username]
       properties:
         username:
           type: string
@@ -796,11 +758,11 @@ components:
         email:
           type: string
           format: email
+          nullable: true
+          description: >
+            Optional email. If omitted, a placeholder address is generated automatically
+            in the format `<username>@porter.local`.
           example: porter1@example.com
-        password:
-          type: string
-          minLength: 6
-          example: securePassword123
     PorterUpdateRequest:
       type: object
       required: [username, email]
@@ -915,12 +877,19 @@ components:
     EquipmentUpdateRequest:
       allOf:
         - $ref: '#/components/schemas/EquipmentCreateRequest'
-    EquipmentSnapshot:
+    RequestEquipmentItem:
       type: object
-      description: Equipment snapshot embedded in a request
+      description: >
+        Equipment attached to a request. `quantity` is the amount requested
+        (from equipment_to_requests), not the total stock.
       properties:
-        id:
+        equipment_id:
           type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
         quantity:
           type: integer
           format: int32
@@ -952,22 +921,20 @@ components:
           $ref: '#/components/schemas/RequestStatus'
         schedule_time:
           type: string
-          format: date-time
         end_time:
           type: string
           format: date-time
-          nullable: true
         address:
           type: string
-        porter_id:
+        responsible_id:
           type: string
           format: uuid
           nullable: true
-          description: UUID of the assigned porter
+          description: UUID of the assigned porter (responsible)
         equipment:
           type: array
           items:
-            $ref: '#/components/schemas/EquipmentSnapshot'
+            $ref: '#/components/schemas/RequestEquipmentItem'
         created_at:
           type: string
           format: date-time
@@ -1004,25 +971,23 @@ components:
           $ref: '#/components/schemas/RequestStatus'
         schedule_time:
           type: string
-          format: date-time
           nullable: true
         address:
           type: string
           nullable: true
-        porter_id:
+        responsible_id:
           type: string
           format: uuid
           nullable: true
           description: UUID of the porter to assign (null to unassign)
-    AssignPorterRequest:
+    AssignResponsibleRequest:
       type: object
-      required: [porter_id]
+      required: [responsible_id]
       properties:
-        porter_id:
+        responsible_id:
           type: string
           format: uuid
-          nullable: true
-          description: UUID of the porter to assign, or null to unassign
+          description: UUID of the porter to assign
     RequestStatusUpdateRequest:
       type: object
       required: [status]

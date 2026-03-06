@@ -10,11 +10,16 @@ import (
 )
 
 const AddCategory = `-- name: AddCategory :one
-insert into categories(name) values($1) returning id
+insert into categories(name, description) values($1, $2) returning id
 `
 
-func (q *Queries) AddCategory(ctx context.Context, name string) (int32, error) {
-	row := q.db.QueryRow(ctx, AddCategory, name)
+type AddCategoryParams struct {
+	Name        string
+	Description *string
+}
+
+func (q *Queries) AddCategory(ctx context.Context, arg AddCategoryParams) (int32, error) {
+	row := q.db.QueryRow(ctx, AddCategory, arg.Name, arg.Description)
 	var id int32
 	err := row.Scan(&id)
 	return id, err
@@ -93,16 +98,17 @@ func (q *Queries) GetTechnicByCategory(ctx context.Context, categoryID *int32) (
 	return items, nil
 }
 
-const UpdateCategoryName = `-- name: UpdateCategoryName :exec
-update categories set name = $1 where id = $2
+const UpdateCategory = `-- name: UpdateCategory :exec
+update categories set name = $1, description = $2 where id = $3
 `
 
-type UpdateCategoryNameParams struct {
-	Name string
-	ID   int32
+type UpdateCategoryParams struct {
+	Name        string
+	Description *string
+	ID          int32
 }
 
-func (q *Queries) UpdateCategoryName(ctx context.Context, arg UpdateCategoryNameParams) error {
-	_, err := q.db.Exec(ctx, UpdateCategoryName, arg.Name, arg.ID)
+func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) error {
+	_, err := q.db.Exec(ctx, UpdateCategory, arg.Name, arg.Description, arg.ID)
 	return err
 }

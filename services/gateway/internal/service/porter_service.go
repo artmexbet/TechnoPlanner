@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 
@@ -65,13 +66,20 @@ func (s *PorterService) GetCurrentUser(ctx context.Context, id uuid.UUID) (domai
 	return s.userStorage.Get(ctx, id)
 }
 
-func (s *PorterService) Create(ctx context.Context, username, email, password string) (string, error) {
+func (s *PorterService) Create(ctx context.Context, username string, email *string) (string, error) {
 	if err := requireAdmin(ctx); err != nil {
 		return "", err
 	}
+	// Генерируем случайный пароль
+	password := uuid.New().String()
+	// Если email не передан — генерируем временный
+	resolvedEmail := fmt.Sprintf("%s@porter.local", username)
+	if email != nil && *email != "" {
+		resolvedEmail = *email
+	}
 	// Вызываем auth service для регистрации нового porter'а
 	// При создании auth публикует UserCreated → Requests сохраняет как Porter автоматически
-	userID, err := s.authSvc.RegisterPorter(ctx, username, password, email)
+	userID, err := s.authSvc.RegisterPorter(ctx, username, password, resolvedEmail)
 	if err != nil {
 		return "", err
 	}

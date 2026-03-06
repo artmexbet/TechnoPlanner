@@ -74,6 +74,7 @@ func (r *Router) createEquipment() fiber.Handler {
 		eq := domain.Equipment{
 			Name:        req.Name,
 			Description: derefString(req.Description),
+			Quantity:    req.Quantity,
 		}
 		// CategoryID из первого элемента CategoryIDs
 		if len(req.CategoryIDs) > 0 {
@@ -105,6 +106,7 @@ func (r *Router) updateEquipment() fiber.Handler {
 			ID:          id,
 			Name:        req.Name,
 			Description: derefString(req.Description),
+			Quantity:    req.Quantity,
 		}
 		// CategoryID из первого элемента CategoryIDs
 		if len(req.CategoryIDs) > 0 {
@@ -213,7 +215,7 @@ func toEquipmentResponse(eq domain.Equipment) models.Equipment {
 		ID:          eq.ID,
 		Name:        eq.Name,
 		Description: &eq.Description,
-		Quantity:    1, // Значение по умолчанию для совместимости
+		Quantity:    eq.Quantity,
 		CreatedAt:   eq.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:   eq.UpdatedAt.Format(time.RFC3339),
 	}

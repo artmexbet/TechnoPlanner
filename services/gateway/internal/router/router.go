@@ -38,7 +38,7 @@ type PorterService interface {
 	List(ctx context.Context) ([]domain.Porter, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.Porter, error)
 	GetCurrentUser(ctx context.Context, id uuid.UUID) (domain.User, error)
-	Create(ctx context.Context, username, email, password string) (string, error)
+	Create(ctx context.Context, username string, email *string) (string, error)
 	Update(ctx context.Context, id uuid.UUID, username, email string) (domain.User, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }

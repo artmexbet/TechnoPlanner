@@ -62,7 +62,7 @@ func (r *Router) createPorter() fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Error: "validation failed", Details: err.Error()})
 		}
 		ctx := r.userContext(c)
-		userID, err := r.porterSvc.Create(ctx, req.Username, req.Email, req.Password)
+		userID, err := r.porterSvc.Create(ctx, req.Username, req.Email)
 		if err != nil {
 			return handleServiceError(c, err)
 		}
