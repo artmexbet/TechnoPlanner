@@ -320,6 +320,8 @@ func mapRequestFromDTO(r dto.Request) domain.Request {
 		equip = append(equip, domain.RequestEquipment{
 			RequestID:   eq.RequestID,
 			EquipmentID: eq.EquipmentID,
+			Name:        eq.Name,
+			Description: eq.Description,
 			Quantity:    eq.Quantity,
 			CreatedAt:   eq.CreatedAt,
 			UpdatedAt:   eq.UpdatedAt,

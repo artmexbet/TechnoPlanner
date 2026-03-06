@@ -30,7 +30,18 @@ func NewRequestService(storage RequestStorage) *RequestService {
 }
 
 func (s *RequestService) List(ctx context.Context, responsibleID *uuid.UUID) ([]domain.Request, error) {
-	if responsibleID != nil && roleFromCtx(ctx) != RoleAdmin {
+	isAdmin := roleFromCtx(ctx) == RoleAdmin
+
+	if responsibleID == nil {
+		// Без фильтра — только admin видит все заявки
+		if !isAdmin {
+			return nil, ErrForbidden
+		}
+		return s.storage.List(ctx, nil)
+	}
+
+	// С фильтром по responsible_id: admin может смотреть любого, portер — только себя
+	if !isAdmin {
 		userID := userIDFromCtx(ctx)
 		if userID == nil || userID.String() != responsibleID.String() {
 			return nil, ErrForbidden

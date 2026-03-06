@@ -1668,6 +1668,12 @@ func easyjsonB44abcd0DecodeGithubComArtmexbetTechnoPlannerLibsDto17(in *jlexer.L
 			} else {
 				out.Quantity = int(in.Int())
 			}
+		case "reserved_quantity":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.ReservedQuantity = int(in.Int())
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -1701,6 +1707,11 @@ func easyjsonB44abcd0EncodeGithubComArtmexbetTechnoPlannerLibsDto17(out *jwriter
 		const prefix string = ",\"quantity\":"
 		out.RawString(prefix)
 		out.Int(int(in.Quantity))
+	}
+	{
+		const prefix string = ",\"reserved_quantity\":"
+		out.RawString(prefix)
+		out.Int(int(in.ReservedQuantity))
 	}
 	out.RawByte('}')
 }

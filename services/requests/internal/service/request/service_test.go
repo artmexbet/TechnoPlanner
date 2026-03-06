@@ -24,7 +24,7 @@ type requestServiceTestSuite struct {
 func (s *requestServiceTestSuite) SetupTest() {
 	s.repo = NewMockRepository(s.T())
 	s.userProvider = newMockUserProvider(s.T())
-	s.service = New(s.repo, s.userProvider)
+	s.service = New(s.repo, s.userProvider, nil)
 }
 
 // mockUserProvider - простой мок для UserProvider
@@ -115,6 +115,8 @@ func (s *requestServiceTestSuite) TestGetSuccess() {
 
 func (s *requestServiceTestSuite) TestCancelSuccess() {
 	requestID := uuid.New()
+	req := &domain.Request{ID: requestID}
+	s.repo.EXPECT().GetRequestByID(mock.Anything, requestID).Return(req, nil)
 	s.repo.EXPECT().UpdateRequestStatus(mock.Anything, requestID, domain.StatusCanceled).
 		Return(nil)
 

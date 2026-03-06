@@ -1,0 +1,2 @@
+ALTER TABLE equipment ADD COLUMN IF NOT EXISTS reserved_quantity INT NOT NULL DEFAULT 0;
+

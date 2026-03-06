@@ -1123,6 +1123,26 @@ func easyjsonD2b7633eDecodeGithubComArtmexbetTechnoPlannerLibsDto9(in *jlexer.Le
 			} else {
 				out.EquipmentID = int32(in.Int32())
 			}
+		case "name":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Name = string(in.String())
+			}
+		case "description":
+			if in.IsNull() {
+				in.Skip()
+				out.Description = nil
+			} else {
+				if out.Description == nil {
+					out.Description = new(string)
+				}
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					*out.Description = string(in.String())
+				}
+			}
 		case "quantity":
 			if in.IsNull() {
 				in.Skip()
@@ -1168,6 +1188,16 @@ func easyjsonD2b7633eEncodeGithubComArtmexbetTechnoPlannerLibsDto9(out *jwriter.
 		const prefix string = ",\"equipment_id\":"
 		out.RawString(prefix)
 		out.Int32(int32(in.EquipmentID))
+	}
+	{
+		const prefix string = ",\"name\":"
+		out.RawString(prefix)
+		out.String(string(in.Name))
+	}
+	if in.Description != nil {
+		const prefix string = ",\"description\":"
+		out.RawString(prefix)
+		out.String(string(*in.Description))
 	}
 	{
 		const prefix string = ",\"quantity\":"

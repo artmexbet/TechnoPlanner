@@ -21,10 +21,11 @@ func (w *NatsWrapper) handleEquipmentCreatedEvent(msg *broker.Msg) error {
 	}
 
 	eq := domain.Equipment{
-		ID:          ev.ID,
-		Name:        ev.Name,
-		Description: strPtr(ev.Description),
-		Quantity:    ev.Quantity,
+		ID:               ev.ID,
+		Name:             ev.Name,
+		Description:      strPtr(ev.Description),
+		Quantity:         ev.Quantity,
+		ReservedQuantity: ev.ReservedQuantity,
 	}
 
 	if err := w.eqService.SyncCreate(ctx, eq); err != nil {
@@ -48,10 +49,11 @@ func (w *NatsWrapper) handleEquipmentUpdatedEvent(msg *broker.Msg) error {
 	}
 
 	eq := domain.Equipment{
-		ID:          ev.ID,
-		Name:        ev.Name,
-		Description: strPtr(ev.Description),
-		Quantity:    ev.Quantity,
+		ID:               ev.ID,
+		Name:             ev.Name,
+		Description:      strPtr(ev.Description),
+		Quantity:         ev.Quantity,
+		ReservedQuantity: ev.ReservedQuantity,
 	}
 
 	if err := w.eqService.SyncUpdate(ctx, eq); err != nil {

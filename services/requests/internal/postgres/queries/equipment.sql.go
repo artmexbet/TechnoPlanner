@@ -7,6 +7,7 @@ package queries
 
 import (
 	"context"
+	"time"
 
 	uuid "github.com/google/uuid"
 )
@@ -21,21 +22,31 @@ func (q *Queries) DeleteEquipmentByID(ctx context.Context, id int32) error {
 }
 
 const GetEquipmentByRequestID = `-- name: GetEquipmentByRequestID :many
-SELECT t.id, t.name, t.description, t.quantity, t.created_at, t.updated_at FROM equipment_to_requests tr
-JOIN equipment t ON tr.equipment_id = t.id AND t.quantity > 0
+SELECT t.id, t.name, t.description, tr.quantity, t.created_at, t.updated_at
+FROM equipment_to_requests tr
+JOIN equipment t ON tr.equipment_id = t.id
 WHERE tr.request_id = $1
 ORDER BY t.created_at DESC
 `
 
-func (q *Queries) GetEquipmentByRequestID(ctx context.Context, requestID uuid.UUID) ([]Equipment, error) {
+type GetEquipmentByRequestIDRow struct {
+	ID          int32
+	Name        string
+	Description *string
+	Quantity    int32
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+func (q *Queries) GetEquipmentByRequestID(ctx context.Context, requestID uuid.UUID) ([]GetEquipmentByRequestIDRow, error) {
 	rows, err := q.db.Query(ctx, GetEquipmentByRequestID, requestID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Equipment
+	var items []GetEquipmentByRequestIDRow
 	for rows.Next() {
-		var i Equipment
+		var i GetEquipmentByRequestIDRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
@@ -55,20 +66,22 @@ func (q *Queries) GetEquipmentByRequestID(ctx context.Context, requestID uuid.UU
 }
 
 const UpsertEquipment = `-- name: UpsertEquipment :exec
-INSERT INTO equipment (id, name, description, quantity)
-VALUES ($1, $2, $3, $4)
+INSERT INTO equipment (id, name, description, quantity, reserved_quantity)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (id) DO UPDATE
-    SET name        = EXCLUDED.name,
-        description = EXCLUDED.description,
-        quantity    = EXCLUDED.quantity,
-        updated_at  = CURRENT_TIMESTAMP
+    SET name              = EXCLUDED.name,
+        description       = EXCLUDED.description,
+        quantity          = EXCLUDED.quantity,
+        reserved_quantity = EXCLUDED.reserved_quantity,
+        updated_at        = CURRENT_TIMESTAMP
 `
 
 type UpsertEquipmentParams struct {
-	ID          int32
-	Name        string
-	Description *string
-	Quantity    int32
+	ID               int32
+	Name             string
+	Description      *string
+	Quantity         int32
+	ReservedQuantity int32
 }
 
 func (q *Queries) UpsertEquipment(ctx context.Context, arg UpsertEquipmentParams) error {
@@ -77,6 +90,7 @@ func (q *Queries) UpsertEquipment(ctx context.Context, arg UpsertEquipmentParams
 		arg.Name,
 		arg.Description,
 		arg.Quantity,
+		arg.ReservedQuantity,
 	)
 	return err
 }

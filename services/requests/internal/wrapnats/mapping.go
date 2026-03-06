@@ -12,13 +12,15 @@ func mapRequestToDTO(req domain.Request) dto.Request {
 		equipment[i] = dto.RequestEquipment{
 			RequestID:   req.ID,
 			EquipmentID: int32(eq.ID),
+			Name:        eq.Name,
+			Description: eq.Description,
 			Quantity:    int32(eq.Quantity),
 			CreatedAt:   req.CreatedAt,
 			UpdatedAt:   req.UpdatedAt,
 		}
 	}
 
-	return dto.Request{
+	result := dto.Request{
 		ID:           req.ID,
 		RequestText:  req.RequestText,
 		Status:       dto.RequestStatus(req.Status),
@@ -31,6 +33,12 @@ func mapRequestToDTO(req domain.Request) dto.Request {
 			UpdatedAt: req.UpdatedAt,
 		},
 	}
+
+	if req.PorterInfo != nil {
+		result.ResponsibleUserID = &req.PorterInfo.UserID
+	}
+
+	return result
 }
 
 func mapRawRequestToDTO(r domain.RawRequest) dto.RawRequest {

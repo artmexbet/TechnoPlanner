@@ -169,12 +169,16 @@ func (s *Service) ListByResponsible(ctx context.Context, responsibleID *uuid.UUI
 // AssignResponsible назначает ответственного за заявку.
 // Если responsibleID nil, снимает назначение.
 func (s *Service) AssignResponsible(ctx context.Context, requestID uuid.UUID, responsibleID *uuid.UUID) (*domain.Request, error) {
-	err := s.repository.AssignResponsible(ctx, requestID, responsibleID)
-	if err != nil {
+	if err := s.repository.AssignResponsible(ctx, requestID, responsibleID); err != nil {
 		return nil, fmt.Errorf("assign responsible: %w", err)
 	}
 
-	return nil, nil
+	req, err := s.repository.GetRequestByID(ctx, requestID)
+	if err != nil {
+		return nil, fmt.Errorf("assign responsible: get request: %w", err)
+	}
+
+	return req, nil
 }
 
 // UpdateRequest обновляет заявку

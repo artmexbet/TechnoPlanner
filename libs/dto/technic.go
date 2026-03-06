@@ -159,10 +159,11 @@ type TechEquipmentCheckResponse struct {
 //
 //easyjson:json
 type EquipmentSyncEvent struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Quantity    int    `json:"quantity"`
+	ID               int    `json:"id"`
+	Name             string `json:"name"`
+	Description      string `json:"description,omitempty"`
+	Quantity         int    `json:"quantity"`
+	ReservedQuantity int    `json:"reserved_quantity"`
 }
 
 // EquipmentDeletedEvent — событие удаления оборудования
@@ -171,36 +172,3 @@ type EquipmentSyncEvent struct {
 type EquipmentDeletedEvent struct {
 	ID int `json:"id"`
 }
-
-// Deprecated: используйте TechEquipment
-type Technic = TechEquipment
-
-// Deprecated: используйте TechEquipmentCategory
-type TechnicCategory = TechEquipmentCategory
-
-// Deprecated: используйте TechEquipmentCreateRequest
-type TechnicCreateRequest = TechEquipmentCreateRequest
-
-// Deprecated: используйте TechEquipmentUpdateRequest
-type TechnicUpdateRequest = TechEquipmentUpdateRequest
-
-// Deprecated: используйте TechEquipmentDeleteRequest
-type TechnicDeleteRequest = TechEquipmentDeleteRequest
-
-// Deprecated: используйте TechEquipmentGetByIDRequest
-type TechnicGetByIDRequest = TechEquipmentGetByIDRequest
-
-// Deprecated: используйте TechEquipmentGetByCategoryRequest
-type TechnicGetByCategoryRequest = TechEquipmentGetByCategoryRequest
-
-// Deprecated: используйте TechEquipmentCategoryCreateRequest
-type TechnicCategoryCreateRequest = TechEquipmentCategoryCreateRequest
-
-// Deprecated: используйте TechEquipmentCategoryUpdateRequest
-type TechnicCategoryUpdateRequest = TechEquipmentCategoryUpdateRequest
-
-// Deprecated: используйте TechEquipmentCategoryDeleteRequest
-type TechnicCategoryDeleteRequest = TechEquipmentCategoryDeleteRequest
-
-// Deprecated: используйте TechEquipmentCategoryGetByIDRequest
-type TechnicCategoryGetByIDRequest = TechEquipmentCategoryGetByIDRequest

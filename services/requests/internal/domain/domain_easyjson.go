@@ -1078,6 +1078,12 @@ func easyjson3e1fa5ecDecodeGithubComArtmexbetTechnoPlannerServicesRequestsIntern
 			} else {
 				out.Quantity = int(in.Int())
 			}
+		case "reserved_quantity":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.ReservedQuantity = int(in.Int())
+			}
 		case "created_at":
 			if in.IsNull() {
 				in.Skip()
@@ -1131,6 +1137,11 @@ func easyjson3e1fa5ecEncodeGithubComArtmexbetTechnoPlannerServicesRequestsIntern
 		const prefix string = ",\"quantity\":"
 		out.RawString(prefix)
 		out.Int(int(in.Quantity))
+	}
+	{
+		const prefix string = ",\"reserved_quantity\":"
+		out.RawString(prefix)
+		out.Int(int(in.ReservedQuantity))
 	}
 	if true {
 		const prefix string = ",\"created_at\":"

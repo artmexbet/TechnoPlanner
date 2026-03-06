@@ -217,10 +217,12 @@ func toRequestResponse(req domain.Request) models.RequestResponse {
 	resp.Equipment = make([]models.Equipment, 0, len(req.Equipment))
 	for _, eq := range req.Equipment {
 		resp.Equipment = append(resp.Equipment, models.Equipment{
-			ID:        int(eq.EquipmentID),
-			Quantity:  eq.Quantity,
-			CreatedAt: eq.CreatedAt.Format(time.RFC3339),
-			UpdatedAt: eq.UpdatedAt.Format(time.RFC3339),
+			ID:          int(eq.EquipmentID),
+			Name:        eq.Name,
+			Description: eq.Description,
+			Quantity:    eq.Quantity,
+			CreatedAt:   eq.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:   eq.UpdatedAt.Format(time.RFC3339),
 		})
 	}
 	return resp
