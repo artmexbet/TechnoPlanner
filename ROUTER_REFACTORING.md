@@ -85,15 +85,7 @@ router/
 
 **Ответственность:** Управление заявками и их историей
 
-### 5. responsible_handlers.go
-**Содержание:**
-- InitResponsibleRoutes() - регистрация роутов
-- listResponsibles() - GET /api/v1/responsibles
-- createResponsible() - POST /api/v1/responsibles
-
-**Ответственность:** Управление ответственными пользователями
-
-### 6. helpers.go
+### 5. helpers.go
 **Содержание:**
 - handleServiceError() - обработка ошибок сервисов
 - derefString() - безопасное разыменование строк

@@ -180,26 +180,6 @@ type GatewayResponse struct {
 
 ---
 
-#### `gateway.responsibles.list` — Список всех ответственных
-
-**Request:** _(пустое тело)_
-
-**Response `data`:** `Responsible[]`
-
----
-
-#### `gateway.responsibles.create` — Создать / обновить ответственного
-
-**Request:**
-```json
-{ "id": "uuid", "username": "string" }
-```
-
-> Upsert по `id`.
-
-**Response `data`:** `Responsible`
-
----
 
 ## Pub/Sub события (исходящие)
 

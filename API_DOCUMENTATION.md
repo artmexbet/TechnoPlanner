@@ -1,48 +1,8 @@
-# API Documentation - Responsibles & Request Updates
-
-## Новые эндпоинты для работы с ответственными
-
-### 1. Получить список всех ответственных
-**GET** `/api/v1/responsibles`
-
-**Требования:** JWT токен, роль Admin
-
-**Response:**
-```json
-{
-  "items": [
-    {
-      "id": "uuid",
-      "username": "string"
-    }
-  ]
-}
-```
-
-### 2. Создать/обновить ответственного
-**POST** `/api/v1/responsibles`
-
-**Требования:** JWT токен, роль Admin
-
-**Request Body:**
-```json
-{
-  "id": "uuid",
-  "username": "string"
-}
-```
-
-**Response:**
-```json
-{
-  "id": "uuid",
-  "username": "string"
-}
-```
+# API Documentation - Request Updates
 
 ## Обновленные эндпоинты для работы с заявками
 
-### 3. Обновить заявку
+### 1. Обновить заявку
 **PATCH** `/api/v1/requests/:id`
 
 **Требования:** JWT токен, роль Admin
@@ -76,7 +36,7 @@
 
 ## Существующие эндпоинты для заявок
 
-### 4. Получить список заявок
+### 2. Получить список заявок
 **GET** `/api/v1/requests`
 
 **Query Parameters:**
@@ -84,12 +44,12 @@
 
 **Требования:** JWT токен
 
-### 5. Получить заявку по ID
+### 3. Получить заявку по ID
 **GET** `/api/v1/requests/:id`
 
 **Требования:** JWT токен
 
-### 6. Назначить ответственного за заявку
+### 4. Назначить ответственного за заявку
 **POST** `/api/v1/requests/:id/responsible`
 
 **Требования:** JWT токен, роль Admin
@@ -109,8 +69,6 @@
 - `gateway.requests.get` - получить заявку
 - `gateway.requests.assign.responsible` - назначить ответственного
 - `gateway.requests.update` - обновить заявку
-- `gateway.responsibles.list` - список ответственных
-- `gateway.responsibles.create` - создать ответственного
 
 ## Изменения в сервисах
 

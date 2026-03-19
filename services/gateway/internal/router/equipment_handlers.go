@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"strconv"
 	"time"
 
@@ -39,9 +40,10 @@ func (r *Router) listEquipment() fiber.Handler {
 		if err != nil {
 			return handleServiceError(c, err)
 		}
+		categoryMap := r.loadCategoryMap(ctx)
 		resp := make([]models.Equipment, 0, len(items))
 		for _, eq := range items {
-			resp = append(resp, toEquipmentResponse(eq))
+			resp = append(resp, toEquipmentResponse(eq, categoryMap))
 		}
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"items": resp})
 	}
@@ -58,7 +60,7 @@ func (r *Router) getEquipment() fiber.Handler {
 		if err != nil {
 			return handleServiceError(c, err)
 		}
-		return c.Status(fiber.StatusOK).JSON(toEquipmentResponse(eq))
+		return c.Status(fiber.StatusOK).JSON(toEquipmentResponse(eq, r.loadCategoryMap(ctx)))
 	}
 }
 
@@ -85,7 +87,7 @@ func (r *Router) createEquipment() fiber.Handler {
 		if err != nil {
 			return handleServiceError(c, err)
 		}
-		return c.Status(fiber.StatusCreated).JSON(toEquipmentResponse(created))
+		return c.Status(fiber.StatusCreated).JSON(toEquipmentResponse(created, r.loadCategoryMap(ctx)))
 	}
 }
 
@@ -117,7 +119,7 @@ func (r *Router) updateEquipment() fiber.Handler {
 		if err != nil {
 			return handleServiceError(c, err)
 		}
-		return c.Status(fiber.StatusOK).JSON(toEquipmentResponse(updated))
+		return c.Status(fiber.StatusOK).JSON(toEquipmentResponse(updated, r.loadCategoryMap(ctx)))
 	}
 }
 
@@ -210,7 +212,19 @@ func (r *Router) deleteCategory() fiber.Handler {
 
 // Response mappers
 
-func toEquipmentResponse(eq domain.Equipment) models.Equipment {
+func (r *Router) loadCategoryMap(ctx context.Context) map[int]domain.EquipmentCategory {
+	cats, err := r.categorySvc.List(ctx)
+	if err != nil {
+		return nil
+	}
+	categoryMap := make(map[int]domain.EquipmentCategory, len(cats))
+	for _, cat := range cats {
+		categoryMap[cat.ID] = cat
+	}
+	return categoryMap
+}
+
+func toEquipmentResponse(eq domain.Equipment, categoryMap map[int]domain.EquipmentCategory) models.Equipment {
 	resp := models.Equipment{
 		ID:          eq.ID,
 		Name:        eq.Name,
@@ -218,6 +232,11 @@ func toEquipmentResponse(eq domain.Equipment) models.Equipment {
 		Quantity:    eq.Quantity,
 		CreatedAt:   eq.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:   eq.UpdatedAt.Format(time.RFC3339),
+	}
+	if categoryMap != nil {
+		if cat, ok := categoryMap[eq.CategoryID]; ok {
+			resp.Categories = []models.EquipmentCategory{toCategoryResponse(cat)}
+		}
 	}
 	return resp
 }
