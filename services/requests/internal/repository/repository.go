@@ -165,10 +165,14 @@ func (r *Repository) GetRequestsByResponsibleID(ctx context.Context, responsible
 	return requests, nil
 }
 
-func (r *Repository) ListRequests(ctx context.Context, offset, limit int32) ([]domain.Request, error) {
+func (r *Repository) ListRequests(ctx context.Context, limit, offset int32) ([]domain.Request, error) {
 	requests, err := r.pg.ListRequests(ctx, offset, limit)
 	if err != nil {
 		return nil, fmt.Errorf("list requests: %w", err)
+	}
+
+	if len(requests) == 0 {
+		return requests, nil
 	}
 
 	// Batch-загрузка оборудования

@@ -18,9 +18,9 @@ func RequestStatusFromDomain(s domain.StatusType) *RequestStatus {
 }
 
 func (r *Request) ToDomain() *domain.Request {
-	pInfo := &domain.PorterInfo{}
+	var pInfo *domain.PorterInfo
 	if r.PorterID != nil {
-		pInfo.UserID = *r.PorterID
+		pInfo = &domain.PorterInfo{UserID: *r.PorterID}
 	}
 	req := &domain.Request{
 		ID:           r.ID,
